@@ -5,12 +5,33 @@
     <link>/</link>
       <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <description>Hongda Jiang</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Sun, 22 Mar 2020 20:04:12 +0800</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Wed, 13 May 2020 19:11:48 +0800</lastBuildDate>
     <image>
       <url>img/map[gravatar:%!s(bool=false) shape:circle]</url>
       <title>Hongda Jiang</title>
       <link>/</link>
     </image>
+    
+    <item>
+      <title>Example-driven Virtual Cinematography by Learning Camera Behaviors</title>
+      <link>/publication/sig_2020/</link>
+      <pubDate>Wed, 13 May 2020 19:11:48 +0800</pubDate>
+      <guid>/publication/sig_2020/</guid>
+      <description>
+&lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
+  &lt;iframe src=&#34;https://www.youtube.com/embed/QbphVbdiTTk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&#34;bibtex&#34;&gt;Bibtex&lt;/h3&gt;
+&lt;p&gt;TBD&lt;/p&gt;
+&lt;h3 id=&#34;acknowledgement&#34;&gt;Acknowledgement&lt;/h3&gt;
+&lt;p&gt;This work was supported in part by the National Key R&amp;amp;D Program
+of China (2018YFB1403900, 2019YFF0302902). We also thank Anthony
+Mirabile and Ludovic Burg from University Rennes, Inria,
+CNRS, IRISA and Di Zhang from AICFVE, Beijing Film Academy
+for their help in animation generation and rendering.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Rethinking Fusion Baselines for Multi-modal Human Action Recognition</title>
