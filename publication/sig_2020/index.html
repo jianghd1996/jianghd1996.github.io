@@ -579,7 +579,7 @@
     
 
   
-  <span><a href="/authors/admin/">Hongda Jiang</a></span>, <span><a href="/authors/bin-wang/">Bin Wang</a></span>, <span><a href="/authors/xi-wang/">Xi Wang</a></span>, <span><a href="/authors/marc-christie/">Marc Christie</a></span>, <span><a href="/authors/baoquan-chen/">Baoquan Chen</a></span>
+  <span><a href="/authors/admin/">Hongda Jiang</a></span>, <span><a href="/authors/binwang/">Bin Wang</a></span>, <span><a href="/authors/xiwang/">Xi Wang</a></span>, <span><a href="/authors/marc-christie/">Marc Christie</a></span>, <span><a href="/authors/baoquanchen/">Baoquan Chen</a></span>
   </div>
   
   
@@ -723,10 +723,271 @@
 
     <div class="space-below"></div>
 
-    <div class="article-style">
+    <div class="article-style"><h3 id="demo">Demo</h3>
+
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
   <iframe src="https://www.youtube.com/embed/QbphVbdiTTk" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen title="YouTube Video"></iframe>
 </div>
+
+<h3 id="method">Method</h3>
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-our-proposed-framework-for-learning-camera-behaviors-composed-of-a-cinematic-feature-estimator-which-extracts-high-level-features-from-movie-clips-a-gating-network-which-estimates-the-type-of-camera-behavior-from-the-high-level-features-and-a-prediction-network-which-applies-the-estimated-behavior-on-a-3d-animation">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/overview_hu40d82731d355e574b4f3b96eab833f7d_679487_2000x2000_fit_lanczos_2.png" data-caption="Our proposed framework for learning camera behaviors composed of a Cinematic Feature Estimator which extracts high-level features from movie clips, a Gating network which estimates the type of camera behavior from the high-level features, and a Prediction network which applies the estimated behavior on a 3D animation.">
+
+
+  <img data-src="/publication/sig_2020/overview_hu40d82731d355e574b4f3b96eab833f7d_679487_2000x2000_fit_lanczos_2.png" class="lazyload" alt="" width="4008" height="1070">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Our proposed framework for learning camera behaviors composed of a Cinematic Feature Estimator which extracts high-level features from movie clips, a Gating network which estimates the type of camera behavior from the high-level features, and a Prediction network which applies the estimated behavior on a 3D animation.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-to-estimate-cinematic-features-from-film-clips-each-frame-should-pass-through-the-following-steps-i-extracting-2d-skeletons-with-lcr-net-ii-pose-association-filling-missing-joints-and-smoothing-and-iii-estimating-features-through-a-neural-network">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/extractorPipeline_hu54d91a2bab3bb3210b563591de8feb7d_205158_2000x2000_fit_q90_lanczos.jpg" data-caption="To estimate cinematic features from film clips, each frame should pass through the following steps: (i) extracting 2D skeletons with LCR-Net, (ii) pose association, filling missing joints and smoothing, and (iii) estimating features through a neural network.">
+
+
+  <img data-src="/publication/sig_2020/extractorPipeline_hu54d91a2bab3bb3210b563591de8feb7d_205158_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="3245" height="820">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    To estimate cinematic features from film clips, each frame should pass through the following steps: (i) extracting 2D skeletons with LCR-Net, (ii) pose association, filling missing joints and smoothing, and (iii) estimating features through a neural network.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-learning-stage-of-the-cinematic-feature-estimator-input-data-is-gathered-over-on-a-sliding-window-of-t_c8-frames-to-increase-robustness-during-the-learning-and-testing-phases-the-output-data-gathers-cinematic-features-such-as-the-camera-pose-estimation-in-toric-space-and-character-features">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/estimation_model_hu38271f885894ebea843bfbaeb0125dc9_322059_2000x2000_fit_q90_lanczos.jpg" data-caption="Learning stage of the Cinematic Feature Estimator. Input data is gathered over on a sliding window of $t_c=8$ frames to increase robustness during the learning and testing phases. The output data gathers cinematic features such as the camera pose estimation in Toric space and character features.">
+
+
+  <img data-src="/publication/sig_2020/estimation_model_hu38271f885894ebea843bfbaeb0125dc9_322059_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="3852" height="1613">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Learning stage of the Cinematic Feature Estimator. Input data is gathered over on a sliding window of $t_c=8$ frames to increase robustness during the learning and testing phases. The output data gathers cinematic features such as the camera pose estimation in Toric space and character features.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-structure-of-our-mixture-of-experts-moe-training-network-the-network-takes-as-input-the-result-of-the-cinematic-feature-estimator-applied-on-reference-clips-and-the-3d-animation-it-outputs-a-sequence-of-camera-parameters-for-each-frame-of-the-animation-that-can-be-used-to-render-the-animation">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/gatingPipeline_hua20e9a7b7eced335c41881290619cb5f_720770_2000x2000_fit_q90_lanczos.jpg" data-caption="Structure of our Mixture of Experts (MoE) training network. The network takes as input the result of the Cinematic Feature Estimator applied on reference clips and the 3D animation. It outputs a sequence of camera parameters for each frame of the animation that can be used to render the animation.">
+
+
+  <img data-src="/publication/sig_2020/gatingPipeline_hua20e9a7b7eced335c41881290619cb5f_720770_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="5943" height="2107">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Structure of our Mixture of Experts (MoE) training network. The network takes as input the result of the Cinematic Feature Estimator applied on reference clips and the 3D animation. It outputs a sequence of camera parameters for each frame of the animation that can be used to render the animation.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-side-track-with-different-main-character-in-side-track-mode-the-camera-will-always-look-from-one-side-of-the-main-character-no-matter-hisher-facing-orientation-green-arrow-indicates-the-main-character-in-each-sequence">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/sideTrack_hu310ccf28f6def58532f4c27c0170d35a_1081081_2000x2000_fit_q90_lanczos.jpg" data-caption="Side track with different main character. In side track mode, the camera will always look from one side of the main character no matter his/her facing orientation. Green arrow indicates the main character in each sequence.">
+
+
+  <img data-src="/publication/sig_2020/sideTrack_hu310ccf28f6def58532f4c27c0170d35a_1081081_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="9955" height="2242">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Side track with different main character. In side track mode, the camera will always look from one side of the main character no matter his/her facing orientation. Green arrow indicates the main character in each sequence.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-relative-vs-direct-track-with-same-main-character-relative-track-top-puts-more-emphasis-on-the-male-character-while-the-feeling-conveyed-by-direct-track-bottom-is-more-objective-green-arrow-indicates-the-main-character-in-each-sequence">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/a_relative_b_direct_hu310ccf28f6def58532f4c27c0170d35a_1268203_2000x2000_fit_q90_lanczos.jpg" data-caption="Relative vs direct track with same main character. Relative track (top) puts more emphasis on the male character; while the feeling conveyed by direct track (bottom) is more objective. Green arrow indicates the main character in each sequence.">
+
+
+  <img data-src="/publication/sig_2020/a_relative_b_direct_hu310ccf28f6def58532f4c27c0170d35a_1268203_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="9935" height="2221">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Relative vs direct track with same main character. Relative track (top) puts more emphasis on the male character; while the feeling conveyed by direct track (bottom) is more objective. Green arrow indicates the main character in each sequence.
+  </figcaption>
+
+
+</figure>
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+<figure id="figure-snapshots-taken-from-two-distinct-camera-motions-computed-on-the-zombie-sequence-using-two-distinct-sequences-of-input-the-green-arrow-represents-the-main-character-as-viewed-in-the-snapshots-there-are-changes-in-the-main-character-throughout-the-sequence-this-enables-the-designer-through-selected-clips-to-emphasize-one-character-over-another-at-different-moments">
+
+
+  <a data-fancybox="" href="/publication/sig_2020/zombie_seq_overview_hud86d36f5fce07720e2339a00aa120b78_714493_2000x2000_fit_q90_lanczos.jpg" data-caption="Snapshots taken from two distinct camera motions computed on the zombie sequence using two distinct sequences of input. The green arrow represents the main character. As viewed in the snapshots, there are changes in the main character throughout the sequence. This enables the designer, through selected clips, to emphasize one character over another at different moments.">
+
+
+  <img data-src="/publication/sig_2020/zombie_seq_overview_hud86d36f5fce07720e2339a00aa120b78_714493_2000x2000_fit_q90_lanczos.jpg" class="lazyload" alt="" width="4978" height="2268">
+</a>
+
+
+  
+  
+  <figcaption data-pre="Figure " data-post=":" class="numbered">
+    Snapshots taken from two distinct camera motions computed on the zombie sequence using two distinct sequences of input. The green arrow represents the main character. As viewed in the snapshots, there are changes in the main character throughout the sequence. This enables the designer, through selected clips, to emphasize one character over another at different moments.
+  </figcaption>
+
+
+</figure>
 
 <h3 id="bibtex">Bibtex</h3>
 <p>TBD</p>
@@ -873,7 +1134,7 @@ for their help in animation generation and rendering.</p>
     <div class="media-body">
       <h5 class="card-title"><a href="/">Hongda Jiang</a></h5>
       <h6 class="card-subtitle">PhD student of computer graphics</h6>
-      <p class="card-text">My research interests include distributed robotics, mobile computing and programmable matter.</p>
+      <p class="card-text">My research interests include camera control, animation and deep learning.</p>
       <ul class="network-icon" aria-hidden="true">
   
     
@@ -888,21 +1149,6 @@ for their help in animation generation and rendering.</p>
     <li>
       <a href="mailto:jianghd@pku.edu.cn" >
         <i class="fas fa-envelope"></i>
-      </a>
-    </li>
-  
-    
-    
-    
-    
-    
-    
-    
-      
-    
-    <li>
-      <a href="https://scholar.google.co.uk/" target="_blank" rel="noopener">
-        <i class="ai ai-google-scholar"></i>
       </a>
     </li>
   
@@ -944,12 +1190,32 @@ for their help in animation generation and rendering.</p>
   
   <div class="media author-card content-widget-hr">
     
+      
+      <img class="avatar mr-3 avatar-circle" src="/authors/binwang/avatar_hu740c0d43af403fdcbf79a2cf3d20b29a_32456_270x270_fill_q90_lanczos_center.jpg" alt="Bin Wang">
+    
 
     <div class="media-body">
-      <h5 class="card-title"><a href="/authors/bin-wang/"></a></h5>
-      
+      <h5 class="card-title"><a href="/authors/binwang/">Bin Wang</a></h5>
+      <h6 class="card-subtitle">Full-time researcher at AICFVE, Beijing Film Academy</h6>
       
       <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/#contact" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
   
 </ul>
 
@@ -972,12 +1238,47 @@ for their help in animation generation and rendering.</p>
   
   <div class="media author-card content-widget-hr">
     
+      
+      <img class="avatar mr-3 avatar-circle" src="/authors/xiwang/avatar_hu52a603635ecebd45650b162dadabb4e5_12861_270x270_fill_q90_lanczos_center.jpg" alt="Xi Wang">
+    
 
     <div class="media-body">
-      <h5 class="card-title"><a href="/authors/xi-wang/"></a></h5>
+      <h5 class="card-title"><a href="/authors/xiwang/">Xi Wang</a></h5>
       
       
       <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:xi.wang@inria.fr" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://triocrossing.github.io/" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
   
 </ul>
 
@@ -1046,12 +1347,30 @@ for their help in animation generation and rendering.</p>
   
   <div class="media author-card content-widget-hr">
     
+      
+      <img class="avatar mr-3 avatar-circle" src="/authors/baoquanchen/avatar_huc7b9737181d2c74a962b04fb95a0f731_707099_270x270_fill_q90_lanczos_center.jpg" alt="Baoquan Chen">
+    
 
     <div class="media-body">
-      <h5 class="card-title"><a href="/authors/baoquan-chen/"></a></h5>
-      
+      <h5 class="card-title"><a href="/authors/baoquanchen/">Baoquan Chen</a></h5>
+      <h6 class="card-subtitle">Endowed Boya Professor of Peking University</h6>
       
       <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:baoquan@pku.edu.cn" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
   
 </ul>
 
