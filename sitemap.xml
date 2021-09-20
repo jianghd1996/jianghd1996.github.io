@@ -3,83 +3,118 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>/authors/</loc>
+    <lastmod>2021-09-20T16:19:29+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/project/digital-image-processing/</loc>
+    <lastmod>2021-09-20T16:19:29+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/hongda-jiang/</loc>
+    <lastmod>2021-09-20T16:19:29+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/</loc>
+    <lastmod>2021-09-20T16:19:29+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/project/</loc>
+    <lastmod>2021-09-20T16:19:29+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/authors/admin/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/authors/baoquanchen/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/authors/binwang/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/authors/marc-christie/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/authors/xiwang/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/publication_types/1/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/tags/animation/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/authors/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/tags/camera-control/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/siga_2021/</loc>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/libin-liu/</loc>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication_types/</loc>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/publication/</loc>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/tags/</loc>
+    <lastmod>2021-09-10T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/project/giveahand/</loc>
+    <lastmod>2021-07-31T16:26:32+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/jackie-yang/</loc>
+    <lastmod>2021-07-31T16:26:32+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/mingrui-zhang/</loc>
+    <lastmod>2021-07-31T16:26:32+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>/authors/tianshi-li/</loc>
+    <lastmod>2021-07-31T16:26:32+08:00</lastmod>
   </url>
   
   <url>
     <loc>/publication/sig_2020/</loc>
     <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/publication_types/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/publication/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/</loc>
-    <lastmod>2020-05-13T19:11:48+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/authors/hongda-jiang/</loc>
-    <lastmod>2020-03-22T19:52:52+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/project/</loc>
-    <lastmod>2020-03-22T19:52:52+08:00</lastmod>
   </url>
   
   <url>

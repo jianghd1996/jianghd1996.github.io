@@ -5,7 +5,7 @@
     <link>/authors/xi-wang/</link>
       <atom:link href="/authors/xi-wang/index.xml" rel="self" type="application/rss+xml" />
     <description>Xi Wang</description>
-    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Wed, 13 May 2020 19:11:48 +0800</lastBuildDate>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><lastBuildDate>Fri, 10 Sep 2021 00:00:00 +0000</lastBuildDate>
     <image>
       <url>img/map[gravatar:%!s(bool=false) shape:circle]</url>
       <title>Xi Wang</title>
@@ -13,23 +13,354 @@
     </image>
     
     <item>
-      <title>Example-driven Virtual Cinematography by Learning Camera Behaviors</title>
-      <link>/publication/sig_2020/</link>
-      <pubDate>Wed, 13 May 2020 19:11:48 +0800</pubDate>
-      <guid>/publication/sig_2020/</guid>
-      <description>
+      <title>Camera Keyframing with Style and Control</title>
+      <link>/publication/siga_2021/</link>
+      <pubDate>Fri, 10 Sep 2021 00:00:00 +0000</pubDate>
+      <guid>/publication/siga_2021/</guid>
+      <description>&lt;h3 id=&#34;demo&#34;&gt;Demo&lt;/h3&gt;
+
 &lt;div style=&#34;position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;&#34;&gt;
   &lt;iframe src=&#34;https://www.youtube.com/embed/QbphVbdiTTk&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;&#34; allowfullscreen title=&#34;YouTube Video&#34;&gt;&lt;/iframe&gt;
 &lt;/div&gt;
 
+&lt;h3 id=&#34;method&#34;&gt;Method&lt;/h3&gt;
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-our-proposed-framework-for-learning-camera-together-with-keyframe-constraints-composed-of-a-camera-behavior-extractor-gating-lstm-which-extracts-camera-behaviors-from-reference-clips-and-a-camera-motion-generator-which-generates-camera-trajectories-that-both-meet-the-camera-behaviors-and-required-keyframe-constraints-speed-and-directions&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/overview_hu36ca2e8fd4d2dcff8c13d8adb78f272f_216249_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Our proposed framework for learning camera together with keyframe constraints composed of a camera behavior extractor (Gating LSTM), which extracts camera behaviors from reference clips, and a camera motion generator, which generates camera trajectories that both meet the camera behaviors and required keyframe constraints, speed and directions.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/overview_hu36ca2e8fd4d2dcff8c13d8adb78f272f_216249_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1427&#34; height=&#34;506&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    Our proposed framework for learning camera together with keyframe constraints composed of a camera behavior extractor (Gating LSTM), which extracts camera behaviors from reference clips, and a camera motion generator, which generates camera trajectories that both meet the camera behaviors and required keyframe constraints, speed and directions.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-by-learning-the-mapping-from-a-style-code-and-several-camera-frames-5-in-this-paper-towards-the-starting-hidden-state-of-our-autoregressive-generator-we-provide-an-additional-degree-of-control-for-the-users-through-the-specification-of-camera-velocities&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/hidden_mapping_hu91eac5771500efccbea9ba27a94873da_182925_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;By learning the mapping from a style code and several camera frames (5 in this paper) towards the starting hidden state of our autoregressive generator, we provide an additional degree of control for the users through the specification of camera velocities.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/hidden_mapping_hu91eac5771500efccbea9ba27a94873da_182925_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;802&#34; height=&#34;910&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    By learning the mapping from a style code and several camera frames (5 in this paper) towards the starting hidden state of our autoregressive generator, we provide an additional degree of control for the users through the specification of camera velocities.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-the-proposed-system-enables-designers-to-specify-keyframes-with-initial-velocities-in-this-example-the-same-keyframe-positions-and-camera-style-code-is-used-as-displayed-the-resulting-trajectories-are-guided-by-the-different-velocity-directions-defined-at-the-starting-keyframe-time-001-and-the-mid-keyframe-time-090-respectively-this-is-achieved-by-updating-the-lstm-hidden-state-through-a-dedicated-network-which-maps-velocities-with-hidden-states&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/ambiguity_hudf4bde5e96b5d24990a04fbfce16cee0_1181112_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;The proposed system enables designers to specify keyframes with initial velocities. In this example, the same keyframe positions and camera style code is used. As displayed, the resulting trajectories are guided by the different velocity directions defined at the starting keyframe (time 001) and the mid keyframe (time 090) respectively. This is achieved by updating the LSTM hidden state through a dedicated network which maps velocities with hidden states.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/ambiguity_hudf4bde5e96b5d24990a04fbfce16cee0_1181112_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1241&#34; height=&#34;876&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    The proposed system enables designers to specify keyframes with initial velocities. In this example, the same keyframe positions and camera style code is used. As displayed, the resulting trajectories are guided by the different velocity directions defined at the starting keyframe (time 001) and the mid keyframe (time 090) respectively. This is achieved by updating the LSTM hidden state through a dedicated network which maps velocities with hidden states.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-user-specified-keyframes-are-placed-at-increasingly-larger-distances-from-the-trajectory-of-a-given-style-as-displayed-our-system-adapts-well-to-the-keyframes-we-re-extract-the-style-codes-from-the-generated-trajectories-shown-with-crosses-in-the-pca-representation-on-the-right-part-of-the-figure-as-displayed-our-system-moves-from-the-given-style-to-adapt-to-the-keyframe-constraints&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/balance_hu328339d27617dd5dec05e522fa0a8991_363190_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;User-specified keyframes are placed at increasingly larger distances from the trajectory of a given style. As displayed, our system adapts well to the keyframes. We re-extract the style codes from the generated trajectories (shown with crosses in the PCA representation on the right part of the figure). As displayed our system moves from the given style to adapt to the keyframe constraints.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/balance_hu328339d27617dd5dec05e522fa0a8991_363190_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1178&#34; height=&#34;396&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    User-specified keyframes are placed at increasingly larger distances from the trajectory of a given style. As displayed, our system adapts well to the keyframes. We re-extract the style codes from the generated trajectories (shown with crosses in the PCA representation on the right part of the figure). As displayed our system moves from the given style to adapt to the keyframe constraints.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-our-camera-trajectory-editing-interface-the-scene-view-a-displays-the-animation-in-the-timeline-b-the-user-can-add-drag-and-delete-keyframes-inverted-triangles-as-well-as-drag-the-process-of-animation-the-keyframe-editing-c-allows-the-user-to-select-two-target-characters-shot-view-and-toric-camera-pose-at-the-keyframe-the-trajectories-selection-d-provides-generated-camera-trajectories-with-different-behaviors-for-the-user-to-choose-the-button-on-the-bottom-is-used-to-preview-a-result-play-generate-trajectories-generate-and-save-results-save&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/UI_hu507db6054952156d88e33364c8637a6f_256810_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Our camera trajectory editing interface. The scene view (A) displays the animation. In the timeline (B) the user can add, drag, and delete keyframes (inverted triangles), as well as drag the process of animation. The keyframe editing (C) allows the user to select two target characters, shot view and Toric camera pose at the keyframe. The trajectories selection (D) provides generated camera trajectories with different behaviors for the user to choose. The button on the bottom is used to preview a result (Play), generate trajectories (Generate) and save results (Save).&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/UI_hu507db6054952156d88e33364c8637a6f_256810_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1165&#34; height=&#34;687&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    Our camera trajectory editing interface. The scene view (A) displays the animation. In the timeline (B) the user can add, drag, and delete keyframes (inverted triangles), as well as drag the process of animation. The keyframe editing (C) allows the user to select two target characters, shot view and Toric camera pose at the keyframe. The trajectories selection (D) provides generated camera trajectories with different behaviors for the user to choose. The button on the bottom is used to preview a result (Play), generate trajectories (Generate) and save results (Save).
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-experiment-with-same-keyframes-and-different-behaviors-different-colors-represent-different-camera-behaviors-frames-with-red-camera-icon-at-the-corner-refer-to-keyframe-constraints-we-observe-that-constraints-are-well-enforced-in-the-3d-content-and-in-the-rendered-snapshots&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/samekey_hua3eae10eb4c6f58bd6d70d2700a63472_577081_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Experiment with same keyframes and different behaviors: different colors represent different camera behaviors. Frames with red camera icon at the corner refer to keyframe constraints. We observe that constraints are well enforced in the 3D content and in the rendered snapshots.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/samekey_hua3eae10eb4c6f58bd6d70d2700a63472_577081_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1427&#34; height=&#34;294&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    Experiment with same keyframes and different behaviors: different colors represent different camera behaviors. Frames with red camera icon at the corner refer to keyframe constraints. We observe that constraints are well enforced in the 3D content and in the rendered snapshots.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-experiment-with-different-keyframes-and-same-behavior-different-colors-represent-different-keyframes-fed-to-the-system-with-the-same-style-code-all-three-sequences-belongs-to-a-same-style-but-their-trajectories-adjust-well-in-response-to-the-required-keyframes-frames-with-different-colors-of-camera-icons-at-their-corner&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/samestyle_hu01878ebadd88b75db73c3a474481e38a_357793_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;Experiment with different keyframes and same behavior: different colors represent different keyframes fed to the system with the same style code. All three sequences belongs to a same style but their trajectories adjust well in response to the required keyframes (frames with different colors of camera icons at their corner).&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/samestyle_hu01878ebadd88b75db73c3a474481e38a_357793_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;1099&#34; height=&#34;228&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    Experiment with different keyframes and same behavior: different colors represent different keyframes fed to the system with the same style code. All three sequences belongs to a same style but their trajectories adjust well in response to the required keyframes (frames with different colors of camera icons at their corner).
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-this-figure-displays-a-result-designed-by-an-animation-artist-using-only-10-keyframes-for-a-24-seconds-sequence-of-a-zombie-fighting-scene-we-show-the-keyframes-and-camera-trajectory-simultaneously-with-the-rendered-animation-snapshots&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/zombie_hu6a0793ae53770ce85c9691289e97ed2b_189257_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;This figure displays a result designed by an animation artist using only 10 keyframes for a 24 seconds sequence of a zombie fighting scene. We show the keyframes and camera trajectory simultaneously with the rendered animation snapshots.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/zombie_hu6a0793ae53770ce85c9691289e97ed2b_189257_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;545&#34; height=&#34;389&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    This figure displays a result designed by an animation artist using only 10 keyframes for a 24 seconds sequence of a zombie fighting scene. We show the keyframes and camera trajectory simultaneously with the rendered animation snapshots.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+&lt;figure id=&#34;figure-in-this-hockey-game-scenario-our-method-is-able-to-generate-dynamic-and-qualitative-camera-motions-using-only-10-keyframes-rendered-animation-snapshots-and-the-overview-trajectory-are-displayed&#34;&gt;
+
+
+  &lt;a data-fancybox=&#34;&#34; href=&#34;/publication/siga_2021/hockey_hu4965829e61f36a158885ccdc137534ec_318762_2000x2000_fit_lanczos_2.png&#34; data-caption=&#34;In this hockey game scenario, our method is able to generate dynamic and qualitative camera motions using only 10 keyframes. Rendered animation snapshots and the overview trajectory are displayed.&#34;&gt;
+
+
+  &lt;img data-src=&#34;/publication/siga_2021/hockey_hu4965829e61f36a158885ccdc137534ec_318762_2000x2000_fit_lanczos_2.png&#34; class=&#34;lazyload&#34; alt=&#34;&#34; width=&#34;551&#34; height=&#34;333&#34;&gt;
+&lt;/a&gt;
+
+
+  
+  
+  &lt;figcaption data-pre=&#34;Figure &#34; data-post=&#34;:&#34; class=&#34;numbered&#34;&gt;
+    In this hockey game scenario, our method is able to generate dynamic and qualitative camera motions using only 10 keyframes. Rendered animation snapshots and the overview trajectory are displayed.
+  &lt;/figcaption&gt;
+
+
+&lt;/figure&gt;
+
 &lt;h3 id=&#34;bibtex&#34;&gt;Bibtex&lt;/h3&gt;
 &lt;p&gt;TBD&lt;/p&gt;
 &lt;h3 id=&#34;acknowledgement&#34;&gt;Acknowledgement&lt;/h3&gt;
-&lt;p&gt;This work was supported in part by the National Key R&amp;amp;D Program
-of China (2018YFB1403900, 2019YFF0302902). We also thank Anthony
-Mirabile and Ludovic Burg from University Rennes, Inria,
-CNRS, IRISA and Di Zhang from AICFVE, Beijing Film Academy
-for their help in animation generation and rendering.&lt;/p&gt;
+&lt;p&gt;This work was supported in part by the National Key R&amp;amp;D Program of China (2018YFB1403900, 2019YFF0302902). We also thank Anthony Mirabile and Yulong Zhang for the various support and helpful discussions throughout this project, as well as Yu Xiong for his help processing the MovieNet dataset..&lt;/p&gt;
 </description>
     </item>
     
