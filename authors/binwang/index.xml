@@ -358,7 +358,14 @@
 &lt;/figure&gt;
 
 &lt;h3 id=&#34;bibtex&#34;&gt;Bibtex&lt;/h3&gt;
-&lt;p&gt;TBD&lt;/p&gt;
+&lt;p&gt;@article{jiang2021camera,&lt;/p&gt;
+&lt;p&gt;title={Camera keyframing with style and control},&lt;/p&gt;
+&lt;p&gt;author={Jiang, Hongda and Christie, Marc and Wang, Xi and Liu, Libin and Wang, Bin and  and Chen, Baoquan},&lt;/p&gt;
+&lt;p&gt;journal={ACM Transactions on Graphics (TOG)},&lt;/p&gt;
+&lt;p&gt;volume={40},&lt;/p&gt;
+&lt;p&gt;number={209},&lt;/p&gt;
+&lt;p&gt;pages={1&amp;ndash;13},&lt;/p&gt;
+&lt;p&gt;year={2021}}&lt;/p&gt;
 &lt;h3 id=&#34;acknowledgement&#34;&gt;Acknowledgement&lt;/h3&gt;
 &lt;p&gt;This work was supported in part by the National Key R&amp;amp;D Program of China (2018YFB1403900, 2019YFF0302902). We also thank Anthony Mirabile and Yulong Zhang for the various support and helpful discussions throughout this project, as well as Yu Xiong for his help processing the MovieNet dataset..&lt;/p&gt;
 </description>
