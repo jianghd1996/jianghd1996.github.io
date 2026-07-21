@@ -257,6 +257,64 @@
 <li><strong>3DGS 路线（pixelSplat）</strong>：预测高斯参数，支持高质量渲染</li>
 </ul>
 
+<h3>大规模前馈模型：LRM、LVSM 与 Matrix3D</h3>
+
+<p>2024 年，研究者开始把"前馈"思想推向更大规模。一个标志性的工作是 <strong>LRM（Large Reconstruction Model）</strong> [14]。</p>
+
+<p>LRM 的核心思想很直接：既然 LLM 可以处理语言，ViT 可以处理图像，那为什么不能用一个大型 Transformer 直接处理 3D 重建？</p>
+
+<p>LRM 的架构很简单：</p>
+
+<pre>输入图像 → ViT 编码器 → Transformer 解码器 → NeRF 参数</pre>
+
+<p>5 亿参数，在 100 万个 3D 对象上训练（来自 Objaverse 和 MVImgNet）。结果：输入一张图像，5 秒内输出完整的 NeRF 模型。</p>
+
+<p>LRM 的意义在于：<strong>它证明了 3D 重建也可以走"大模型"路线</strong>。训练一次，推理时不需要逐场景优化，几秒钟就能重建新场景。而且由于训练数据足够大，LRM 能泛化到各种未见过的物体——包括真实世界的照片和生成模型合成的图像。</p>
+
+<p>几乎同时，<strong>LVSM（Large View Synthesis Model）</strong> [16] 提出了一个更激进的方案。</p>
+
+<p>LVSM 的核心洞察是：<strong>与其让模型学习复杂的 3D 表示（NeRF、3DGS），不如直接学习视图之间的映射关系</strong>。</p>
+
+<p>它的架构是一个纯 Transformer：</p>
+
+<pre>输入视图（图像 + 位姿）→ Transformer → 输出视图（新角度的图像）</pre>
+
+<p>没有显式的 3D 表示，没有可微渲染。模型直接从数据中学习"从这个角度看，那个角度应该是什么样"。</p>
+
+<p>这种做法的好处是：<strong>极简，可扩展</strong>。不需要设计复杂的 3D 表示，只需要堆 Transformer 层、加数据。LVSM 在多个基准上达到了 state-of-the-art，而且可以处理任意数量的输入视图。</p>
+
+<p>LRM 和 LVSM 代表了两种不同的哲学：</p>
+
+<ul>
+<li><strong>LRM</strong>：保留 3D 表示（NeRF），用大模型学习从图像到 3D 的映射</li>
+<li><strong>LVSM</strong>：抛弃 3D 表示，直接用大模型学习视图间的映射</li>
+</ul>
+
+<p>哪种更好？目前没有定论。但它们共同说明了一个趋势：<strong>前馈重建正在走向大规模、通用化</strong>。</p>
+
+<p>2025 年，<strong>Matrix3D</strong> [18] 进一步把这个思路推向了极致。它的核心洞察是：<strong>位姿估计、深度预测、新视角合成，这些任务本质上是相关的</strong>。</p>
+
+<p>Matrix3D 的架构是一个统一的 Transformer：</p>
+
+<pre>输入图像 → Transformer 编码器 → 多任务解码头
+                                    ├─ 相机位姿
+                                    ├─ 深度图
+                                    └─ 新视角图像</pre>
+
+<p>一个模型，同时做三件事。而且由于任务之间共享特征，Matrix3D 在每个任务上的表现都不输专门针对该任务训练的模型。</p>
+
+<p>Matrix3D 的意义在于：<strong>它证明了 3D 重建也可以走"多任务统一"路线</strong>。不需要为每个任务单独训练一个模型，一个大模型可以同时处理多个相关任务。</p>
+
+<p>LRM、LVSM、Matrix3D，这三个工作代表了前馈重建的三个方向：</p>
+
+<ul>
+<li><strong>LRM</strong>：大模型 + 3D 表示</li>
+<li><strong>LVSM</strong>：大模型 + 无 3D 表示</li>
+<li><strong>Matrix3D</strong>：大模型 + 多任务统一</li>
+</ul>
+
+<p>它们共同说明了一个趋势：<strong>前馈重建正在走向大规模、通用化、多任务化</strong>。</p>
+
 <hr>
 
 <h2>第三章：生成先验的注入（2024-2025）</h2>
@@ -427,7 +485,13 @@
 
 <p>[15] Charatan, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a></p>
 
+<p>[14] Hong, Y., et al. "LRM: Large Reconstruction Model for Single Image to 3D." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2311.04400">arXiv:2311.04400</a></p>
+
+<p>[16] Jin, H., et al. "LVSM: A Large View Synthesis Model with Minimal 3D Inductive Bias." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2410.22761">arXiv:2410.22761</a></p>
+
 <p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a></p>
+
+<p>[18] Lu, Y., et al. "Matrix3D: Large Photogrammetry Model All-in-One." <em>CVPR 2025</em>.</p>
 
 <p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>.</p>
 
