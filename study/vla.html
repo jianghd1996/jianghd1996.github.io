@@ -163,13 +163,90 @@
 
 <h2>序章：一个古老的问题</h2>
 
-<p>让机器拥有智慧，人类已经梦想了几千年。但直到 2020 年代，一个更具体的问题浮出水面——</p>
+<p>让机器拥有智慧，人类已经梦想了几千年。这个故事有三个篇章——</p>
 
-<p>大语言模型已经能写诗、编程、通过律师考试。但它们被困在屏幕里。它们能说出"把红色杯子递给我"，却永远无法伸出那只手。</p>
+<p>第一个篇章，机器学会了<strong>看和说</strong>。它们能看懂图片，能理解语言，能把视觉和文字联系起来。这就是 <strong>VLM（Vision-Language Model）</strong>。</p>
 
-<p><strong>VLA（Vision-Language-Action）</strong>，就是那只手的故事。</p>
+<p>第二个篇章，机器学会了<strong>做</strong>。它们不再只是旁观者，而是伸出了手，开始操控物理世界。这就是 <strong>VLA（Vision-Language-Action）</strong>。</p>
 
-<p>这不是一项单一技术的突破，而是一场由 Google 点燃、被叛将扩散、被学术界民主化、最终演变为全球竞赛的技术革命。它的核心命题只有一个：<strong>能否把语言模型的"理解"，转化为物理世界的"行动"？</strong></p>
+<p>第三个篇章，机器学会了<strong>想象</strong>。它们不再盲目行动，而是在行动前先"脑补"后果，预见未来。这就是 <strong>WAM（World Action Model）</strong>。</p>
+
+<p>这篇文章讲的是后两个篇章的故事——从"看"到"做"再到"想"。但让我们先回到起点：机器是怎么学会"看"的？</p>
+
+<hr>
+
+<h2>前传：机器学会看和说——VLM 的崛起（2017-2023）</h2>
+
+<h3>CLIP：一次浪漫的牵手</h3>
+
+<p>2021 年，OpenAI 发布了一篇论文，标题很诗意——<em>Learning Transferable Visual Models From Natural Language Supervision</em>，产物叫 <strong>CLIP</strong> [12]。</p>
+
+<p>在此之前，计算机视觉和自然语言处理是两个几乎不交集的圈子。CV 的人忙着在 ImageNet 上刷分类准确率，NLP 的人忙着在语料上训练语言模型。两个世界各自精彩，但彼此陌生。</p>
+
+<p>CLIP 做的事情很简单：从互联网上收集了 4 亿对"图片+文字"。然后训练一个模型，让匹配的图片-文字对在特征空间中靠近，不匹配的远离。</p>
+
+<pre>互联网图片 + 标题文本
+    ↓
+图像编码器 → 视觉特征 ─┐
+                        ├─ 让匹配的靠近，不匹配的远离
+文本编码器 → 语言特征 ─┘
+    ↓
+一个统一的"视觉-语言"空间</pre>
+
+<div class="scene-box">想象你在搜索引擎里输入"一只在沙滩上奔跑的金毛犬"。CLIP 可以在没有专门训练过的情况下，从几百万张图片中找到最匹配的那张。它没有"学过"这个具体任务，但它理解了"金毛""沙滩""奔跑"这些概念。</div>
+
+<p>CLIP 的意义在于：<strong>它证明了视觉和语言可以在同一个数学空间里被统一表示。</strong> 这不是一个工程技巧，而是一个深刻的发现——世界的"看"和"说"，本质上是同一件事的两面。</p>
+
+<h3>从 CLIP 到多模态 LLM：巨人的眼睛</h3>
+
+<p>CLIP 打开了闸门。接下来两年，研究者开始思考一个大胆的问题：如果把 CLIP 这样的视觉编码器，接入一个强大的语言模型，会发生什么？</p>
+
+<p>2022 年，Google 的 <strong>Flamingo</strong> [20] 给出了第一个令人兴奋的答案。它把视觉编码器（来自 CLIP 家族）的输出，通过一组交叉注意力模块（Gated Cross-Attention），注入到语言模型（Frozen LM）中。</p>
+
+<p>效果是惊人的：Flamingo 可以看图回答问题、做视觉推理、甚至理解视频。它不需要为每个任务专门训练——只需要用文字"告诉"它该做什么。</p>
+
+<p>但 Flamingo 有一个问题：它是闭源的，只有 Google 内部能用。</p>
+
+<p>2023 年，学术界做出了回应。<strong>LLaVA</strong> [21]（Large Language and Vision Assistant）由威斯康星大学等高校发布，核心思路极其简洁：</p>
+
+<pre>图像 → CLIP 视觉编码器 → 线性投影层 → 拼接到文本 token 前面
+    ↓
+[图像 token₁, 图像 token₂, ..., 文本 token₁, 文本 token₂, ...]
+    ↓
+送入 LLM（Vicuna / LLaMA）→ 生成文本回答</pre>
+
+<p>就这么简单。一个线性层，把视觉特征"翻译"成语言模型能理解的格式，然后拼接在一起。LLaVA 用不到 10 万条图文指令数据微调，就获得了强大的视觉对话能力。</p>
+
+<p>LLaVA 的真正贡献不是性能，而是<strong>可复现性</strong>。它证明了：你不需要 Google 级别的算力，不需要闭源 API，一张 A100 就能训练出一个强大的 VLM。这直接引爆了学术界的 VLM 研究浪潮。</p>
+
+<h3>GPT-4V 与 Qwen-VL：工业界的天花板</h3>
+
+<p>2023 年 9 月，OpenAI 发布了 <strong>GPT-4V</strong>（后来升级为 GPT-4o）。这是当时最强的 VLM——它能看懂复杂的图表、理解数学公式的截图、分析医学影像、甚至从一张照片推断出拍摄地点和时间。</p>
+
+<p>几乎同时，阿里的 <strong>Qwen-VL</strong> [22]、Google 的 <strong>Gemini</strong>、Meta 的 <strong>LLaMA 3 Vision</strong> 等也相继发布。VLM 从学术玩具变成了工业级产品。</p>
+
+<p>这些模型的能力已经令人惊叹：</p>
+
+<ul>
+<li>看懂 X 光片并给出初步诊断</li>
+<li>分析卫星图像中的建筑物变化</li>
+<li>理解视频中的因果关系（"为什么这个人摔倒了？"）</li>
+<li>从草图生成代码</li>
+</ul>
+
+<p>但它们有一个共同的、根本性的局限：<strong>它们只能看和说，不能做。</strong></p>
+
+<div class="scene-box">你对 GPT-4V 说"帮我把桌上的杯子拿过来"。它回答："我看到桌上有一个白色的陶瓷杯子，在您的右前方约 30 厘米处。建议您用右手抓取。" 然后呢？没有然后了。它永远无法伸出那只手。</div>
+
+<h3>VLM 的遗产</h3>
+
+<p>VLM 给 VLA 留下了两笔至关重要的遗产：</p>
+
+<p><strong>第一，视觉-语言对齐的表征空间。</strong> CLIP 证明的"视觉和语言可以统一表示"，是后来所有 VLA 模型的基础。RT-2 用的 PaLI、OpenVLA 用的 SigLIP、π0 用的视觉编码器——它们全都站在 CLIP 的肩膀上。</p>
+
+<p><strong>第二，互联网规模的世界知识。</strong> VLM 在互联网上训练时，不知不觉学会了大量关于物理世界的知识：杯子是圆柱形的、水会流动、玻璃会碎。这些知识虽然不足以直接控制机器人，但它们是 VLA 模型理解任务的基础。</p>
+
+<p>现在，让我们看看这些"被困在屏幕里的天才"，是如何被释放到物理世界的。</p>
 
 <hr>
 
@@ -601,15 +678,87 @@ Transformer encoder: 理解任务语义
 
 <div class="scene-box">一个 VLA 控制的机器人在厨房里工作。它看到一个圆形物体，认为是"杯子"，伸手去抓。但那其实是一个手榴弹形状的开瓶器，边缘有锋利的齿。没有安全约束的模型会用力抓下去，损坏物体甚至伤到自己。</div>
 
-<h3>世界模型与 VLA 的融合</h3>
+<h3>从 VLA 到 WAM：机器学会想象</h3>
 
-<p>一个新兴方向是：<strong>让 VLA 模型不仅学会"怎么做"，还学会"会发生什么"。</strong></p>
+<p>到目前为止，我们讲的所有模型——RT-1、RT-2、π0、OpenVLA——都有一个共同的局限：<strong>它们是"反应式"的。</strong> 看到当前画面，直接输出动作。就像一个人闭着眼睛凭感觉走路——有时候行，但经常撞墙。</p>
 
-<p>这就是 <strong>世界模型（World Model）</strong> 的概念——模型能够预测"如果我执行这个动作，世界会变成什么样"。</p>
+<p>人类不是这样工作的。在你伸手拿一杯满水之前，你会先在脑海中"模拟"：如果我快速伸手，水可能会洒出来；如果我慢慢来，就没问题。这种"脑补"能力，让你能在行动之前就预见后果。</p>
 
-<p><strong>代表性工作</strong>：Genie（Google DeepMind, 2024）、UniSim（2024）、DIAMOND（2025）。</p>
+<p>这就是 <strong>世界模型（World Model）</strong> 的核心思想。而当世界模型和 VLA 结合，就诞生了 <strong>WAM（World Action Model）</strong>——不仅能看、能说、能做，还能<strong>想象</strong>。</p>
 
-<div class="scene-box">机器人面前有一摞盘子。它需要拿最上面的那个。世界模型可以预测"如果我直接抓最上面的盘子，下面的盘子可能会滑动"。于是它选择先扶住下面的盘子，再拿上面的。这种"预见性"是目前大多数 VLA 模型缺乏的。</div>
+<h4>世界模型的起源：从 Dreamer 到 IRIS</h4>
+
+<p>世界模型的历史比 VLA 更早。2018 年，Danijar Hafner 等人提出了 <strong>Dreamer</strong> [23]——一个在"梦境"中训练的强化学习智能体。</p>
+
+<p>Dreamer 的思路很优雅：先用数据学习一个世界模型（"如果我做动作 A，状态会从 S₁ 变成 S₂"），然后在这个学到的世界模型里训练策略——就像在梦里练习一样。这样就不需要在真实世界中反复试错（那太慢了）。</p>
+
+<pre>真实世界交互 → 学习世界模型（"如果...那么..."）
+     ↓
+在"梦境"中训练策略（想象练习）
+     ↓
+部署到真实世界</pre>
+
+<p>Dreamer 系列（DreamerV2、DreamerV3）在游戏控制和机器人任务上取得了出色的成绩。但它们有一个局限：世界模型是在<strong>特定任务</strong>上学习的。Dreamer 学会了在 Atari 游戏里预测下一步，但让它预测真实厨房里的物理变化，就无能为力了。</p>
+
+<p>2023 年，一个更惊人的工作出现了。<strong>IRIS</strong>（Imagination with auto-Regressive transformer for Image Synthesis）[24] 用一个 Transformer 自回归地生成未来的视觉帧。给它一张当前画面的截图，它能"画出"接下来几帧会是什么样子——就像一个画家在画未来。</p>
+
+<div class="scene-box">IRIS 看到一张小鸭子在池塘边的图片。你告诉它"鸭子走向水里"。IRIS 开始"画"：第一帧，鸭子的脚动了；第二帧，鸭子到了水边；第三帧，水面上泛起了涟漪。它不是在做物理模拟，而是在用学到的视觉规律"想象"未来。</div>
+
+<h4>Genie：Google DeepMind 的世界模型</h4>
+
+<p>2024 年，Google DeepMind 发布了 <strong>Genie</strong> [25]——一个从互联网视频中学习出的"通用世界模型"。</p>
+
+<p>Genie 的训练数据来自 YouTube 上的游戏视频。它学到了三件事：</p>
+
+<ul>
+<li><strong>视觉表征</strong>：理解游戏画面是什么样的</li>
+<li><strong>动作推断</strong>：从画面变化中推断玩家按了什么键</li>
+<li><strong>动态预测</strong>：预测按下某个键后，画面会变成什么样</li>
+</ul>
+
+<p>结果是：你可以给 Genie 一张截图，然后"玩"它——按左，画面里的角色就往左走；按跳，角色就跳起来。虽然画面是模糊的、生成的，但物理规律基本正确。</p>
+
+<p>Genie 的意义在于：<strong>它证明了世界模型可以从纯视频中学习，不需要显式的物理引擎。</strong> 互联网上的视频，就是世界的"训练数据"。</p>
+
+<h4>DIAMOND：扩散模型做世界模型</h4>
+
+<p>2025 年，<strong>DIAMOND</strong>（DIffusion As a Model Of eNtion Dreams）[26] 把扩散模型引入了世界模型。</p>
+
+<p>之前的世界模型（IRIS、Genie）用的是自回归方式——一帧一帧地预测未来。但这种方式有一个问题：误差会累积。第一帧预测偏了一点，第二帧就更偏，到第十帧已经完全面目全非。</p>
+
+<p>DIAMOND 用扩散模型来生成未来帧，好处是生成质量更高、更稳定。它能在 Atari 游戏上达到超越人类水平的表现——不是因为它"反应快"，而是因为它"想得远"。</p>
+
+<h4>UniSim：为机器人而生的世界模型</h4>
+
+<p>上面这些世界模型大多在游戏领域验证。但机器人面对的不是像素世界，而是物理世界。2024 年，Google DeepMind 发布了 <strong>UniSim</strong> [27]——专门为机器人操作设计的通用模拟器。</p>
+
+<p>UniSim 的目标是：给定当前场景和一个动作序列，预测整个操作过程的视频。不是预测一帧，而是预测一整段。</p>
+
+<div class="scene-box">机器人面前有一摞盘子。它需要拿最上面的那个。传统 VLA 直接输出动作——伸手去抓。但 WAM 会先"想象"：如果我直接抓最上面的盘子，下面的盘子可能会滑动。于是它选择先扶住下面的盘子，再拿上面的。这种"预见性"让 WAM 比 VLA 更可靠。</div>
+
+<p>UniSim 还可以用来做<strong>数据增强</strong>：在真实数据不够的情况下，用世界模型"生成"更多训练数据。这就像给 VLA 模型一个"梦境训练场"——在想象中练习几千次，再部署到真实世界。</p>
+
+<h4>WAM：世界模型 + 动作模型 = 思考型行动者</h4>
+
+<p>当世界模型和 VLA 真正融合，就形成了 <strong>WAM（World Action Model）</strong>。它的推理流程是这样的：</p>
+
+<pre>观测 + 语言指令
+    ↓
+世界模型：如果我执行动作 A，世界会变成什么样？
+    ↓ 预测多个可能的未来
+评估：哪个未来最接近目标？
+    ↓
+选择最优动作（或动作序列）
+    ↓
+执行</pre>
+
+<p>和纯 VLA 的区别在于：VLA 是"看到就做"，WAM 是"想了再做"。</p>
+
+<p>这就像下棋。VLA 是一个凭直觉下棋的人——看到棋盘就落子，反应很快，但容易被套路。WAM 是一个会"脑内推演"的棋手——先想"如果我走这步，对手会怎么应"，想清楚再落子。虽然慢一点，但更可靠。</p>
+
+<p>目前，WAM 还处于早期阶段。大多数工作还是把世界模型和 VLA 分开训练，然后拼接在一起。真正的端到端 WAM——一个模型同时学会"理解世界"和"预测世界"——还是一个开放的研究方向。</p>
+
+<p>但趋势已经清晰：<strong>VLM → VLA → WAM，从"看"到"做"到"想"。</strong> 机器正在一步步接近人类行动者的核心能力——不是反应速度，而是预见能力。</p>
 
 <hr>
 
@@ -653,21 +802,21 @@ Transformer encoder: 理解任务语义
 
 <hr>
 
-<h2>尾声：一个隐喻</h2>
+<h2>尾声：三个隐喻</h2>
 
-<p>回到开头的隐喻。</p>
+<p>让我们用三个隐喻，串起这个故事。</p>
 
-<p>如果大语言模型是一个被封印在瓶子里的天才——它读过所有的书，知道所有的答案，但永远无法触碰世界——</p>
+<p><strong>VLM 是被封印在瓶子里的天才。</strong> 它读过整个互联网，知道所有的答案，但永远无法触碰世界。它能说出"把红色杯子递给我"，却永远无法伸出那只手。</p>
 
-<p>那么 VLA，就是那个打开瓶盖的人。</p>
+<p><strong>VLA 是那个打开瓶盖的人。</strong> 天才终于伸出手，开始触碰这个世界。它还没有完全成功——有时候会打翻杯子，有时候抓不到东西，有时候做出危险的动作。但至少，它在学习。</p>
 
-<p>它还没有完全成功。天才伸出手，有时候会打翻杯子。有时候抓不到东西。有时候做出危险的动作。</p>
+<p><strong>WAM 是那个开始思考的人。</strong> 天才不再盲目伸手。它会在行动之前想象后果——"如果我这样做，会发生什么？" 它学会了预见，学会了规划，学会了在脑海中模拟未来。</p>
 
-<p>但至少，它在学习触碰这个世界。</p>
+<p>从"看"到"做"到"想"。从 VLM 到 VLA 到 WAM。这不是三项独立的技术，而是一场关于机器智能的连续进化。</p>
 
 <p>而这场实验的参与者——Google 的野心、π 的反叛、学术界的民主化、中国的快速追赶、人形机器人创业公司的豪赌——每一个人都在试图回答同一个问题：</p>
 
-<p><strong>当语言终于学会行动，机器离真正的智能还有多远？</strong></p>
+<p><strong>当机器终于学会看、学会做、学会想，它离真正的智能还有多远？</strong></p>
 
 <p>没有人知道答案。但所有人都相信，答案正在越来越近。</p>
 
@@ -712,6 +861,22 @@ Transformer encoder: 理解任务语义
 <p>[18] Chi, C., et al. "Diffusion Policy: Visuomotor Policy Learning via Action Diffusion." <em>RSS 2023</em>. <a href="https://arxiv.org/abs/2303.04137">arXiv:2303.04137</a></p>
 
 <p>[19] Zhao, T. Z., et al. "Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware (ACT)." <em>RSS 2023</em>. <a href="https://arxiv.org/abs/2304.13705">arXiv:2304.13705</a></p>
+
+<p>[20] Alayrac, J.-B., et al. "Flamingo: a Visual Language Model for Few-Shot Learning." <em>NeurIPS 2022</em>. <a href="https://arxiv.org/abs/2204.14198">arXiv:2204.14198</a></p>
+
+<p>[21] Liu, H., et al. "Visual Instruction Tuning." <em>NeurIPS 2023</em>. <a href="https://arxiv.org/abs/2304.08485">arXiv:2304.08485</a></p>
+
+<p>[22] Bai, J., et al. "Qwen-VL: A Versatile Vision-Language Model for Understanding, Localization, Text Reading, and Beyond." <em>arXiv 2023</em>. <a href="https://arxiv.org/abs/2308.12966">arXiv:2308.12966</a></p>
+
+<p>[23] Hafner, D., et al. "Dream to Control: Learning Behaviors by Latent Imagination." <em>ICLR 2020</em>. <a href="https://arxiv.org/abs/1912.01603">arXiv:1912.01603</a></p>
+
+<p>[24] Alonso, E., et al. "Transformers are Sample-Efficient World Models." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2209.00588">arXiv:2209.00588</a></p>
+
+<p>[25] Bruce, J., et al. "Genie: Generative Interactive Environments." <em>ICML 2024</em>. <a href="https://arxiv.org/abs/2402.15391">arXiv:2402.15391</a></p>
+
+<p>[26] Alonso, E., et al. "DIAMOND: Diffusion As a Model Of eNtion Dreams." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2405.12399">arXiv:2405.12399</a></p>
+
+<p>[27] Yang, M., et al. "UniSim: A Universal Interactive Simulator for Robot Learning." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.12715">arXiv:2406.12715</a></p>
 
 <hr>
 
