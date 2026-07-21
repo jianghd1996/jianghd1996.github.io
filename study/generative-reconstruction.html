@@ -277,23 +277,25 @@
 
 <div class="scene-box">你给 MVSplat360 一张椅子的正面照片。前馈方法只能重建正面。但扩散模型"知道"椅子有四条腿、有靠背。它能"幻觉"出背面和侧面，生成一个完整的 3D 椅子。</div>
 
-<h3>LatentSplat：不确定性的显式建模</h3>
+<h3>LatentSplat：潜空间中的语义高斯</h3>
 
-<p>同年，<strong>LatentSplat</strong> [180] 提出了一个更优雅的方案：<strong>变分 3D 高斯</strong>。</p>
+<p>同年，<strong>LatentSplat</strong> [180] 提出了一个更优雅的方案：<strong>在潜空间中预测语义高斯</strong>。</p>
 
-<p>传统 3DGS 预测确定性的参数。但 LatentSplat 预测的是一个<strong>分布</strong>——每个高斯的位置、形状、颜色都是一个概率分布，而不是固定值。</p>
+<p>传统前馈方法直接在像素空间预测高斯参数。LatentSplat 的做法是：先在<strong>3D 潜空间</strong>中预测语义高斯，然后用一个轻量级的 2D 生成架构解码渲染。</p>
 
-<p>这意味着：模型能显式地表达"我不确定这里是什么"。没看到的部分，分布会很宽（高不确定性）；看到的部分，分布会很窄（低不确定性）。</p>
+<p>这样做的好处是：潜空间更紧凑，能捕捉更丰富的语义信息；而且可以用预训练的 2D 生成模型（如扩散模型）作为解码器，注入强大的视觉先验。</p>
 
-<p>推理时，从这个分布中采样，就能生成多个合理的重建结果——而不是一个"平均"的、模糊的结果。</p>
+<p>相比直接在像素空间预测，LatentSplat 能更好地处理稀疏视角——因为它学到的不是"这个像素是什么颜色"，而是"这个区域有什么语义概念"。</p>
 
-<h3>ProSplat：单步扩散细化</h3>
+<h3>Difix3D+ 与 ProSplat：单步扩散细化的两条路线</h3>
 
-<p>2024 年末，<strong>ProSplat</strong> [179] 提出了一个更轻量的方案：<strong>单步扩散细化</strong>。</p>
+<p>2025 年，两个独立的工作几乎同时提出了同一个想法：<strong>用单步扩散模型做后处理增强</strong>。</p>
 
-<p>它的思路是：先用前馈方法预测初始 3DGS，渲染出新视角；然后用一个<strong>单步扩散模型</strong>（不是多步去噪）细化渲染结果，抑制伪影、增强细节。</p>
+<p><strong>Difix3D+</strong> [179] 来自 NVIDIA / Meta 团队。它的核心是一个叫 Difix 的单步图像扩散模型——输入一张有伪影的渲染图，一步去噪，输出干净的结果。把它插入到任何前馈 3DGS 流程的末端，就能"修复"新视角渲染中的模糊和伪影。</p>
 
-<p>单步扩散模型的速度很快（只需要一次前向传播），但效果显著——它能"修复"前馈方法产生的模糊区域和几何错误。</p>
+<p><strong>ProSplat</strong> [183] 则更专注于<strong>宽基线稀疏视角</strong>场景。它也是一个两阶段框架：先预测 3DGS，再用单步扩散模型细化。但它额外引入了对极约束注意力（DWEA）和最大重叠参考视图注入（MORI），确保扩散细化不会破坏多视图几何一致性。</p>
+
+<p>两者的共同洞察是：多步扩散模型太慢（不适合实时渲染），但<strong>单步扩散模型</strong>足够快，而且已经学到了足够强的视觉先验——足以"修复"前馈方法的输出。</p>
 
 <hr>
 
@@ -344,13 +346,15 @@
 
 <div class="scene-box">你给 StreamSplat 一段行人在街上走动的视频。它逐帧处理，实时更新场景。行人移动时，对应的高斯也跟着移动——而不是在每一帧都重新生成。</div>
 
-<h3>L4GM：离线 4D 重建</h3>
+<h3>L4GM：大型 4D 高斯重建模型</h3>
 
-<p><strong>L4GM</strong> [186] 走了另一条路线：<strong>离线处理</strong>。</p>
+<p><strong>L4GM</strong> [186] 走了另一条路线：<strong>大型 4D 重建模型</strong>。</p>
 
-<p>它把 LRM（大型重建模型）扩展到时间维度：输入一段视频，一次性预测每一帧的 3DGS。</p>
+<p>它基于 LGM（Large Gaussian Model，大型 3D 高斯重建模型）扩展到时间维度：输入一段视频，一次性预测每一帧的 3DGS，然后用时间插值模型上采样到更高帧率。</p>
 
-<p>相比流式处理，离线方法能更好地保证<strong>时序一致性</strong>——因为它能看到整个视频，而不是只看当前帧。</p>
+<p>L4GM 的关键创新是：在 LGM 的基础上加入<strong>时间自注意力层</strong>，让模型学习跨帧的一致性。训练数据是 1200 万个渲染视频（来自 Objaverse 的 4.4 万个动画对象）。</p>
+
+<p>相比流式处理，L4GM 能更好地保证<strong>时序一致性</strong>——因为它能看到整个视频，而不是只看当前帧。</p>
 
 <hr>
 
@@ -378,7 +382,14 @@
 
 <p>如果你让机器人去抓一个重建出来的杯子，它可能会失败——因为重建的杯子没有物理属性（质量、摩擦力、刚度）。</p>
 
-<p>一个新兴方向是：<strong>物理感知重建</strong>。不仅重建外观，还重建物理属性。代表工作：PIXIE [197]、PhysGM [198]。</p>
+<p>一个新兴方向是：<strong>物理感知重建</strong>。不仅重建外观，还重建物理属性。代表工作：</p>
+
+<ul>
+<li><strong>PIXIE</strong> [197]（2025）：从像素快速学习 3D 物理属性，支持泛化到新场景</li>
+<li><strong>PhysGM</strong> [198]（2025）：大型物理高斯模型，单次前向传播同时预测 3D 场景和物理属性</li>
+</ul>
+
+<p>这些方法让重建出来的 3D 场景不仅能"看"，还能"用"——机器人可以基于物理属性做抓取规划，游戏引擎可以模拟真实的物理交互。</p>
 
 <hr>
 
@@ -420,19 +431,21 @@
 
 <p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>.</p>
 
-<p>[178] Chen, C., et al. "MVSplat360: Feed-Forward 360° Scene Reconstruction from Sparse Views." <em>arXiv 2024</em>.</p>
+<p>[178] Chen, Y., et al. "MVSplat360: Feed-Forward 360 Scene Synthesis from Sparse Views." <em>NeurIPS 2024</em>. <a href="https://arxiv.org/abs/2411.04924">arXiv:2411.04924</a></p>
 
-<p>[179] ProSplat. "Single-Step Diffusion Refinement for 3D Gaussian Splatting." <em>arXiv 2024</em>.</p>
+<p>[179] Wu, J. Z., et al. "Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.09585">arXiv:2503.09585</a></p>
 
-<p>[180] LatentSplat. "LatentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>.</p>
+<p>[180] Wewer, C., et al. "latentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2403.16292">arXiv:2403.16292</a></p>
 
-<p>[182] StreamSplat. "StreamSplat: Streaming 3D Gaussian Splatting for Dynamic Scenes." <em>arXiv 2024</em>.</p>
+<p>[182] Wu, Z., et al. "StreamSplat: Towards Online Dynamic 3D Reconstruction from Uncalibrated Video Streams." <em>ICLR 2026</em>. <a href="https://arxiv.org/abs/2506.08862">arXiv:2506.08862</a></p>
 
-<p>[186] L4GM. "Large 4D Gaussian Models." <em>arXiv 2024</em>.</p>
+<p>[183] Lu, X., et al. "ProSplat: Improved Feed-Forward 3D Gaussian Splatting for Wide-Baseline Sparse Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.07670">arXiv:2506.07670</a></p>
 
-<p>[197] PIXIE. "Physics-Based Interactive Editing of 3D Scenes." <em>arXiv 2024</em>.</p>
+<p>[186] Ren, J., et al. "L4GM: Large 4D Gaussian Reconstruction Model." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.10324">arXiv:2406.10324</a></p>
 
-<p>[198] PhysGM. "Physics-Aware Gaussian Models for Interactive 3D Scenes." <em>arXiv 2025</em>.</p>
+<p>[197] Le, L., et al. "PIXIE: Fast and Generalizable Supervised Learning of 3D Physics from Pixels." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17437">arXiv:2508.17437</a></p>
+
+<p>[198] Lv, C., et al. "PhysGM: Large Physical Gaussian Model for Feed-Forward 4D Synthesis." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2508.13911">arXiv:2508.13911</a></p>
 
 <hr>
 
