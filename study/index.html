@@ -75,46 +75,7 @@
       font-size: 14px;
       font-family: sans-serif;
     }
-    /* Password gate */
-    #password-gate {
-      max-width: 400px;
-      margin: 100px auto;
-      text-align: center;
-      font-family: 'Georgia', 'Noto Serif SC', serif;
-    }
-    #password-gate h2 {
-      font-size: 22px;
-      color: #1a1a1a;
-      margin-bottom: 20px;
-    }
-    #password-gate input {
-      width: 200px;
-      padding: 8px 12px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      margin-right: 8px;
-    }
-    #password-gate button {
-      padding: 8px 16px;
-      font-size: 16px;
-      background: #c0392b;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #password-gate button:hover {
-      background: #a93226;
-    }
-    #password-gate .error {
-      color: #c0392b;
-      font-size: 14px;
-      margin-top: 12px;
-    }
-    #content-area {
-      display: none;
-    }
+
     @media (max-width: 600px) {
       #list-container {
         padding: 20px 16px 40px;
@@ -126,15 +87,7 @@
   </style>
 </head>
 <body>
-<div id="password-gate">
-  <h2>🔐 需要密码访问</h2>
-  <p style="color:#666; font-size:14px; margin-bottom:20px;">请输入密码查看 AI 调研小说集</p>
-  <input type="password" id="pwd-input" placeholder="密码" onkeydown="if(event.key==='Enter')checkPwd()">
-  <button onclick="checkPwd()">进入</button>
-  <div class="error" id="pwd-error"></div>
-</div>
-
-<div id="content-area">
+<div>
 <div id="list-container">
 
 <p id="back-link"><a href="../index.html">← Back to Homepage</a></p>
@@ -178,43 +131,6 @@
 
 </div>
 </div>
-
-<script>
-// Simple client-side password protection
-// Note: This is NOT cryptographically secure - it's a simple deterrent for casual visitors
-// The password is hashed to avoid plain-text storage
-function hashPwd(pwd) {
-  let hash = 0;
-  for (let i = 0; i < pwd.length; i++) {
-    const char = pwd.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  return hash;
-}
-
-// Password hash for "pku2024"
-const CORRECT_HASH = -505894438;
-
-function checkPwd() {
-  const input = document.getElementById('pwd-input').value;
-  if (hashPwd(input) === CORRECT_HASH) {
-    document.getElementById('password-gate').style.display = 'none';
-    document.getElementById('content-area').style.display = 'block';
-    // Store in session so user doesn't need to re-enter for same session
-    sessionStorage.setItem('study_access', 'granted');
-  } else {
-    document.getElementById('pwd-error').textContent = '密码错误，请重试';
-    document.getElementById('pwd-input').value = '';
-  }
-}
-
-// Check if already authenticated in this session
-if (sessionStorage.getItem('study_access') === 'granted') {
-  document.getElementById('password-gate').style.display = 'none';
-  document.getElementById('content-area').style.display = 'block';
-}
-</script>
 
 </body>
 </html>
