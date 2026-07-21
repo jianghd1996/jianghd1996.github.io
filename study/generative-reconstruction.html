@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>生成式重建：从几何恢复到内容生成</title>
+  <link rel="stylesheet" type="text/css" href="../files/stylesheet.css">
+  <style>
+    body {
+      background: #fff;
+      color: #333;
+    }
+    #article-container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+      font-family: 'Georgia', 'Noto Serif SC', serif;
+      line-height: 1.85;
+      font-size: 16px;
+    }
+    #article-container h1 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 5px;
+      color: #1a1a1a;
+      border-bottom: none;
+    }
+    #article-container .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+    #article-container h2 {
+      font-size: 22px;
+      color: #1a1a1a;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    #article-container h3 {
+      font-size: 18px;
+      color: #2a2a2a;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    #article-container h4 {
+      font-size: 16px;
+      color: #444;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    #article-container p {
+      margin-bottom: 16px;
+    }
+    #article-container strong {
+      color: #1a1a1a;
+    }
+    #article-container blockquote {
+      border-left: 3px solid #27ae60;
+      margin: 20px 0;
+      padding: 12px 20px;
+      background: #f0f8f4;
+      font-style: italic;
+      color: #555;
+    }
+    #article-container pre {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 16px 0;
+    }
+    #article-container code {
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 14px;
+    }
+    #article-container p code {
+      background: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    #article-container hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 40px 0;
+    }
+    #article-container ul, #article-container ol {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+    #article-container li {
+      margin-bottom: 6px;
+    }
+    #article-container table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    #article-container th, #article-container td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    #article-container th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+    #article-container a {
+      color: #27ae60;
+      text-decoration: none;
+    }
+    #article-container a:hover {
+      text-decoration: underline;
+    }
+    #back-link {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    #back-link a {
+      color: #888;
+      font-size: 14px;
+      font-family: sans-serif;
+    }
+    .method-box {
+      background: #f9f9f9;
+      border-left: 3px solid #27ae60;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .method-box::before {
+      content: "🔬 ";
+    }
+    @media (max-width: 600px) {
+      #article-container {
+        padding: 20px 16px 40px;
+        font-size: 15px;
+      }
+      #article-container h1 {
+        font-size: 22px;
+      }
+      #article-container h2 {
+        font-size: 19px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="article-container">
+
+<p id="back-link"><a href="./index.html">← Back to Articles</a></p>
+
+<h1>生成式重建：从几何恢复到内容生成</h1>
+<p class="subtitle">2026-07-21 · 3D重建 · 前馈模型 · 生成先验</p>
+
+<p># 生成式重建：从几何恢复到内容生成</p>
+<blockquote>本文档为《生成式重建》洞察初稿，基于 Feed-Forward 3D Scene Modeling 综述及相关文献整理</blockquote>
+<hr>
+<h2>1. 引言：重建范式的演变</h2>
+<h3>1.1 从传统重建到神经重建</h3>
+<p>三维重建是计算机视觉的核心任务之一，其目标是**从二维观测中恢复三维世界的几何与外观**。传统方法如 SfM (Structure-from-Motion) [9]、MVS (Multi-View Stereo) [10] 通过多视图几何约束实现高精度重建，但存在显著局限：</p>
+<ul>
+<li>**逐场景优化**：每个场景需要独立的优化过程，耗时从分钟到小时不等</li>
+<li>**类别特定**：难以跨类别泛化，训练数据与测试场景需保持分布一致</li>
+<li>**稀疏输入敏感**：在视角稀疏或遮挡严重场景下性能急剧下降</li>
+</ul>
+<p>神经重建方法（NeRF [1]、3DGS [2]）通过可微渲染实现了照片级真实感的新视角合成，但仍继承了逐场景优化的范式。</p>
+<h3>1.2 前馈重建的兴起</h3>
+<p>**前馈重建 (Feed-Forward Reconstruction)** 代表了一种根本性的范式转变：</p>
+<blockquote>**核心思想**：学习一个从图像到3D表示的映射函数，通过单次前向传播完成重建，无需测试时优化。</blockquote>
+<p>这一范式的优势在于：</p>
+<ul>
+<li>**高效推理**：单次前向传播即可完成重建</li>
+<li>**跨场景泛化**：在大规模数据上训练，可泛化到未见场景</li>
+<li>**端到端集成**：可无缝嵌入下游任务流水线</li>
+</ul>
+<h3>1.3 生成式重建的定义</h3>
+<p>**生成式重建 (Generative Reconstruction)** 是前馈重建的自然延伸，其核心特征是：</p>
+<blockquote>**利用生成模型的先验知识（来自大规模2D数据或3D数据），在重建过程中"生成"缺失信息，实现从稀疏观测到完整3D场景的恢复。**</blockquote>
+<p>与传统重建的"恢复已有信息"不同，生成式重建强调"推断缺失信息"——这使其能够：</p>
+<ul>
+<li>从单张图像生成完整3D场景</li>
+<li>在遮挡区域"幻觉"出合理的内容</li>
+<li>生成符合物理规律和语义一致的重建结果</li>
+</ul>
+<hr>
+<h2>2. 3D表示方法：生成的载体</h2>
+<p>生成式重建的输出需要合适的3D表示。不同的表示方法决定了生成的灵活性、质量和下游可用性。</p>
+<h3>2.1 神经辐射场 (NeRF)</h3>
+<p>**NeRF** [1] 将场景表示为位置-方向的连续函数：</p>
+<pre><code>
+MLP(x, d) = (c, σ)
+</code></pre>
+<p>其中 x=(x,y,z) 为3D位置，d=(θ,ϕ) 为观察方向，输出颜色 c 和密度 σ。</p>
+<p>**前馈 NeRF 方法**：</p>
+<ul>
+<li>**PixelNeRF** [13]：开创性的条件化辐射场，从图像特征预测 NeRF</li>
+<li>**IBRNet** [84]：使用 ray transformer 学习连续的视角插值函数</li>
+<li>**VisionNeRF** [88]：使用 ViT 提取全局上下文特征</li>
+</ul>
+<p>**优势**：高质量新视角合成，处理复杂遮挡和视角相关效果</p>
+<p>**局限**：训练和推理需要密集的 MLP 查询，内存开销大</p>
+<h3>2.2 3D高斯泼溅 (3DGS)</h3>
+<p>**3DGS** [2] 使用各向异性3D高斯基元显式表示场景：</p>
+<pre><code>
+G = {(μⱼ, Σⱼ, αⱼ, cⱼ)}ⱼ=1^N
+</code></pre>
+<p>其中 μ∈ℝ³ 为位置，Σ∈ℝ³ˣ³ 为协方差矩阵，α∈[0,1] 为不透明度，c∈ℝ³ 为颜色。</p>
+<p>**前馈 3DGS 方法**：</p>
+<ul>
+<li>**pixelSplat** [15]：从图像直接预测像素对齐的3D高斯参数</li>
+<li>**MVSplat** [17]：利用平面扫描代价体定位高斯中心</li>
+<li>**GS-LRM** [93]：适配 LRM 架构直接输出 3DGS 参数</li>
+</ul>
+<p>**优势**：实时渲染，训练快速（分钟级），显式表示便于编辑</p>
+<p>**局限**：需要大量高斯基元（百万级），内存占用高</p>
+<h3>2.3 点图 (Pointmap)</h3>
+<p>**点图** 将场景表示为密集的2D-3D对应关系：</p>
+<pre><code>
+X ∈ ℝ^H×W×3
+</code></pre>
+<p>**前馈点图方法**：</p>
+<ul>
+<li>**DUSt3R** [3]：开创性的密集坐标回归方法，同时预测点图和相机位姿</li>
+<li>**MASt3R** [26]：增加密集局部特征头，实现鲁棒匹配</li>
+<li>**VGGT** [19]：基础模型，通过多任务预训练学习丰富的视觉-几何特征空间</li>
+</ul>
+<p>**优势**：直接建立2D-3D对应，便于视觉定位</p>
+<p>**局限**：表示能力有限，难以表达复杂外观</p>
+<h3>2.4 其他表示</h3>
+<ul>
+<li>**隐式几何表示**：Occupancy Networks [5]、DeepSDF [4] 使用连续函数表示形状</li>
+<li>**网格 (Mesh)**：直接兼容图形管线，但难以处理拓扑复杂场景</li>
+<li>**三平面 (Triplane)** [75,76]：紧凑的中间表示，便于2D卷积处理</li>
+<li>**光场** [14]：参数化为4D函数，实时渲染但难以提取表面</li>
+</ul>
+<hr>
+<h2>3. 生成式重建的核心技术</h2>
+<h3>3.1 特征增强：从2D到3D的提升</h3>
+<p>隐式特征图的质量直接决定3D场景的解码质量。</p>
+<h4>3.1.1 架构演进</h4>
+<p>**CNN 时代**：</p>
+<ul>
+<li>PixelNeRF [83]：全卷积条件化，从单/少视图预测 NeRF</li>
+<li>Convolutional Occupancy Networks [64]：结合卷积编码器和隐式解码器</li>
+</ul>
+<p>**Transformer 时代**：</p>
+<ul>
+<li>**SRT** [87]：引入 transformer 解码器处理图像特征</li>
+<li>**LRM** [75]：大型重建模型，使用 ViT 编码2D图像，transformer 解码为3D三平面</li>
+<li>**GRM** [92]、**GS-LRM** [93]：适配 LRM 架构直接输出 3DGS</li>
+</ul>
+<p>**状态空间模型**：</p>
+<ul>
+<li>**Gamba** [97]：基于 Mamba 的序列预测，线性复杂度</li>
+<li>**Long-LRM** [33]：处理长序列（~250k tokens，32视图）</li>
+</ul>
+<h4>3.1.2 跨视图融合</h4>
+<p>多视图信息融合是生成一致3D场景的关键。</p>
+<p>**特征级融合**：</p>
+<ul>
+<li>**AttnRend** [99]：多视图 ViT 编码器，跨视图注意力</li>
+<li>**eFreeSplat** [105]：自监督 ViT + 高斯对齐模块</li>
+<li>**iLRM** [106]：迭代跨视图细化，分解多视图交互为两阶段注意力</li>
+</ul>
+<p>**几何级融合**：</p>
+<ul>
+<li>**DUSt3R** [3]：密集坐标回归，同时预测位姿</li>
+<li>**MV-DUSt3R** [100]：多视图解码器块，促进跨视图信息交换</li>
+<li>**MUSt3R** [111]：对称架构，内存机制支持多视图</li>
+</ul>
+<p>**长序列处理**：</p>
+<ul>
+<li>**PreF3R** [102]：空间记忆网络，增量融合时序信息</li>
+<li>**Spann3R** [101]：外部3D空间记忆，存储点级特征</li>
+<li>**CUT3R** [107]：压缩状态表示，支持动态场景</li>
+</ul>
+<h4>3.1.3 视觉基础模型集成</h4>
+<p>利用大规模预训练模型注入强大的视觉和几何先验。</p>
+<p>**视觉特征**：</p>
+<ul>
+<li>**DUSt3R** [3]：使用 CroCo [213] 预训练权重</li>
+<li>**Feat2GS** [125]：探测预训练2D模型（分割、扩散、识别），无需重训3D网络</li>
+<li>**Mono3R** [124]：集成单视图先验，细化多视图立体特征</li>
+</ul>
+<p>**文本-视觉融合**：</p>
+<ul>
+<li>**CATSplat** [94]：利用视觉-语言模型的文本指导增强单图3D重建</li>
+</ul>
+<h3>3.2 几何感知：解决深度模糊</h3>
+<p>前馈3D重建的核心挑战是从2D图像鲁棒、准确地推断3D几何。</p>
+<h4>3.2.1 显式几何聚合</h4>
+<p>**代价体构建**：</p>
+<ul>
+<li>**MVSNeRF** [126]：平面扫描变换构建代价体，3D卷积聚合</li>
+<li>**GeoNeRF** [128]：级联代价体 + Transformer 渲染器</li>
+<li>**MuRF** [129]：目标视图锥体体积，有效聚合跨视图特征</li>
+</ul>
+<p>**对应关系推理**：</p>
+<ul>
+<li>**SRF** [127]：神经立体框架，避免完整代价体构建</li>
+<li>**GPNR** [79]：沿极线提取局部斑块，Transformer 聚合</li>
+<li>**MatchNeRF** [134]：特征余弦相似度作为几何先验</li>
+</ul>
+<p>**表面感知表示**：</p>
+<ul>
+<li>**SparseNeuS** [65]：SDF 表面 + 体渲染</li>
+<li>**VolRecon** [66]：SRDF + 基于射线的渲染</li>
+<li>**SurfaceSplat** [70]：SDF 粗几何 + 3DGS 细化细节</li>
+</ul>
+<h4>3.2.2 后细化</h4>
+<p>迭代改进生成的基元以捕获复杂几何。</p>
+<ul>
+<li>**HiSplat** [137]：层次化方法，粗高斯 + 细高斯 + 误差感知模块</li>
+<li>**FreeSplat** [138]：像素级对齐，逐步聚合更新局部和全局高斯三元组</li>
+<li>**PixelGaussian** [139]：动态框架，根据局部几何复杂度自适应调整高斯分布</li>
+<li>**G3R** [140]：结合快速前馈预测和基于梯度的细化</li>
+</ul>
+<h4>3.2.3 无位姿重建</h4>
+<p>从未知相机参数的图像中重建，同时推断几何和位姿。</p>
+<p>**点图路线**：</p>
+<ul>
+<li>**DUSt3R** [3]：成对重建 = 密集点图回归</li>
+<li>**π³** [153]：全排列等变架构，预测仿射不变位姿和尺度不变点图</li>
+</ul>
+<p>**3DGS 路线**：</p>
+<ul>
+<li>**Splatt3R** [144]：适配 MASt3R 框架预测高斯属性</li>
+<li>**NoPoSplat** [145]：在单个规范输入视图的局部坐标系中预测所有高斯</li>
+<li>**PF3plat** [146]：预训练单目深度 + 对应模型粗对齐，轻量模块细化</li>
+<li>**AnySplat** [152]：几何 transformer + 可微位姿估计模块</li>
+</ul>
+<h4>3.2.4 预训练几何指导</h4>
+<p>直接注入来自强大预训练模型的几何线索。</p>
+<p>**深度先验**：</p>
+<ul>
+<li>**DepthSplat** [18]：多视图深度估计 + 3DGS 的协同链接</li>
+<li>**Flash3D** [156]：单目深度估计扩展为完整3D重建器</li>
+<li>**Niagara** [157]：集成单目深度和法线估计</li>
+</ul>
+<p>**点图先验**：</p>
+<ul>
+<li>**PM-Loss** [28]：基于前馈点图模型的正则化损失，强制几何平滑</li>
+</ul>
+<h3>3.3 生成增强：利用生成先验</h3>
+<p>这是"生成式重建"的核心——利用生成模型（尤其是扩散模型）的先验知识增强重建。</p>
+<h4>3.3.1 数据增强</h4>
+<p>扩充训练分布，提升泛化能力。</p>
+<ul>
+<li>**Puzzles** [174]：从单张图像/视频合成无限位姿视频-深度数据</li>
+<li>**MegaSynth** [175]：程序化生成数十万非语义3D场景</li>
+<li>**Aug3D** [176]：基于 SfM 的新视角增强户外数据集</li>
+<li>**MVBoost** [177]：多视图生成模型 + 重建一致性检查生成伪真值</li>
+</ul>
+<h4>3.3.2 视觉增强</h4>
+<p>利用生成先验增强渲染输出，抑制伪影，幻觉合理细节。</p>
+<p>**扩散先验集成**：</p>
+<ul>
+<li>**MVSplat360** [178]：3DGS + Stable Video Diffusion，高斯渲染特征注入扩散潜空间</li>
+<li>**LatentSplat** [180]：变分3D高斯，显式编码潜空间不确定性</li>
+<li>**ProSplat** [179]：单步扩散细化阶段增强高斯渲染视图</li>
+<li>**DIFIX3D+** [181]：单步扩散模型 Difix 作为神经增强器，抑制残留伪影</li>
+</ul>
+<p>**混合策略**：</p>
+<ul>
+<li>**CogNVS** [264]：共视像素3D重建 + 隐藏像素视频扩散修复，自监督扩散模型测试时微调</li>
+</ul>
+<h3>3.4 时序感知：动态4D重建</h3>
+<p>将生成式重建扩展到动态场景。</p>
+<h4>3.4.1 在线流式处理</h4>
+<p>逐帧处理，增量更新场景表示。</p>
+<ul>
+<li>**StreamSplat** [182]：估计每高斯速度和小变形，单次传播更新运动和外观</li>
+<li>**DGS-LRM** [183]：Plücker 射线查询 + 时空 Transformer，从单目视频预测可变形高斯</li>
+<li>**CUT3R** [107]：持久循环状态跨帧携带几何</li>
+<li>**Stream3R** [184]：decoder-only 因果 Transformer，可扩展序列3D重建</li>
+</ul>
+<h4>3.4.2 离线处理</h4>
+<p>聚合完整片段，单次前向传播预测全局一致的4D表示。</p>
+<ul>
+<li>**L4GM** [186]：LRM 扩展到时间维度，单目视频 → 每帧高斯</li>
+<li>**4D-LRM** [190]：联合建模空间和时间，输出4D高斯场</li>
+<li>**MonST3R** [187]：DUSt3R 微调用于动态视频</li>
+<li>**4DGT** [192]：滚动时间窗口直接预测一致的4D高斯</li>
+</ul>
+<h4>3.4.3 交互建模</h4>
+<p>允许用户注入力、编辑内容或调整材质，实时反馈物理合理结果。</p>
+<ul>
+<li>**PIXIE** [197]：离线重建几何 + 前馈预测材质场 → 物理求解器动画</li>
+<li>**PhysGM** [198]：单次前向传播同时预测3D高斯场景和物理属性</li>
+</ul>
+<hr>
+<h2>4. 模型效率：走向实时部署</h2>
+<h3>4.1 特征效率</h3>
+<p>学习"在哪里"和"如何"聚合多视图信息，最小化不必要的计算。</p>
+<ul>
+<li>**ENeRF** [161]：学习深度引导采样器，显著减少每射线查询</li>
+<li>**ProNeRF** [162]：投影感知采样，动态调整不透明度</li>
+<li>**TinySplat** [163]：免训练感知和空间压缩</li>
+<li>**ZPressor** [164]：IB 引导锚点-支持交叉注意力，融合为紧凑潜变量 Z</li>
+</ul>
+<p>**VGGT 系列优化**：</p>
+<ul>
+<li>**FastVGGT** [166]：免训练 token 合并</li>
+<li>**QuantVGGT** [167]：训练后量化</li>
+<li>**Sparse VGGT** [168]：自适应块稀疏核</li>
+<li>**Evict3R** [169]：免训练 KV 缓存驱逐策略</li>
+<li>**LiteVGGT** [171]：几何感知缓存 token 合并</li>
+<li>**Speed3R** [170]：稀疏双分支设计</li>
+</ul>
+<h3>4.2 表示压缩</h3>
+<p>显式高斯压缩。</p>
+<ul>
+<li>**GGN** [141]：高斯图上的消息传递，池化合并和剪枝</li>
+<li>**PixelGaussian** [139]：级联适配器引导剪枝和分裂</li>
+<li>**FreeSplat++** [172]：像素级三元组融合去重，加权浮点去除</li>
+<li>**LongSplat** [173]：GIR 空间身份感知冗余压缩</li>
+</ul>
+<hr>
+<h2>5. 数据集与基准</h2>
+<h3>5.1 数据集分类</h3>
+<p>**几何导向数据集**：提供可靠的3D表示真值（点云、深度、位姿）</p>
+<ul>
+<li>DTU [21]、ScanNet [22]、Replica [23]、Waymo [281]</li>
+</ul>
+<p>**视觉导向数据集**：来自野外或策划视频，适合新视角合成</p>
+<ul>
+<li>NeRF-Synthetic [1]、RealEstate10K [24]、DL3DV [25]</li>
+</ul>
+<h3>5.2 评估指标</h3>
+<p>**新视角合成**：</p>
+<ul>
+<li>PSNR（峰值信噪比）</li>
+<li>SSIM（结构相似性）</li>
+<li>LPIPS（学习感知图像块相似度）</li>
+</ul>
+<p>**相机位姿**：</p>
+<ul>
+<li>RTA（相对平移精度）</li>
+<li>RRA（相对旋转精度）</li>
+<li>AUC（曲线下面积）</li>
+</ul>
+<p>**点图**：</p>
+<ul>
+<li>Accuracy（精度）：预测点到真值表面的平均距离</li>
+<li>Completeness（完整性）：真值点到预测重建的平均距离</li>
+<li>Chamfer Distance：精度和完整性的综合</li>
+</ul>
+<hr>
+<h2>6. 应用场景</h2>
+<h3>6.1 自动驾驶</h3>
+<p>大规模动态重建，严格的实时和时序一致性要求。</p>
+<ul>
+<li>**Driv3R**、**Omni-Scene**：处理大规模户外场景</li>
+<li>**LoRA3D**：参数高效微调适应驾驶场景</li>
+</ul>
+<h3>6.2 机器人</h3>
+<p>快速可泛化的3D表示支持下游决策。</p>
+<ul>
+<li>**操作**：精确的物体几何重建</li>
+<li>**导航**：显式场景记忆支持长视野规划</li>
+</ul>
+<h3>6.3 场景理解</h3>
+<p>前馈3D先验作为语义场景理解的骨干。</p>
+<ul>
+<li>**Uni3R** [117]：联合重建语义3D高斯基元，统一渲染、深度预测、开放词汇3D理解</li>
+</ul>
+<h3>6.4 SfM 和 SLAM</h3>
+<ul>
+<li>**VGGT-SLAM**：基于 VGGT 的视觉定位和建图</li>
+<li>**LoGeR** [121]：分块处理长视频，结合测试时训练记忆和滑动窗口注意力</li>
+</ul>
+<h3>6.5 视频生成</h3>
+<p>几何感知的视频生成。</p>
+<ul>
+<li>**4Real-Video-V2** [193]：VGGT 基础上引入高斯头和动态层</li>
+<li>**MoVieS** [194]：共享编码器 + 三个独立头（外观、深度、运动）</li>
+</ul>
+<hr>
+<h2>7. 未来方向</h2>
+<h3>7.1 严格的基准</h3>
+<ul>
+<li>建立场景复杂度的标准化量化方法</li>
+<li>更清晰地报告几何多样性</li>
+<li>统一评估协议</li>
+</ul>
+<h3>7.2 系统效率</h3>
+<ul>
+<li>实时、内存受限部署</li>
+<li>边缘设备优化</li>
+<li>模型压缩和量化</li>
+</ul>
+<h3>7.3 可扩展表示</h3>
+<ul>
+<li>大规模场景的高效表示</li>
+<li>层次化表示方法</li>
+<li>动态内容的紧凑建模</li>
+</ul>
+<h3>7.4 世界模型</h3>
+<ul>
+<li>物理属性预测（材质、物理参数）</li>
+<li>可交互的3D场景生成</li>
+<li>因果推理和规划</li>
+</ul>
+<h3>7.5 统一感知与重建</h3>
+<ul>
+<li>联合优化3D重建和语义理解</li>
+<li>开放词汇的3D场景表示</li>
+<li>多任务学习框架</li>
+</ul>
+<h3>7.6 开放问题</h3>
+<ul>
+<li>**可扩展性**：如何处理城市级别的大规模场景？</li>
+<li>**泛化性**：如何跨域（室内→室外、合成→真实）泛化？</li>
+<li>**可解释性**：生成式重建的"幻觉"是否可靠？</li>
+<li>**安全性**：如何防止生成不合理或危险的内容？</li>
+</ul>
+<hr>
+<h2>8. 代表性方法总结</h2>
+<h3>8.1 前馈重建里程碑</h3>
+<p>| 方法 | 年份 | 表示 | 核心贡献 |</p>
+<p>|------|------|------|----------|</p>
+<p>| PixelNeRF | 2021 | NeRF | 开创性的条件化辐射场 |</p>
+<p>| DUSt3R | 2023 | Pointmap | 密集坐标回归，无位姿重建 |</p>
+<p>| pixelSplat | 2023 | 3DGS | 从图像直接预测高斯参数 |</p>
+<p>| LRM | 2024 | Triplane | 大型重建模型架构 |</p>
+<p>| MVSplat | 2024 | 3DGS | 代价体 + 高斯定位 |</p>
+<p>| VGGT | 2025 | 多任务 | 视觉几何基础模型 |</p>
+<h3>8.2 生成式重建代表工作</h3>
+<p>| 方法 | 年份 | 生成策略 | 核心特点 |</p>
+<p>|------|------|----------|----------|</p>
+<p>| MVSplat360 | 2024 | 扩散先验 | 3DGS + SVD，注入扩散潜空间 |</p>
+<p>| LatentSplat | 2024 | 变分生成 | 显式编码潜空间不确定性 |</p>
+<p>| ProSplat | 2024 | 单步扩散 | 扩散细化增强高斯渲染 |</p>
+<p>| DIFIX3D+ | 2025 | 扩散增强 | 单步扩散模型抑制伪影 |</p>
+<p>| CogNVS | 2025 | 混合策略 | 3D重建 + 视频扩散修复 |</p>
+<hr>
+<h2>9. 结语</h2>
+<p>生成式重建代表了3D视觉从"恢复"到"生成"的范式转变。通过整合生成模型的强大先验，我们能够在稀疏观测下推断完整的3D场景，实现从"看到什么重建什么"到"看到什么推断什么"的跨越。</p>
+<p>这一领域的快速发展得益于：</p>
+<p>1. **大规模预训练模型**：提供丰富的2D视觉和几何先验</p>
+<p>2. **高效3D表示**：3DGS 等显式表示支持实时渲染和编辑</p>
+<p>3. **前馈架构**：单次传播实现高效推理和跨场景泛化</p>
+<p>未来，生成式重建将朝着**统一感知与生成**、**物理可交互**、**世界模型**的方向演进，为机器人、自动驾驶、AR/VR 等应用提供更强大、更可靠的3D理解能力。</p>
+<hr>
+<h2>参考文献</h2>
+<p>[1] Mildenhall et al. NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis. ECCV 2020.</p>
+<p>[2] Kerbl et al. 3D Gaussian Splatting for Real-Time Radiance Field Rendering. SIGGRAPH 2023.</p>
+<p>[3] Wang et al. DUSt3R: Geometric 3D Vision Made Easy. CVPR 2024.</p>
+<p>[4] Park et al. DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation. CVPR 2019.</p>
+<p>[5] Mescheder et al. Occupancy Networks: Learning 3D Reconstruction in Function Space. CVPR 2019.</p>
+<p>[9] Snavely et al. Photo Tourism: Modeling Earth's Surface from Internet-Scale Photo Collections. SIGGRAPH 2006.</p>
+<p>[10] Schönberger & Frahm. Structure-from-Motion Revisited. CVPR 2016.</p>
+<p>[13] Yu et al. pixelNeRF: Neural Radiance Fields from One or Few Images. CVPR 2021.</p>
+<p>[15] Charatan et al. pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis. CVPR 2024.</p>
+<p>[17] Chen et al. MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images. ECCV 2024.</p>
+<p>[18] Liang et al. DepthSplat: Connecting Gaussian Splatting and Depth. arXiv 2024.</p>
+<p>[19] Wang et al. VGGT: Visual Geometry Grounded Transformer. CVPR 2025.</p>
+<p>[26] Leroy et al. MASt3R: Geometry-Aware Visual Correspondences. CVPR 2025.</p>
+<p>[33] Long-LRM. arXiv 2025.</p>
+<p>[75] LRM. Large Reconstruction Model. 2024.</p>
+<p>[79] GPNR. Generative Point-based Neural Rendering. 2022.</p>
+<p>[83] PixelNeRF. CVPR 2021.</p>
+<p>[84] IBRNet. CVPR 2021.</p>
+<p>[87] SRT. Scene Representation Transformer. ICCV 2021.</p>
+<p>[92] GRM. 2024.</p>
+<p>[93] GS-LRM. 2024.</p>
+<p>[97] Gamba. 2024.</p>
+<p>[102] PreF3R. 2024.</p>
+<p>[105] eFreeSplat. 2025.</p>
+<p>[106] iLRM. 2025.</p>
+<p>[107] CUT3R. 2025.</p>
+<p>[111] MUSt3R. 2025.</p>
+<p>[117] Uni3R. 2025.</p>
+<p>[124] Mono3R. 2024.</p>
+<p>[125] Feat2GS. 2024.</p>
+<p>[126] MVSNeRF. CVPR 2021.</p>
+<p>[128] GeoNeRF. CVPR 2022.</p>
+<p>[129] MuRF. ECCV 2022.</p>
+<p>[134] MatchNeRF. 2022.</p>
+<p>[137] HiSplat. 2024.</p>
+<p>[138] FreeSplat. 2024.</p>
+<p>[139] PixelGaussian. 2024.</p>
+<p>[140] G3R. 2024.</p>
+<p>[141] GGN. 2024.</p>
+<p>[144] Splatt3R. 2024.</p>
+<p>[145] NoPoSplat. 2024.</p>
+<p>[146] PF3plat. 2024.</p>
+<p>[152] AnySplat. 2025.</p>
+<p>[153] π³. 2024.</p>
+<p>[156] Flash3D. 2024.</p>
+<p>[157] Niagara. 2024.</p>
+<p>[161] ENeRF. 2022.</p>
+<p>[162] ProNeRF. 2022.</p>
+<p>[163] TinySplat. 2025.</p>
+<p>[164] ZPressor. 2025.</p>
+<p>[166] FastVGGT. 2025.</p>
+<p>[167] QuantVGGT. 2025.</p>
+<p>[168] Sparse VGGT. 2025.</p>
+<p>[169] Evict3R. 2025.</p>
+<p>[170] Speed3R. 2025.</p>
+<p>[171] LiteVGGT. 2025.</p>
+<p>[174] Puzzles. 2024.</p>
+<p>[175] MegaSynth. 2025.</p>
+<p>[176] Aug3D. 2024.</p>
+<p>[177] MVBoost. 2025.</p>
+<p>[178] MVSplat360. 2024.</p>
+<p>[179] ProSplat. 2024.</p>
+<p>[180] LatentSplat. 2024.</p>
+<p>[181] DIFIX3D+. 2025.</p>
+<p>[182] StreamSplat. 2024.</p>
+<p>[183] DGS-LRM. 2025.</p>
+<p>[184] Stream3R. 2025.</p>
+<p>[186] L4GM. 2024.</p>
+<p>[187] MonST3R. 2024.</p>
+<p>[188] EgoMono4D. 2025.</p>
+<p>[190] 4D-LRM. 2025.</p>
+<p>[192] 4DGT. 2025.</p>
+<p>[193] 4Real-Video-V2. 2025.</p>
+<p>[194] MoVieS. 2025.</p>
+<p>[197] PIXIE. 2024.</p>
+<p>[198] PhysGM. 2025.</p>
+<p>[213] CroCo. ECCV 2022.</p>
+<p>[264] CogNVS. 2025.</p>
+<hr>
+<p>*本文档为初稿，将持续更新。*</p>
+
+</div>
+</body>
+</html>
