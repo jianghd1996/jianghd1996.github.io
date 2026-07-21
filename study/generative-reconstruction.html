@@ -127,15 +127,15 @@
       font-size: 14px;
       font-family: sans-serif;
     }
-    .method-box {
+    .scene-box {
       background: #f9f9f9;
       border-left: 3px solid #27ae60;
       padding: 12px 16px;
       margin: 16px 0;
       font-size: 15px;
     }
-    .method-box::before {
-      content: "🔬 ";
+    .scene-box::before {
+      content: "🎬 ";
     }
     @media (max-width: 600px) {
       #article-container {
@@ -159,477 +159,284 @@
 <h1>生成式重建：从几何恢复到内容生成</h1>
 <p class="subtitle">2026-07-21 · 3D重建 · 前馈模型 · 生成先验</p>
 
-<p># 生成式重建：从几何恢复到内容生成</p>
-<blockquote>本文档为《生成式重建》洞察初稿，基于 Feed-Forward 3D Scene Modeling 综述及相关文献整理</blockquote>
+<h2>序章：一个根本问题</h2>
+
+<p>三维重建是计算机视觉的核心任务之一。它的目标很简单：<strong>从二维图像中恢复三维世界</strong>。</p>
+
+<p>但这个问题背后隐藏着一个更深的哲学分歧：重建到底是"恢复已有"，还是"推断缺失"？</p>
+
+<p>传统方法认为：重建就是恢复。相机拍到了什么，就还原什么。没拍到的部分？那是未知的，不应该瞎猜。</p>
+
+<p>但新一代研究者说：重建应该是推断。你没拍到的部分，我可以"想象"出来——而且想象得还挺准。</p>
+
+<p>这就是<strong>生成式重建（Generative Reconstruction）</strong>的故事。它不是渐进式的改进，而是一次根本性的范式转变。</p>
+
 <hr>
-<h2>1. 引言：重建范式的演变</h2>
-<h3>1.1 从传统重建到神经重建</h3>
-<p>三维重建是计算机视觉的核心任务之一，其目标是**从二维观测中恢复三维世界的几何与外观**。传统方法如 SfM (Structure-from-Motion) [9]、MVS (Multi-View Stereo) [10] 通过多视图几何约束实现高精度重建，但存在显著局限：</p>
-<ul>
-<li>**逐场景优化**：每个场景需要独立的优化过程，耗时从分钟到小时不等</li>
-<li>**类别特定**：难以跨类别泛化，训练数据与测试场景需保持分布一致</li>
-<li>**稀疏输入敏感**：在视角稀疏或遮挡严重场景下性能急剧下降</li>
-</ul>
-<p>神经重建方法（NeRF [1]、3DGS [2]）通过可微渲染实现了照片级真实感的新视角合成，但仍继承了逐场景优化的范式。</p>
-<h3>1.2 前馈重建的兴起</h3>
-<p>**前馈重建 (Feed-Forward Reconstruction)** 代表了一种根本性的范式转变：</p>
-<blockquote>**核心思想**：学习一个从图像到3D表示的映射函数，通过单次前向传播完成重建，无需测试时优化。</blockquote>
-<p>这一范式的优势在于：</p>
-<ul>
-<li>**高效推理**：单次前向传播即可完成重建</li>
-<li>**跨场景泛化**：在大规模数据上训练，可泛化到未见场景</li>
-<li>**端到端集成**：可无缝嵌入下游任务流水线</li>
-</ul>
-<h3>1.3 生成式重建的定义</h3>
-<p>**生成式重建 (Generative Reconstruction)** 是前馈重建的自然延伸，其核心特征是：</p>
-<blockquote>**利用生成模型的先验知识（来自大规模2D数据或3D数据），在重建过程中"生成"缺失信息，实现从稀疏观测到完整3D场景的恢复。**</blockquote>
-<p>与传统重建的"恢复已有信息"不同，生成式重建强调"推断缺失信息"——这使其能够：</p>
-<ul>
-<li>从单张图像生成完整3D场景</li>
-<li>在遮挡区域"幻觉"出合理的内容</li>
-<li>生成符合物理规律和语义一致的重建结果</li>
-</ul>
+
+<h2>第一章：传统重建的困境（2006-2022）</h2>
+
+<h3>SfM 和 MVS：几何派的黄金时代</h3>
+
+<p>2006 年，Noah Snavely 等人在 SIGGRAPH 上发表了一篇开创性论文——<em>Photo Tourism</em>。他们从 Flickr 上收集了大量游客照片，通过多视图几何约束，重建出了罗马斗兽场、巴黎圣母院等著名景点的三维模型。</p>
+
+<p>这就是 <strong>SfM（Structure-from-Motion）</strong>的核心思想：从多张照片中恢复相机位姿和稀疏点云。</p>
+
+<p>随后，<strong>MVS（Multi-View Stereo）</strong>进一步 densify 了点云——从稀疏的几千个点变成密集的几百万个点。</p>
+
+<div class="scene-box">想象你站在埃菲尔铁塔前，用相机拍了 100 张照片。SfM 能从这些照片中找到几千个特征点，恢复出相机在哪里、铁塔的大致形状。MVS 则能把这些点变密，生成一个看起来像铁塔的三维模型。</div>
+
+<p>这套方法统治了三维重建领域十几年。但它有一个根本性的局限：<strong>逐场景优化</strong>。</p>
+
+<p>每个场景都需要独立的优化过程，耗时从分钟到小时不等。而且它只能"恢复已有"——如果某个角度没拍到，那就是空洞，模型不会帮你"脑补"。</p>
+
+<h3>NeRF：神经渲染的革命</h3>
+
+<p>2020 年，一个叫做 <strong>NeRF（Neural Radiance Fields）</strong> 的工作横空出世 [1]。</p>
+
+<p>NeRF 的核心思想很优雅：用一个神经网络表示整个场景。输入一个三维坐标和观察方向，输出颜色和密度。</p>
+
+<pre>MLP(x, y, z, θ, ϕ) → (颜色, 密度)</pre>
+
+<p>然后通过可微渲染，让这个网络"学会"从 2D 图像中恢复 3D 场景。</p>
+
+<p>效果是惊人的：NeRF 能生成照片级真实感的新视角合成。你从没见过这个角度，但它能"画"出来，而且看起来完全真实。</p>
+
+<p>但 NeRF 继承了 SfM/MVS 的致命缺陷：<strong>逐场景优化</strong>。每个场景都要重新训练一个网络，耗时几十分钟到几小时。它不能"举一反三"——训练时没见过的新场景，它无能为力。</p>
+
 <hr>
-<h2>2. 3D表示方法：生成的载体</h2>
-<p>生成式重建的输出需要合适的3D表示。不同的表示方法决定了生成的灵活性、质量和下游可用性。</p>
-<h3>2.1 神经辐射场 (NeRF)</h3>
-<p>**NeRF** [1] 将场景表示为位置-方向的连续函数：</p>
-<pre><code>
-MLP(x, d) = (c, σ)
-</code></pre>
-<p>其中 x=(x,y,z) 为3D位置，d=(θ,ϕ) 为观察方向，输出颜色 c 和密度 σ。</p>
-<p>**前馈 NeRF 方法**：</p>
+
+<h2>第二章：前馈重建的革命（2021-2024）</h2>
+
+<h3>PixelNeRF：第一次尝试</h3>
+
+<p>2021 年，Alex Yu 等人提出了 <strong>PixelNeRF</strong> [13]——第一个"前馈"NeRF 方法。</p>
+
+<p>它的思路是：不再为每个场景单独训练一个网络，而是学习一个<strong>通用的映射函数</strong>。输入图像，直接输出 NeRF 参数。</p>
+
+<p>这意味着：训练一次，推理时只需要一次前向传播（几秒钟），就能重建新场景。</p>
+
+<p>但 PixelNeRF 的性能有限——它只能处理简单的物体，复杂场景效果不佳。</p>
+
+<h3>DUSt3R：几何派的反击</h3>
+
+<p>2023 年，Meta FAIR 的 Shuzhe Wang 等人发布了一个大胆的工作——<strong>DUSt3R</strong> [3]。</p>
+
+<p>DUSt3R 的核心洞察是：<strong>与其预测复杂的 NeRF 或 3DGS，不如直接预测每个像素的三维坐标</strong>。</p>
+
+<pre>图像 → 网络 → 每个像素的 (x, y, z) 坐标</pre>
+
+<p>就这么简单。没有复杂的 3D 表示，没有耗时的优化。输入图像，输出点云。</p>
+
+<p>更惊人的是：DUSt3R 同时预测相机位姿。你给它两张照片，它不仅能重建三维场景，还能告诉你相机在哪里、朝哪个方向。</p>
+
+<div class="scene-box">传统方法需要：先跑 SfM 恢复位姿 → 再跑 MVS 生成点云 → 再跑网格重建。DUSt3R 一步到位：输入图像，输出点云 + 位姿。端到端，几秒钟。</div>
+
+<p>DUSt3R 的意义在于：它证明了<strong>前馈重建可以比传统方法更快、更简单，而且效果相当</strong>。</p>
+
+<h3>3DGS：渲染派的逆袭</h3>
+
+<p>2023 年，另一个工作彻底改变了 3D 表示的格局——<strong>3D Gaussian Splatting（3DGS）</strong> [2]。</p>
+
+<p>3DGS 的核心思想是：用几百万个各向异性的三维高斯椭球表示场景。每个高斯有位置、形状、颜色、不透明度。</p>
+
+<p>相比 NeRF 的隐式表示（MLP），3DGS 是显式的——你可以直接看到、编辑、操作这些高斯。</p>
+
+<p>更重要的是：3DGS 支持<strong>实时渲染</strong>。NeRF 渲染一帧需要几秒，3DGS 只需要几毫秒。</p>
+
+<p>很快，研究者开始把 3DGS 和前馈重建结合：</p>
+
 <ul>
-<li>**PixelNeRF** [13]：开创性的条件化辐射场，从图像特征预测 NeRF</li>
-<li>**IBRNet** [84]：使用 ray transformer 学习连续的视角插值函数</li>
-<li>**VisionNeRF** [88]：使用 ViT 提取全局上下文特征</li>
+<li><strong>pixelSplat</strong> [15]：输入两张图像，直接预测 3DGS 参数</li>
+<li><strong>MVSplat</strong> [17]：用平面扫描代价体定位高斯中心，效果更好</li>
 </ul>
-<p>**优势**：高质量新视角合成，处理复杂遮挡和视角相关效果</p>
-<p>**局限**：训练和推理需要密集的 MLP 查询，内存开销大</p>
-<h3>2.2 3D高斯泼溅 (3DGS)</h3>
-<p>**3DGS** [2] 使用各向异性3D高斯基元显式表示场景：</p>
-<pre><code>
-G = {(μⱼ, Σⱼ, αⱼ, cⱼ)}ⱼ=1^N
-</code></pre>
-<p>其中 μ∈ℝ³ 为位置，Σ∈ℝ³ˣ³ 为协方差矩阵，α∈[0,1] 为不透明度，c∈ℝ³ 为颜色。</p>
-<p>**前馈 3DGS 方法**：</p>
+
+<p>现在，前馈重建有了两条路线：</p>
+
 <ul>
-<li>**pixelSplat** [15]：从图像直接预测像素对齐的3D高斯参数</li>
-<li>**MVSplat** [17]：利用平面扫描代价体定位高斯中心</li>
-<li>**GS-LRM** [93]：适配 LRM 架构直接输出 3DGS 参数</li>
+<li><strong>点图路线（DUSt3R）</strong>：直接预测像素级 3D 坐标，简单快速</li>
+<li><strong>3DGS 路线（pixelSplat）</strong>：预测高斯参数，支持高质量渲染</li>
 </ul>
-<p>**优势**：实时渲染，训练快速（分钟级），显式表示便于编辑</p>
-<p>**局限**：需要大量高斯基元（百万级），内存占用高</p>
-<h3>2.3 点图 (Pointmap)</h3>
-<p>**点图** 将场景表示为密集的2D-3D对应关系：</p>
-<pre><code>
-X ∈ ℝ^H×W×3
-</code></pre>
-<p>**前馈点图方法**：</p>
-<ul>
-<li>**DUSt3R** [3]：开创性的密集坐标回归方法，同时预测点图和相机位姿</li>
-<li>**MASt3R** [26]：增加密集局部特征头，实现鲁棒匹配</li>
-<li>**VGGT** [19]：基础模型，通过多任务预训练学习丰富的视觉-几何特征空间</li>
-</ul>
-<p>**优势**：直接建立2D-3D对应，便于视觉定位</p>
-<p>**局限**：表示能力有限，难以表达复杂外观</p>
-<h3>2.4 其他表示</h3>
-<ul>
-<li>**隐式几何表示**：Occupancy Networks [5]、DeepSDF [4] 使用连续函数表示形状</li>
-<li>**网格 (Mesh)**：直接兼容图形管线，但难以处理拓扑复杂场景</li>
-<li>**三平面 (Triplane)** [75,76]：紧凑的中间表示，便于2D卷积处理</li>
-<li>**光场** [14]：参数化为4D函数，实时渲染但难以提取表面</li>
-</ul>
+
 <hr>
-<h2>3. 生成式重建的核心技术</h2>
-<h3>3.1 特征增强：从2D到3D的提升</h3>
-<p>隐式特征图的质量直接决定3D场景的解码质量。</p>
-<h4>3.1.1 架构演进</h4>
-<p>**CNN 时代**：</p>
-<ul>
-<li>PixelNeRF [83]：全卷积条件化，从单/少视图预测 NeRF</li>
-<li>Convolutional Occupancy Networks [64]：结合卷积编码器和隐式解码器</li>
-</ul>
-<p>**Transformer 时代**：</p>
-<ul>
-<li>**SRT** [87]：引入 transformer 解码器处理图像特征</li>
-<li>**LRM** [75]：大型重建模型，使用 ViT 编码2D图像，transformer 解码为3D三平面</li>
-<li>**GRM** [92]、**GS-LRM** [93]：适配 LRM 架构直接输出 3DGS</li>
-</ul>
-<p>**状态空间模型**：</p>
-<ul>
-<li>**Gamba** [97]：基于 Mamba 的序列预测，线性复杂度</li>
-<li>**Long-LRM** [33]：处理长序列（~250k tokens，32视图）</li>
-</ul>
-<h4>3.1.2 跨视图融合</h4>
-<p>多视图信息融合是生成一致3D场景的关键。</p>
-<p>**特征级融合**：</p>
-<ul>
-<li>**AttnRend** [99]：多视图 ViT 编码器，跨视图注意力</li>
-<li>**eFreeSplat** [105]：自监督 ViT + 高斯对齐模块</li>
-<li>**iLRM** [106]：迭代跨视图细化，分解多视图交互为两阶段注意力</li>
-</ul>
-<p>**几何级融合**：</p>
-<ul>
-<li>**DUSt3R** [3]：密集坐标回归，同时预测位姿</li>
-<li>**MV-DUSt3R** [100]：多视图解码器块，促进跨视图信息交换</li>
-<li>**MUSt3R** [111]：对称架构，内存机制支持多视图</li>
-</ul>
-<p>**长序列处理**：</p>
-<ul>
-<li>**PreF3R** [102]：空间记忆网络，增量融合时序信息</li>
-<li>**Spann3R** [101]：外部3D空间记忆，存储点级特征</li>
-<li>**CUT3R** [107]：压缩状态表示，支持动态场景</li>
-</ul>
-<h4>3.1.3 视觉基础模型集成</h4>
-<p>利用大规模预训练模型注入强大的视觉和几何先验。</p>
-<p>**视觉特征**：</p>
-<ul>
-<li>**DUSt3R** [3]：使用 CroCo [213] 预训练权重</li>
-<li>**Feat2GS** [125]：探测预训练2D模型（分割、扩散、识别），无需重训3D网络</li>
-<li>**Mono3R** [124]：集成单视图先验，细化多视图立体特征</li>
-</ul>
-<p>**文本-视觉融合**：</p>
-<ul>
-<li>**CATSplat** [94]：利用视觉-语言模型的文本指导增强单图3D重建</li>
-</ul>
-<h3>3.2 几何感知：解决深度模糊</h3>
-<p>前馈3D重建的核心挑战是从2D图像鲁棒、准确地推断3D几何。</p>
-<h4>3.2.1 显式几何聚合</h4>
-<p>**代价体构建**：</p>
-<ul>
-<li>**MVSNeRF** [126]：平面扫描变换构建代价体，3D卷积聚合</li>
-<li>**GeoNeRF** [128]：级联代价体 + Transformer 渲染器</li>
-<li>**MuRF** [129]：目标视图锥体体积，有效聚合跨视图特征</li>
-</ul>
-<p>**对应关系推理**：</p>
-<ul>
-<li>**SRF** [127]：神经立体框架，避免完整代价体构建</li>
-<li>**GPNR** [79]：沿极线提取局部斑块，Transformer 聚合</li>
-<li>**MatchNeRF** [134]：特征余弦相似度作为几何先验</li>
-</ul>
-<p>**表面感知表示**：</p>
-<ul>
-<li>**SparseNeuS** [65]：SDF 表面 + 体渲染</li>
-<li>**VolRecon** [66]：SRDF + 基于射线的渲染</li>
-<li>**SurfaceSplat** [70]：SDF 粗几何 + 3DGS 细化细节</li>
-</ul>
-<h4>3.2.2 后细化</h4>
-<p>迭代改进生成的基元以捕获复杂几何。</p>
-<ul>
-<li>**HiSplat** [137]：层次化方法，粗高斯 + 细高斯 + 误差感知模块</li>
-<li>**FreeSplat** [138]：像素级对齐，逐步聚合更新局部和全局高斯三元组</li>
-<li>**PixelGaussian** [139]：动态框架，根据局部几何复杂度自适应调整高斯分布</li>
-<li>**G3R** [140]：结合快速前馈预测和基于梯度的细化</li>
-</ul>
-<h4>3.2.3 无位姿重建</h4>
-<p>从未知相机参数的图像中重建，同时推断几何和位姿。</p>
-<p>**点图路线**：</p>
-<ul>
-<li>**DUSt3R** [3]：成对重建 = 密集点图回归</li>
-<li>**π³** [153]：全排列等变架构，预测仿射不变位姿和尺度不变点图</li>
-</ul>
-<p>**3DGS 路线**：</p>
-<ul>
-<li>**Splatt3R** [144]：适配 MASt3R 框架预测高斯属性</li>
-<li>**NoPoSplat** [145]：在单个规范输入视图的局部坐标系中预测所有高斯</li>
-<li>**PF3plat** [146]：预训练单目深度 + 对应模型粗对齐，轻量模块细化</li>
-<li>**AnySplat** [152]：几何 transformer + 可微位姿估计模块</li>
-</ul>
-<h4>3.2.4 预训练几何指导</h4>
-<p>直接注入来自强大预训练模型的几何线索。</p>
-<p>**深度先验**：</p>
-<ul>
-<li>**DepthSplat** [18]：多视图深度估计 + 3DGS 的协同链接</li>
-<li>**Flash3D** [156]：单目深度估计扩展为完整3D重建器</li>
-<li>**Niagara** [157]：集成单目深度和法线估计</li>
-</ul>
-<p>**点图先验**：</p>
-<ul>
-<li>**PM-Loss** [28]：基于前馈点图模型的正则化损失，强制几何平滑</li>
-</ul>
-<h3>3.3 生成增强：利用生成先验</h3>
-<p>这是"生成式重建"的核心——利用生成模型（尤其是扩散模型）的先验知识增强重建。</p>
-<h4>3.3.1 数据增强</h4>
-<p>扩充训练分布，提升泛化能力。</p>
-<ul>
-<li>**Puzzles** [174]：从单张图像/视频合成无限位姿视频-深度数据</li>
-<li>**MegaSynth** [175]：程序化生成数十万非语义3D场景</li>
-<li>**Aug3D** [176]：基于 SfM 的新视角增强户外数据集</li>
-<li>**MVBoost** [177]：多视图生成模型 + 重建一致性检查生成伪真值</li>
-</ul>
-<h4>3.3.2 视觉增强</h4>
-<p>利用生成先验增强渲染输出，抑制伪影，幻觉合理细节。</p>
-<p>**扩散先验集成**：</p>
-<ul>
-<li>**MVSplat360** [178]：3DGS + Stable Video Diffusion，高斯渲染特征注入扩散潜空间</li>
-<li>**LatentSplat** [180]：变分3D高斯，显式编码潜空间不确定性</li>
-<li>**ProSplat** [179]：单步扩散细化阶段增强高斯渲染视图</li>
-<li>**DIFIX3D+** [181]：单步扩散模型 Difix 作为神经增强器，抑制残留伪影</li>
-</ul>
-<p>**混合策略**：</p>
-<ul>
-<li>**CogNVS** [264]：共视像素3D重建 + 隐藏像素视频扩散修复，自监督扩散模型测试时微调</li>
-</ul>
-<h3>3.4 时序感知：动态4D重建</h3>
-<p>将生成式重建扩展到动态场景。</p>
-<h4>3.4.1 在线流式处理</h4>
-<p>逐帧处理，增量更新场景表示。</p>
-<ul>
-<li>**StreamSplat** [182]：估计每高斯速度和小变形，单次传播更新运动和外观</li>
-<li>**DGS-LRM** [183]：Plücker 射线查询 + 时空 Transformer，从单目视频预测可变形高斯</li>
-<li>**CUT3R** [107]：持久循环状态跨帧携带几何</li>
-<li>**Stream3R** [184]：decoder-only 因果 Transformer，可扩展序列3D重建</li>
-</ul>
-<h4>3.4.2 离线处理</h4>
-<p>聚合完整片段，单次前向传播预测全局一致的4D表示。</p>
-<ul>
-<li>**L4GM** [186]：LRM 扩展到时间维度，单目视频 → 每帧高斯</li>
-<li>**4D-LRM** [190]：联合建模空间和时间，输出4D高斯场</li>
-<li>**MonST3R** [187]：DUSt3R 微调用于动态视频</li>
-<li>**4DGT** [192]：滚动时间窗口直接预测一致的4D高斯</li>
-</ul>
-<h4>3.4.3 交互建模</h4>
-<p>允许用户注入力、编辑内容或调整材质，实时反馈物理合理结果。</p>
-<ul>
-<li>**PIXIE** [197]：离线重建几何 + 前馈预测材质场 → 物理求解器动画</li>
-<li>**PhysGM** [198]：单次前向传播同时预测3D高斯场景和物理属性</li>
-</ul>
+
+<h2>第三章：生成先验的注入（2024-2025）</h2>
+
+<p>前馈重建解决了"速度"问题，但遇到了新挑战：<strong>稀疏输入</strong>。</p>
+
+<p>如果你只有一张图像，或者视角很稀疏，前馈方法的效果会急剧下降。因为它只能"看到什么重建什么"——没看到的部分，就是空洞。</p>
+
+<p>这时候，一个关键洞察出现了：<strong>生成模型（尤其是扩散模型）已经学会了丰富的视觉先验。能不能把这些先验"注入"到重建中？</strong></p>
+
+<h3>MVSplat360：扩散先验的第一次尝试</h3>
+
+<p>2024 年，研究者提出了 <strong>MVSplat360</strong> [178]——第一个把扩散模型和前馈 3DGS 结合的工作。</p>
+
+<p>它的思路是：先用前馈方法预测初始的 3DGS，然后用 Stable Video Diffusion 模型"细化"渲染结果。</p>
+
+<p>扩散模型的作用是：<strong>"脑补"缺失的部分</strong>。如果你只看到物体的正面，扩散模型能根据它学到的先验，"想象"出背面应该是什么样子。</p>
+
+<div class="scene-box">你给 MVSplat360 一张椅子的正面照片。前馈方法只能重建正面。但扩散模型"知道"椅子有四条腿、有靠背。它能"幻觉"出背面和侧面，生成一个完整的 3D 椅子。</div>
+
+<h3>LatentSplat：不确定性的显式建模</h3>
+
+<p>同年，<strong>LatentSplat</strong> [180] 提出了一个更优雅的方案：<strong>变分 3D 高斯</strong>。</p>
+
+<p>传统 3DGS 预测确定性的参数。但 LatentSplat 预测的是一个<strong>分布</strong>——每个高斯的位置、形状、颜色都是一个概率分布，而不是固定值。</p>
+
+<p>这意味着：模型能显式地表达"我不确定这里是什么"。没看到的部分，分布会很宽（高不确定性）；看到的部分，分布会很窄（低不确定性）。</p>
+
+<p>推理时，从这个分布中采样，就能生成多个合理的重建结果——而不是一个"平均"的、模糊的结果。</p>
+
+<h3>ProSplat：单步扩散细化</h3>
+
+<p>2024 年末，<strong>ProSplat</strong> [179] 提出了一个更轻量的方案：<strong>单步扩散细化</strong>。</p>
+
+<p>它的思路是：先用前馈方法预测初始 3DGS，渲染出新视角；然后用一个<strong>单步扩散模型</strong>（不是多步去噪）细化渲染结果，抑制伪影、增强细节。</p>
+
+<p>单步扩散模型的速度很快（只需要一次前向传播），但效果显著——它能"修复"前馈方法产生的模糊区域和几何错误。</p>
+
 <hr>
-<h2>4. 模型效率：走向实时部署</h2>
-<h3>4.1 特征效率</h3>
-<p>学习"在哪里"和"如何"聚合多视图信息，最小化不必要的计算。</p>
+
+<h2>第四章：走向基础模型（2025）</h2>
+
+<h3>VGGT：统一的尝试</h3>
+
+<p>2025 年，Meta FAIR 发布了 <strong>VGGT（Visual Geometry Grounded Transformer）</strong> [19]——一个试图统一多种 3D 任务的基础模型。</p>
+
+<p>VGGT 的野心很大：它不仅要重建 3D 场景，还要同时做：</p>
+
 <ul>
-<li>**ENeRF** [161]：学习深度引导采样器，显著减少每射线查询</li>
-<li>**ProNeRF** [162]：投影感知采样，动态调整不透明度</li>
-<li>**TinySplat** [163]：免训练感知和空间压缩</li>
-<li>**ZPressor** [164]：IB 引导锚点-支持交叉注意力，融合为紧凑潜变量 Z</li>
+<li>相机位姿估计</li>
+<li>深度预测</li>
+<li>点云生成</li>
+<li>光流估计</li>
 </ul>
-<p>**VGGT 系列优化**：</p>
+
+<p>通过多任务预训练，VGGT 学习了一个丰富的"视觉-几何"特征空间。它在各个任务上都达到了 state-of-the-art，而且可以泛化到未见过的场景。</p>
+
+<p>VGGT 的意义在于：它证明了<strong>3D 视觉也可以走"基础模型"路线</strong>——一个大模型，解决多个任务，而不是为每个任务单独训练一个小模型。</p>
+
+<h3>VGGT 家族的优化</h3>
+
+<p>VGGT 虽然强大，但推理速度慢（需要处理大量 token）。很快，一系列优化工作出现：</p>
+
 <ul>
-<li>**FastVGGT** [166]：免训练 token 合并</li>
-<li>**QuantVGGT** [167]：训练后量化</li>
-<li>**Sparse VGGT** [168]：自适应块稀疏核</li>
-<li>**Evict3R** [169]：免训练 KV 缓存驱逐策略</li>
-<li>**LiteVGGT** [171]：几何感知缓存 token 合并</li>
-<li>**Speed3R** [170]：稀疏双分支设计</li>
+<li><strong>FastVGGT</strong>：免训练 token 合并，速度提升 2 倍</li>
+<li><strong>Sparse VGGT</strong>：自适应块稀疏核，速度提升 3 倍</li>
+<li><strong>Evict3R</strong>：KV 缓存驱逐策略，内存占用减少 50%</li>
 </ul>
-<h3>4.2 表示压缩</h3>
-<p>显式高斯压缩。</p>
-<ul>
-<li>**GGN** [141]：高斯图上的消息传递，池化合并和剪枝</li>
-<li>**PixelGaussian** [139]：级联适配器引导剪枝和分裂</li>
-<li>**FreeSplat++** [172]：像素级三元组融合去重，加权浮点去除</li>
-<li>**LongSplat** [173]：GIR 空间身份感知冗余压缩</li>
-</ul>
+
+<p>这些优化让 VGGT 从"实验室玩具"变成了"可用工具"。</p>
+
 <hr>
-<h2>5. 数据集与基准</h2>
-<h3>5.1 数据集分类</h3>
-<p>**几何导向数据集**：提供可靠的3D表示真值（点云、深度、位姿）</p>
-<ul>
-<li>DTU [21]、ScanNet [22]、Replica [23]、Waymo [281]</li>
-</ul>
-<p>**视觉导向数据集**：来自野外或策划视频，适合新视角合成</p>
-<ul>
-<li>NeRF-Synthetic [1]、RealEstate10K [24]、DL3DV [25]</li>
-</ul>
-<h3>5.2 评估指标</h3>
-<p>**新视角合成**：</p>
-<ul>
-<li>PSNR（峰值信噪比）</li>
-<li>SSIM（结构相似性）</li>
-<li>LPIPS（学习感知图像块相似度）</li>
-</ul>
-<p>**相机位姿**：</p>
-<ul>
-<li>RTA（相对平移精度）</li>
-<li>RRA（相对旋转精度）</li>
-<li>AUC（曲线下面积）</li>
-</ul>
-<p>**点图**：</p>
-<ul>
-<li>Accuracy（精度）：预测点到真值表面的平均距离</li>
-<li>Completeness（完整性）：真值点到预测重建的平均距离</li>
-<li>Chamfer Distance：精度和完整性的综合</li>
-</ul>
+
+<h2>第五章：动态世界的挑战</h2>
+
+<p>真实世界是动态的。人在走动，车在行驶，树叶在飘动。静态重建无法捕捉这些变化。</p>
+
+<p>2024-2025 年，研究者开始把前馈重建扩展到<strong>动态 4D 场景</strong>。</p>
+
+<h3>StreamSplat：在线流式处理</h3>
+
+<p><strong>StreamSplat</strong> [182] 的思路是：逐帧处理视频，增量更新 3DGS。</p>
+
+<p>每处理一帧，它不仅更新高斯的位置和颜色，还预测每个高斯的<strong>速度</strong>——这样就能"跟踪"运动的物体。</p>
+
+<div class="scene-box">你给 StreamSplat 一段行人在街上走动的视频。它逐帧处理，实时更新场景。行人移动时，对应的高斯也跟着移动——而不是在每一帧都重新生成。</div>
+
+<h3>L4GM：离线 4D 重建</h3>
+
+<p><strong>L4GM</strong> [186] 走了另一条路线：<strong>离线处理</strong>。</p>
+
+<p>它把 LRM（大型重建模型）扩展到时间维度：输入一段视频，一次性预测每一帧的 3DGS。</p>
+
+<p>相比流式处理，离线方法能更好地保证<strong>时序一致性</strong>——因为它能看到整个视频，而不是只看当前帧。</p>
+
 <hr>
-<h2>6. 应用场景</h2>
-<h3>6.1 自动驾驶</h3>
-<p>大规模动态重建，严格的实时和时序一致性要求。</p>
-<ul>
-<li>**Driv3R**、**Omni-Scene**：处理大规模户外场景</li>
-<li>**LoRA3D**：参数高效微调适应驾驶场景</li>
-</ul>
-<h3>6.2 机器人</h3>
-<p>快速可泛化的3D表示支持下游决策。</p>
-<ul>
-<li>**操作**：精确的物体几何重建</li>
-<li>**导航**：显式场景记忆支持长视野规划</li>
-</ul>
-<h3>6.3 场景理解</h3>
-<p>前馈3D先验作为语义场景理解的骨干。</p>
-<ul>
-<li>**Uni3R** [117]：联合重建语义3D高斯基元，统一渲染、深度预测、开放词汇3D理解</li>
-</ul>
-<h3>6.4 SfM 和 SLAM</h3>
-<ul>
-<li>**VGGT-SLAM**：基于 VGGT 的视觉定位和建图</li>
-<li>**LoGeR** [121]：分块处理长视频，结合测试时训练记忆和滑动窗口注意力</li>
-</ul>
-<h3>6.5 视频生成</h3>
-<p>几何感知的视频生成。</p>
-<ul>
-<li>**4Real-Video-V2** [193]：VGGT 基础上引入高斯头和动态层</li>
-<li>**MoVieS** [194]：共享编码器 + 三个独立头（外观、深度、运动）</li>
-</ul>
+
+<h2>第六章：那些还没解决的问题</h2>
+
+<p>生成式重建发展迅速，但仍有很多开放问题：</p>
+
+<h3>泛化的天花板</h3>
+
+<p>目前的前馈方法大多在室内场景（ScanNet、Replica）或简单物体上训练。当部署到复杂的户外场景（城市街道、森林）时，效果会急剧下降。</p>
+
+<p>原因很简单：训练数据和测试数据的分布差距太大。模型"见过"的室内场景，和"没见过"的户外场景，差异太大。</p>
+
+<h3>"幻觉"的可靠性</h3>
+
+<p>生成式重建的核心优势是"脑补"缺失部分。但这带来了一个风险：<strong>幻觉可能不可靠</strong>。</p>
+
+<div class="scene-box">你给模型一张汽车的照片，让它"脑补"出背面。如果训练数据里大多是轿车，它可能会生成一个轿车的背面。但如果实际是一辆 SUV，幻觉就错了。</div>
+
+<p>在自动驾驶、机器人等安全关键应用中，这种错误可能是致命的。</p>
+
+<h3>物理可交互性</h3>
+
+<p>目前的 3D 重建主要是"视觉"的——看起来真实，但不能"交互"。</p>
+
+<p>如果你让机器人去抓一个重建出来的杯子，它可能会失败——因为重建的杯子没有物理属性（质量、摩擦力、刚度）。</p>
+
+<p>一个新兴方向是：<strong>物理感知重建</strong>。不仅重建外观，还重建物理属性。代表工作：PIXIE [197]、PhysGM [198]。</p>
+
 <hr>
-<h2>7. 未来方向</h2>
-<h3>7.1 严格的基准</h3>
-<ul>
-<li>建立场景复杂度的标准化量化方法</li>
-<li>更清晰地报告几何多样性</li>
-<li>统一评估协议</li>
-</ul>
-<h3>7.2 系统效率</h3>
-<ul>
-<li>实时、内存受限部署</li>
-<li>边缘设备优化</li>
-<li>模型压缩和量化</li>
-</ul>
-<h3>7.3 可扩展表示</h3>
-<ul>
-<li>大规模场景的高效表示</li>
-<li>层次化表示方法</li>
-<li>动态内容的紧凑建模</li>
-</ul>
-<h3>7.4 世界模型</h3>
-<ul>
-<li>物理属性预测（材质、物理参数）</li>
-<li>可交互的3D场景生成</li>
-<li>因果推理和规划</li>
-</ul>
-<h3>7.5 统一感知与重建</h3>
-<ul>
-<li>联合优化3D重建和语义理解</li>
-<li>开放词汇的3D场景表示</li>
-<li>多任务学习框架</li>
-</ul>
-<h3>7.6 开放问题</h3>
-<ul>
-<li>**可扩展性**：如何处理城市级别的大规模场景？</li>
-<li>**泛化性**：如何跨域（室内→室外、合成→真实）泛化？</li>
-<li>**可解释性**：生成式重建的"幻觉"是否可靠？</li>
-<li>**安全性**：如何防止生成不合理或危险的内容？</li>
-</ul>
+
+<h2>尾声：一个隐喻</h2>
+
+<p>如果把三维重建比作"画画"，那么：</p>
+
+<p><strong>传统方法（SfM/MVS）是"写生"。</strong> 你看到什么，就画什么。没看到的部分，留白。</p>
+
+<p><strong>NeRF 是"照片级写实画"。</strong> 你能画出从未见过的角度，但每幅画都要花几个小时。</p>
+
+<p><strong>前馈重建是"速写"。</strong> 几秒钟就能画完，但细节不够。</p>
+
+<p><strong>生成式重建是"有想象力的速写"。</strong> 不仅画得快，还能"脑补"出没看到的部分——而且想象得还挺准。</p>
+
+<p>从"恢复已有"到"推断缺失"，从"逐场景优化"到"一次前向传播"，从"几何重建"到"生成式重建"——这是三维重建领域的范式转变。</p>
+
+<p>而这场变革的参与者——Meta FAIR 的 DUSt3R、3DGS 的发明者、扩散模型的研究者——每一个人都在试图回答同一个问题：</p>
+
+<p><strong>机器能否像人类一样，从有限的观察中"想象"出完整的世界？</strong></p>
+
+<p>答案正在越来越近。</p>
+
 <hr>
-<h2>8. 代表性方法总结</h2>
-<h3>8.1 前馈重建里程碑</h3>
-<p>| 方法 | 年份 | 表示 | 核心贡献 |</p>
-<p>|------|------|------|----------|</p>
-<p>| PixelNeRF | 2021 | NeRF | 开创性的条件化辐射场 |</p>
-<p>| DUSt3R | 2023 | Pointmap | 密集坐标回归，无位姿重建 |</p>
-<p>| pixelSplat | 2023 | 3DGS | 从图像直接预测高斯参数 |</p>
-<p>| LRM | 2024 | Triplane | 大型重建模型架构 |</p>
-<p>| MVSplat | 2024 | 3DGS | 代价体 + 高斯定位 |</p>
-<p>| VGGT | 2025 | 多任务 | 视觉几何基础模型 |</p>
-<h3>8.2 生成式重建代表工作</h3>
-<p>| 方法 | 年份 | 生成策略 | 核心特点 |</p>
-<p>|------|------|----------|----------|</p>
-<p>| MVSplat360 | 2024 | 扩散先验 | 3DGS + SVD，注入扩散潜空间 |</p>
-<p>| LatentSplat | 2024 | 变分生成 | 显式编码潜空间不确定性 |</p>
-<p>| ProSplat | 2024 | 单步扩散 | 扩散细化增强高斯渲染 |</p>
-<p>| DIFIX3D+ | 2025 | 扩散增强 | 单步扩散模型抑制伪影 |</p>
-<p>| CogNVS | 2025 | 混合策略 | 3D重建 + 视频扩散修复 |</p>
-<hr>
-<h2>9. 结语</h2>
-<p>生成式重建代表了3D视觉从"恢复"到"生成"的范式转变。通过整合生成模型的强大先验，我们能够在稀疏观测下推断完整的3D场景，实现从"看到什么重建什么"到"看到什么推断什么"的跨越。</p>
-<p>这一领域的快速发展得益于：</p>
-<p>1. **大规模预训练模型**：提供丰富的2D视觉和几何先验</p>
-<p>2. **高效3D表示**：3DGS 等显式表示支持实时渲染和编辑</p>
-<p>3. **前馈架构**：单次传播实现高效推理和跨场景泛化</p>
-<p>未来，生成式重建将朝着**统一感知与生成**、**物理可交互**、**世界模型**的方向演进，为机器人、自动驾驶、AR/VR 等应用提供更强大、更可靠的3D理解能力。</p>
-<hr>
+
 <h2>参考文献</h2>
-<p>[1] Mildenhall et al. NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis. ECCV 2020.</p>
-<p>[2] Kerbl et al. 3D Gaussian Splatting for Real-Time Radiance Field Rendering. SIGGRAPH 2023.</p>
-<p>[3] Wang et al. DUSt3R: Geometric 3D Vision Made Easy. CVPR 2024.</p>
-<p>[4] Park et al. DeepSDF: Learning Continuous Signed Distance Functions for Shape Representation. CVPR 2019.</p>
-<p>[5] Mescheder et al. Occupancy Networks: Learning 3D Reconstruction in Function Space. CVPR 2019.</p>
-<p>[9] Snavely et al. Photo Tourism: Modeling Earth's Surface from Internet-Scale Photo Collections. SIGGRAPH 2006.</p>
-<p>[10] Schönberger & Frahm. Structure-from-Motion Revisited. CVPR 2016.</p>
-<p>[13] Yu et al. pixelNeRF: Neural Radiance Fields from One or Few Images. CVPR 2021.</p>
-<p>[15] Charatan et al. pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis. CVPR 2024.</p>
-<p>[17] Chen et al. MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images. ECCV 2024.</p>
-<p>[18] Liang et al. DepthSplat: Connecting Gaussian Splatting and Depth. arXiv 2024.</p>
-<p>[19] Wang et al. VGGT: Visual Geometry Grounded Transformer. CVPR 2025.</p>
-<p>[26] Leroy et al. MASt3R: Geometry-Aware Visual Correspondences. CVPR 2025.</p>
-<p>[33] Long-LRM. arXiv 2025.</p>
-<p>[75] LRM. Large Reconstruction Model. 2024.</p>
-<p>[79] GPNR. Generative Point-based Neural Rendering. 2022.</p>
-<p>[83] PixelNeRF. CVPR 2021.</p>
-<p>[84] IBRNet. CVPR 2021.</p>
-<p>[87] SRT. Scene Representation Transformer. ICCV 2021.</p>
-<p>[92] GRM. 2024.</p>
-<p>[93] GS-LRM. 2024.</p>
-<p>[97] Gamba. 2024.</p>
-<p>[102] PreF3R. 2024.</p>
-<p>[105] eFreeSplat. 2025.</p>
-<p>[106] iLRM. 2025.</p>
-<p>[107] CUT3R. 2025.</p>
-<p>[111] MUSt3R. 2025.</p>
-<p>[117] Uni3R. 2025.</p>
-<p>[124] Mono3R. 2024.</p>
-<p>[125] Feat2GS. 2024.</p>
-<p>[126] MVSNeRF. CVPR 2021.</p>
-<p>[128] GeoNeRF. CVPR 2022.</p>
-<p>[129] MuRF. ECCV 2022.</p>
-<p>[134] MatchNeRF. 2022.</p>
-<p>[137] HiSplat. 2024.</p>
-<p>[138] FreeSplat. 2024.</p>
-<p>[139] PixelGaussian. 2024.</p>
-<p>[140] G3R. 2024.</p>
-<p>[141] GGN. 2024.</p>
-<p>[144] Splatt3R. 2024.</p>
-<p>[145] NoPoSplat. 2024.</p>
-<p>[146] PF3plat. 2024.</p>
-<p>[152] AnySplat. 2025.</p>
-<p>[153] π³. 2024.</p>
-<p>[156] Flash3D. 2024.</p>
-<p>[157] Niagara. 2024.</p>
-<p>[161] ENeRF. 2022.</p>
-<p>[162] ProNeRF. 2022.</p>
-<p>[163] TinySplat. 2025.</p>
-<p>[164] ZPressor. 2025.</p>
-<p>[166] FastVGGT. 2025.</p>
-<p>[167] QuantVGGT. 2025.</p>
-<p>[168] Sparse VGGT. 2025.</p>
-<p>[169] Evict3R. 2025.</p>
-<p>[170] Speed3R. 2025.</p>
-<p>[171] LiteVGGT. 2025.</p>
-<p>[174] Puzzles. 2024.</p>
-<p>[175] MegaSynth. 2025.</p>
-<p>[176] Aug3D. 2024.</p>
-<p>[177] MVBoost. 2025.</p>
-<p>[178] MVSplat360. 2024.</p>
-<p>[179] ProSplat. 2024.</p>
-<p>[180] LatentSplat. 2024.</p>
-<p>[181] DIFIX3D+. 2025.</p>
-<p>[182] StreamSplat. 2024.</p>
-<p>[183] DGS-LRM. 2025.</p>
-<p>[184] Stream3R. 2025.</p>
-<p>[186] L4GM. 2024.</p>
-<p>[187] MonST3R. 2024.</p>
-<p>[188] EgoMono4D. 2025.</p>
-<p>[190] 4D-LRM. 2025.</p>
-<p>[192] 4DGT. 2025.</p>
-<p>[193] 4Real-Video-V2. 2025.</p>
-<p>[194] MoVieS. 2025.</p>
-<p>[197] PIXIE. 2024.</p>
-<p>[198] PhysGM. 2025.</p>
-<p>[213] CroCo. ECCV 2022.</p>
-<p>[264] CogNVS. 2025.</p>
+
+<p>[1] Mildenhall, B., et al. "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis." <em>ECCV 2020</em>. <a href="https://arxiv.org/abs/2003.08934">arXiv:2003.08934</a></p>
+
+<p>[2] Kerbl, B., et al. "3D Gaussian Splatting for Real-Time Radiance Field Rendering." <em>SIGGRAPH 2023</em>. <a href="https://arxiv.org/abs/2308.04079">arXiv:2308.04079</a></p>
+
+<p>[3] Wang, S., et al. "DUSt3R: Geometric 3D Vision Made Easy." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.14132">arXiv:2312.14132</a></p>
+
+<p>[13] Yu, A., et al. "pixelNeRF: Neural Radiance Fields from One or Few Images." <em>CVPR 2021</em>. <a href="https://arxiv.org/abs/2012.02190">arXiv:2012.02190</a></p>
+
+<p>[15] Charatan, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a></p>
+
+<p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a></p>
+
+<p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>.</p>
+
+<p>[178] Chen, C., et al. "MVSplat360: Feed-Forward 360° Scene Reconstruction from Sparse Views." <em>arXiv 2024</em>.</p>
+
+<p>[179] ProSplat. "Single-Step Diffusion Refinement for 3D Gaussian Splatting." <em>arXiv 2024</em>.</p>
+
+<p>[180] LatentSplat. "LatentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>.</p>
+
+<p>[182] StreamSplat. "StreamSplat: Streaming 3D Gaussian Splatting for Dynamic Scenes." <em>arXiv 2024</em>.</p>
+
+<p>[186] L4GM. "Large 4D Gaussian Models." <em>arXiv 2024</em>.</p>
+
+<p>[197] PIXIE. "Physics-Based Interactive Editing of 3D Scenes." <em>arXiv 2024</em>.</p>
+
+<p>[198] PhysGM. "Physics-Aware Gaussian Models for Interactive 3D Scenes." <em>arXiv 2025</em>.</p>
+
 <hr>
-<p>*本文档为初稿，将持续更新。*</p>
+
+<p><em>最后更新：2026-07-21 · 将持续更新</em></p>
 
 </div>
 </body>
