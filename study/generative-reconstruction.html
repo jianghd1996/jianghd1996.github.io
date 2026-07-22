@@ -150,6 +150,12 @@
       }
     }
   </style>
+  <script>
+    MathJax = {
+      tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
 <div id="article-container">
@@ -197,6 +203,12 @@
 
 <pre>MLP(x, y, z, θ, ϕ) → (颜色, 密度)</pre>
 
+<p>具体来说，网络输出体密度 $\sigma$ 和视图相关颜色 $\mathbf{c}$，然后通过<strong>体渲染（Volume Rendering）</strong>沿射线 $\mathbf{r}(t) = \mathbf{o} + t\mathbf{d}$ 积分：</p>
+
+$$C(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\, \sigma(\mathbf{r}(t))\, \mathbf{c}(\mathbf{r}(t), \mathbf{d})\, dt, \quad T(t) = \exp\!\left(-\int_{t_n}^{t} \sigma(\mathbf{r}(s))\, ds\right)$$
+
+<p>其中 $T(t)$ 是累积透射率。离散化后，实际计算变为对采样点的加权求和。</p>
+
 <p>然后通过可微渲染，让这个网络"学会"从 2D 图像中恢复 3D 场景。</p>
 
 <p>效果是惊人的：NeRF 能生成照片级真实感的新视角合成。你从没见过这个角度，但它能"画"出来，而且看起来完全真实。</p>
@@ -225,6 +237,12 @@
 
 <pre>图像 → 网络 → 每个像素的 (x, y, z) 坐标</pre>
 
+<p>形式化地，给定图像对 $(\mathbf{I}_1, \mathbf{I}_2)$，DUSt3R 的 Transformer 编码器-解码器直接回归<strong>点图（Pointmap）</strong>：</p>
+
+$$\hat{\mathbf{P}}_1, \hat{\mathbf{P}}_2 = f_\theta(\mathbf{I}_1, \mathbf{I}_2), \quad \hat{\mathbf{P}} \in \mathbb{R}^{H \times W \times 3}$$
+
+<p>每个像素映射到三维空间中的一个点。损失函数是简单的 $L_2$ 回归：$\mathcal{L} = \|\hat{\mathbf{P}} - \mathbf{P}^*\|_2^2$。
+
 <p>就这么简单。没有复杂的 3D 表示，没有耗时的优化。输入图像，输出点云。</p>
 
 <p>更惊人的是：DUSt3R 同时预测相机位姿。你给它两张照片，它不仅能重建三维场景，还能告诉你相机在哪里、朝哪个方向。</p>
@@ -237,7 +255,13 @@
 
 <p>2023 年，另一个工作彻底改变了 3D 表示的格局——<strong>3D Gaussian Splatting（3DGS）</strong> [2]。</p>
 
-<p>3DGS 的核心思想是：用几百万个各向异性的三维高斯椭球表示场景。每个高斯有位置、形状、颜色、不透明度。</p>
+<p>3DGS 的核心思想是：用几百万个各向异性的三维高斯椭球表示场景。每个高斯 $\mathcal{G}_i$ 由位置 $\boldsymbol{\mu}_i$、协方差 $\boldsymbol{\Sigma}_i$、不透明度 $\alpha_i$ 和球谐颜色 $\mathbf{c}_i$ 参数化：</p>
+
+$$\mathcal{G}_i(\mathbf{x}) = \exp\!\left(-\tfrac{1}{2}(\mathbf{x}-\boldsymbol{\mu}_i)^T \boldsymbol{\Sigma}_i^{-1} (\mathbf{x}-\boldsymbol{\mu}_i)\right)$$
+
+<p>渲染时按深度排序，做 alpha blending：</p>
+
+$$C = \sum_{i \in \mathcal{N}} c_i \, \alpha_i \prod_{j=1}^{i-1}(1 - \alpha_j)$$
 
 <p>相比 NeRF 的隐式表示（MLP），3DGS 是显式的——你可以直接看到、编辑、操作这些高斯。</p>
 
@@ -246,8 +270,8 @@
 <p>很快，研究者开始把 3DGS 和前馈重建结合：</p>
 
 <ul>
-<li><strong>pixelSplat</strong> [15]：输入两张图像，直接预测 3DGS 参数</li>
-<li><strong>MVSplat</strong> [17]：用平面扫描代价体定位高斯中心，效果更好</li>
+<li><a href="https://dcharatan.github.io/pixelsplat" target="_blank"><strong>pixelSplat</strong></a> [15]：输入两张图像，直接预测 3DGS 参数。核心是用可微的 reparameterization trick 从高斯分布中采样均值：$\boldsymbol{\mu}_i = \boldsymbol{\mu}_i^{\text{pred}} + \sigma_i \cdot \boldsymbol{\epsilon}$</li>
+<li><a href="https://donydchen.github.io/mvsplat" target="_blank"><strong>MVSplat</strong></a> [17]：用平面扫描代价体（Cost Volume）定位高斯中心。在深度假设 $\{d_k\}$ 上构建代价体，跨视图特征相似度提供几何线索：$\mathbf{C}(\mathbf{p}, d_k) = \frac{1}{N}\sum_{j} \mathbf{F}_1(\mathbf{p})^T \mathbf{F}_j(\mathbf{w}(\mathbf{p}, d_k))$</li>
 </ul>
 
 <p>现在，前馈重建有了两条路线：</p>
@@ -266,6 +290,10 @@
 <p>LRM 的架构很简单：</p>
 
 <pre>输入图像 → ViT 编码器 → Transformer 解码器 → NeRF 参数</pre>
+
+<p>形式化地，LRM 学习一个从图像到 NeRF 参数的前馈映射：</p>
+
+$$\boldsymbol{\theta}_{\text{NeRF}} = f_\phi(\mathbf{I}), \quad f_\phi: \mathbb{R}^{H \times W \times 3} \to \mathbb{R}^{N \times D}$$
 
 <p>5 亿参数，在 100 万个 3D 对象上训练（来自 Objaverse 和 MVImgNet）。结果：输入一张图像，5 秒内输出完整的 NeRF 模型。</p>
 
@@ -331,7 +359,13 @@
 
 <p>它的思路是：先用前馈方法预测初始的 3DGS，然后用 Stable Video Diffusion 模型"细化"渲染结果。</p>
 
-<p>扩散模型的作用是：<strong>"脑补"缺失的部分</strong>。如果你只看到物体的正面，扩散模型能根据它学到的先验，"想象"出背面应该是什么样子。</p>
+<p>具体来说，前馈模型预测的 3DGS 参数 $\hat{\boldsymbol{\theta}}_{\text{3DGS}}$ 渲染出初始图像，然后送入预训练的 SVD 进行条件去噪。扩散模型的作用是：<strong>"脑补"缺失的部分</strong>。如果你只看到物体的正面，扩散模型能根据它学到的先验，"想象"出背面应该是什么样子。</p>
+
+<p>去噪过程可以形式化为：给定含噪渲染 $\mathbf{x}_t$，单步去噪网络预测干净结果：</p>
+
+$$\hat{\mathbf{x}}_0 = \epsilon_\theta(\mathbf{x}_t, t, \mathbf{c}_{\text{3DGS}})$$
+
+<p>其中 $\mathbf{c}_{\text{3DGS}}$ 是前馈 3DGS 提供的几何条件。</p>
 
 <div class="scene-box">你给 MVSplat360 一张椅子的正面照片。前馈方法只能重建正面。但扩散模型"知道"椅子有四条腿、有靠背。它能"幻觉"出背面和侧面，生成一个完整的 3D 椅子。</div>
 
@@ -339,7 +373,11 @@
 
 <p>同年，<strong>LatentSplat</strong> [180] 提出了一个更优雅的方案：<strong>在潜空间中预测语义高斯</strong>。</p>
 
-<p>传统前馈方法直接在像素空间预测高斯参数。LatentSplat 的做法是：先在<strong>3D 潜空间</strong>中预测语义高斯，然后用一个轻量级的 2D 生成架构解码渲染。</p>
+<p>传统前馈方法直接在像素空间预测高斯参数。LatentSplat 的做法是：先在<strong>3D 潜空间</strong>中预测语义高斯，然后用一个轻量级的 2D 生成架构解码渲染。核心是<strong>变分 3D 高斯</strong>表示——每个高斯编码的不是确定值，而是一个分布：</p>
+
+$$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\, \boldsymbol{\sigma}_\phi(\mathbf{x}))$$
+
+<p>训练时通过 reparameterization trick 采样 $\mathbf{z}_i = \boldsymbol{\mu} + \boldsymbol{\sigma} \odot \boldsymbol{\epsilon}$，然后用轻量级生成解码器将潜特征高斯 splat 到像素空间。</p>
 
 <p>这样做的好处是：潜空间更紧凑，能捕捉更丰富的语义信息；而且可以用预训练的 2D 生成模型（如扩散模型）作为解码器，注入强大的视觉先验。</p>
 
@@ -363,7 +401,11 @@
 
 <p>2025 年，Meta FAIR 发布了 <strong>VGGT（Visual Geometry Grounded Transformer）</strong> [19]——一个试图统一多种 3D 任务的基础模型。</p>
 
-<p>VGGT 的野心很大：它不仅要重建 3D 场景，还要同时做：</p>
+<p>VGGT 的野心很大：它不仅要重建 3D 场景，还要同时做多个任务。形式化地，一个 Transformer 同时输出：</p>
+
+$$\{\hat{\mathbf{P}}, \hat{\mathbf{D}}, \hat{\mathbf{T}}, \hat{\mathbf{F}}\} = f_\theta(\mathbf{I}_{1:N})$$
+
+<p>其中 $\hat{\mathbf{P}}$ 为点图、$\hat{\mathbf{D}}$ 为深度图、$\hat{\mathbf{T}}$ 为相机位姿、$\hat{\mathbf{F}}$ 为光流。通过多任务预训练，任务间共享特征表示，互相提供监督信号。</p>
 
 <ul>
 <li>相机位姿估计</li>
@@ -398,19 +440,25 @@
 
 <h3>StreamSplat：在线流式处理</h3>
 
-<p><strong>StreamSplat</strong> [182] 的思路是：逐帧处理视频，增量更新 3DGS。</p>
+<p><a href="https://streamsplat3d.github.io/" target="_blank"><strong>StreamSplat</strong></a> [182] 的思路是：逐帧处理视频，增量更新 3DGS。</p>
 
-<p>每处理一帧，它不仅更新高斯的位置和颜色，还预测每个高斯的<strong>速度</strong>——这样就能"跟踪"运动的物体。</p>
+<p>每处理一帧，它不仅更新高斯的位置和颜色，还通过<strong>双向变形场</strong>预测每个高斯的运动轨迹——这样就能"跟踪"运动的物体。高斯融合使用自适应策略，处理新出现和消失的高斯：</p>
+
+$$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad \Delta\mathbf{v}_i^t = g_\theta(\boldsymbol{\mu}_i^t, \mathbf{F}^t)$$
 
 <div class="scene-box">你给 StreamSplat 一段行人在街上走动的视频。它逐帧处理，实时更新场景。行人移动时，对应的高斯也跟着移动——而不是在每一帧都重新生成。</div>
 
 <h3>L4GM：大型 4D 高斯重建模型</h3>
 
-<p><strong>L4GM</strong> [186] 走了另一条路线：<strong>大型 4D 重建模型</strong>。</p>
+<p><a href="https://research.nvidia.com/labs/toronto-ai/l4gm" target="_blank"><strong>L4GM</strong></a> [186] 走了另一条路线：<strong>大型 4D 重建模型</strong>。</p>
 
 <p>它基于 LGM（Large Gaussian Model，大型 3D 高斯重建模型）扩展到时间维度：输入一段视频，一次性预测每一帧的 3DGS，然后用时间插值模型上采样到更高帧率。</p>
 
-<p>L4GM 的关键创新是：在 LGM 的基础上加入<strong>时间自注意力层</strong>，让模型学习跨帧的一致性。训练数据是 1200 万个渲染视频（来自 Objaverse 的 4.4 万个动画对象）。</p>
+<p>L4GM 的关键创新是：在 LGM 的基础上加入<strong>时间自注意力层</strong>，让模型学习跨帧的一致性。给定 $T$ 帧的多视图输入，模型输出每帧的 3DGS 参数：</p>
+
+$$\{\boldsymbol{\theta}_{\text{3DGS}}^t\}_{t=1}^{T} = f_\theta^{\text{4D}}(\{\mathbf{I}^t\}_{t=1}^{T})$$
+
+<p>时间自注意力使不同帧的高斯表示可以互相"看到"彼此，从而保证时序一致性。训练数据是 1200 万个渲染视频（来自 Objaverse 的 4.4 万个动画对象）。</p>
 
 <p>相比流式处理，L4GM 能更好地保证<strong>时序一致性</strong>——因为它能看到整个视频，而不是只看当前帧。</p>
 
@@ -483,29 +531,29 @@
 
 <p>[13] Yu, A., et al. "pixelNeRF: Neural Radiance Fields from One or Few Images." <em>CVPR 2021</em>. <a href="https://arxiv.org/abs/2012.02190">arXiv:2012.02190</a></p>
 
-<p>[15] Charatan, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a></p>
+<p>[15] Charatan, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a> · <a href="https://dcharatan.github.io/pixelsplat">Project Page</a></p>
 
-<p>[14] Hong, Y., et al. "LRM: Large Reconstruction Model for Single Image to 3D." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2311.04400">arXiv:2311.04400</a></p>
+<p>[14] Hong, Y., et al. "LRM: Large Reconstruction Model for Single Image to 3D." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2311.04400">arXiv:2311.04400</a> · <a href="https://yiconghong.me/LRM">Project Page</a></p>
 
 <p>[16] Jin, H., et al. "LVSM: A Large View Synthesis Model with Minimal 3D Inductive Bias." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2410.22761">arXiv:2410.22761</a></p>
 
-<p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a></p>
+<p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a> · <a href="https://donydchen.github.io/mvsplat">Project Page</a></p>
 
 <p>[18] Lu, Y., et al. "Matrix3D: Large Photogrammetry Model All-in-One." <em>CVPR 2025</em>.</p>
 
 <p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>.</p>
 
-<p>[178] Chen, Y., et al. "MVSplat360: Feed-Forward 360 Scene Synthesis from Sparse Views." <em>NeurIPS 2024</em>. <a href="https://arxiv.org/abs/2411.04924">arXiv:2411.04924</a></p>
+<p>[178] Chen, Y., et al. "MVSplat360: Feed-Forward 360 Scene Synthesis from Sparse Views." <em>NeurIPS 2024</em>. <a href="https://arxiv.org/abs/2411.04924">arXiv:2411.04924</a> · <a href="https://donydchen.github.io/mvsplat360">Project Page</a></p>
 
 <p>[179] Wu, J. Z., et al. "Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.09585">arXiv:2503.09585</a></p>
 
-<p>[180] Wewer, C., et al. "latentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2403.16292">arXiv:2403.16292</a></p>
+<p>[180] Wewer, C., et al. "latentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2403.16292">arXiv:2403.16292</a> · <a href="https://geometric-rl.mpi-inf.mpg.de/latentsplat/">Project Page</a></p>
 
-<p>[182] Wu, Z., et al. "StreamSplat: Towards Online Dynamic 3D Reconstruction from Uncalibrated Video Streams." <em>ICLR 2026</em>. <a href="https://arxiv.org/abs/2506.08862">arXiv:2506.08862</a></p>
+<p>[182] Wu, Z., et al. "StreamSplat: Towards Online Dynamic 3D Reconstruction from Uncalibrated Video Streams." <em>ICLR 2026</em>. <a href="https://arxiv.org/abs/2506.08862">arXiv:2506.08862</a> · <a href="https://streamsplat3d.github.io/">Project Page</a></p>
 
 <p>[183] Lu, X., et al. "ProSplat: Improved Feed-Forward 3D Gaussian Splatting for Wide-Baseline Sparse Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.07670">arXiv:2506.07670</a></p>
 
-<p>[186] Ren, J., et al. "L4GM: Large 4D Gaussian Reconstruction Model." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.10324">arXiv:2406.10324</a></p>
+<p>[186] Ren, J., et al. "L4GM: Large 4D Gaussian Reconstruction Model." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.10324">arXiv:2406.10324</a> · <a href="https://research.nvidia.com/labs/toronto-ai/l4gm">Project Page</a></p>
 
 <p>[197] Le, L., et al. "PIXIE: Fast and Generalizable Supervised Learning of 3D Physics from Pixels." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17437">arXiv:2508.17437</a></p>
 
