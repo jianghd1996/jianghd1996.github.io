@@ -165,6 +165,59 @@
 <h1>生成式重建：从几何恢复到内容生成</h1>
 <p class="subtitle">2026-07-21 · 3D重建 · 前馈模型 · 生成先验</p>
 
+<h2>时间线</h2>
+
+<div style="position:relative; padding: 10px 0 10px 28px; border-left: 3px solid #27ae60;">
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2006</span>
+    <strong>Photo Tourism</strong> — 开创性 SfM 工作，从 Flickr 照片重建著名景点三维模型
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2020</span>
+    <strong>NeRF</strong> — 神经辐射场，用 MLP 表示场景 + 可微渲染，照片级新视角合成
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2021</span>
+    <strong>PixelNeRF</strong> — 第一个前馈 NeRF 方法，训练一次即可推理新场景
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2023</span>
+    <strong>3DGS</strong> — 三维高斯溅射，显式表示 + 实时渲染<br>
+    <span style="margin-left: 58px; color:#666;"><strong>DUSt3R</strong> — 直接预测像素级三维坐标，端到端几秒钟出点云+位姿</span>
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2024</span>
+    <strong>pixelSplat</strong> / <strong>MVSplat</strong> — 前馈 3DGS 重建<br>
+    <span style="margin-left: 58px; color:#666;"><strong>LRM</strong> — 大型重建模型，5 亿参数，单图 5 秒出 NeRF</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>LVSM</strong> — 纯 Transformer 视图合成，抛弃显式 3D 表示</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>MVSplat360</strong> — 首次将扩散先验注入前馈 3DGS</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>LatentSplat</strong> — 潜空间语义高斯 + 变分 3D 表示</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>L4GM</strong> — 大型 4D 高斯重建模型</span>
+  </div>
+
+  <div style="margin-bottom: 18px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2025</span>
+    <strong>VGGT</strong> — 统一基础模型，同时做位姿/深度/点云/光流<br>
+    <span style="margin-left: 58px; color:#666;"><strong>Matrix3D</strong> — 多任务统一大模型</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>Difix3D+</strong> / <strong>ProSplat</strong> — 单步扩散细化</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>StreamSplat</strong> — 在线流式动态 3D 重建</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>PIXIE</strong> — 从像素快速学习 3D 物理属性</span>
+  </div>
+
+  <div style="margin-bottom: 4px;">
+    <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2026</span>
+    <strong>PhysGM</strong> — 大型物理高斯模型，单次前向传播预测 3D + 物理属性
+  </div>
+
+</div>
+
+<hr>
+
 <h2>序章：一个根本问题</h2>
 
 <p>三维重建是计算机视觉的核心任务之一。它的目标很简单：<strong>从二维图像中恢复三维世界</strong>。</p>
