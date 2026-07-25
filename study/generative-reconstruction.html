@@ -283,7 +283,7 @@ $$C(\mathbf{r}) = \int_{t_n}^{t_f} T(t)\, \sigma(\mathbf{r}(t))\, \mathbf{c}(\ma
 
 <h3>PixelNeRF：第一次尝试</h3>
 
-<p>2021 年，Alex Yu 等人提出了 <strong>PixelNeRF</strong> <a href="https://arxiv.org/abs/2012.02190">[13]</a>——第一个"前馈"NeRF 方法。</p>
+<p>2021 年，Alex Yu 等人提出了 <strong>PixelNeRF</strong> <a href="https://arxiv.org/abs/2012.02190">[2]</a>——第一个"前馈"NeRF 方法。</p>
 
 <p>它的思路是：不再为每个场景单独训练一个网络，而是学习一个<strong>通用的映射函数</strong>。输入图像，直接输出 NeRF 参数。</p>
 
@@ -315,7 +315,7 @@ $$\hat{\mathbf{P}}_1, \hat{\mathbf{P}}_2 = f_\theta(\mathbf{I}_1, \mathbf{I}_2),
 
 <h3>3DGS：渲染派的逆袭</h3>
 
-<p>2023 年，另一个工作彻底改变了 3D 表示的格局——<strong>3D Gaussian Splatting（3DGS）</strong> <a href="https://arxiv.org/abs/2308.04079">[2]</a>。</p>
+<p>2023 年，另一个工作彻底改变了 3D 表示的格局——<strong>3D Gaussian Splatting（3DGS）</strong> <a href="https://arxiv.org/abs/2308.04079">[4]</a>。</p>
 
 <p>3DGS 的核心思想是：用几百万个各向异性的三维高斯椭球表示场景。每个高斯 $\mathcal{G}_i$ 由位置 $\boldsymbol{\mu}_i$、协方差 $\boldsymbol{\Sigma}_i$、不透明度 $\alpha_i$ 和球谐颜色 $\mathbf{c}_i$ 参数化：</p>
 
@@ -332,8 +332,8 @@ $$C = \sum_{i \in \mathcal{N}} c_i \, \alpha_i \prod_{j=1}^{i-1}(1 - \alpha_j)$$
 <p>很快，研究者开始把 3DGS 和前馈重建结合：</p>
 
 <ul>
-<li><a href="https://dcharatan.github.io/pixelsplat"><strong>pixelSplat</strong></a> <a href="https://arxiv.org/abs/2312.12337">[15]</a>：输入两张图像，直接预测 3DGS 参数。核心是用可微的 reparameterization trick 从高斯分布中采样均值：$\boldsymbol{\mu}_i = \boldsymbol{\mu}_i^{\text{pred}} + \sigma_i \cdot \boldsymbol{\epsilon}$</li>
-<li><a href="https://donydchen.github.io/mvsplat"><strong>MVSplat</strong></a> <a href="https://arxiv.org/abs/2403.14627">[17]</a>：用平面扫描代价体（Cost Volume）定位高斯中心。在深度假设 $\{d_k\}$ 上构建代价体，跨视图特征相似度提供几何线索：$\mathbf{C}(\mathbf{p}, d_k) = \frac{1}{N}\sum_{j} \mathbf{F}_1(\mathbf{p})^T \mathbf{F}_j(\mathbf{w}(\mathbf{p}, d_k))$</li>
+<li><a href="https://dcharatan.github.io/pixelsplat"><strong>pixelSplat</strong></a> <a href="https://arxiv.org/abs/2312.12337">[5]</a>：输入两张图像，直接预测 3DGS 参数。核心是用可微的 reparameterization trick 从高斯分布中采样均值：$\boldsymbol{\mu}_i = \boldsymbol{\mu}_i^{\text{pred}} + \sigma_i \cdot \boldsymbol{\epsilon}$</li>
+<li><a href="https://donydchen.github.io/mvsplat"><strong>MVSplat</strong></a> <a href="https://arxiv.org/abs/2403.14627">[6]</a>：用平面扫描代价体（Cost Volume）定位高斯中心。在深度假设 $\{d_k\}$ 上构建代价体，跨视图特征相似度提供几何线索：$\mathbf{C}(\mathbf{p}, d_k) = \frac{1}{N}\sum_{j} \mathbf{F}_1(\mathbf{p})^T \mathbf{F}_j(\mathbf{w}(\mathbf{p}, d_k))$</li>
 </ul>
 
 <p>现在，前馈重建有了两条路线：</p>
@@ -347,15 +347,15 @@ $$C = \sum_{i \in \mathcal{N}} c_i \, \alpha_i \prod_{j=1}^{i-1}(1 - \alpha_j)$$
 
 <p>2024 年，"前馈"思想开始和"大模型"碰撞。但怎么把大模型用到 3D 重建？研究者分成了三个阵营。</p>
 
-<p>第一条路线：<strong>大模型 + 显式 3D 表示</strong>。代表是 <strong>LRM</strong> <a href="https://arxiv.org/abs/2311.04400">[14]</a>——5 亿参数的 Transformer，输入一张图像，5 秒输出完整的 NeRF。它证明了 3D 重建可以走"大模型"路线，训练一次，几秒钟重建新场景。</p>
+<p>第一条路线：<strong>大模型 + 显式 3D 表示</strong>。代表是 <strong>LRM</strong> <a href="https://arxiv.org/abs/2311.04400">[7]</a>——5 亿参数的 Transformer，输入一张图像，5 秒输出完整的 NeRF。它证明了 3D 重建可以走"大模型"路线，训练一次，几秒钟重建新场景。</p>
 
-<p>第二条路线：<strong>大模型 + 抛弃 3D 表示</strong>。<strong>LVSM</strong> <a href="https://arxiv.org/abs/2410.17242">[16]</a> 更激进——它连 NeRF 和 3DGS 都不要了。一个纯 Transformer，输入视图和位姿，直接输出新视角的图像。没有显式的三维中间表示，没有可微渲染。模型从数据中直接学习"从这个角度看，那个角度应该是什么样"。它的 decoder-only 变体在多个基准上超越了所有先前的方法——甚至不需要 3D 归纳偏置。</p>
+<p>第二条路线：<strong>大模型 + 抛弃 3D 表示</strong>。<strong>LVSM</strong> <a href="https://arxiv.org/abs/2410.17242">[8]</a> 更激进——它连 NeRF 和 3DGS 都不要了。一个纯 Transformer，输入视图和位姿，直接输出新视角的图像。没有显式的三维中间表示，没有可微渲染。模型从数据中直接学习"从这个角度看，那个角度应该是什么样"。它的 decoder-only 变体在多个基准上超越了所有先前的方法——甚至不需要 3D 归纳偏置。</p>
 
-<p>第三条路线：<strong>大模型 + 多任务统一</strong>。<strong>Matrix3D</strong> <a href="https://arxiv.org/abs/2502.07685">[18]</a>（CVPR 2025）用多模态扩散 Transformer 统一了位姿估计、深度预测和新视角合成。它的巧妙之处在于<strong>掩码学习策略</strong>——即使训练数据只有部分模态（比如只有图像-位姿对或图像-深度对），模型也能训练。这让它可以利用大量异构数据，还能通过多轮交互实现细粒度控制。</p>
+<p>第三条路线：<strong>大模型 + 多任务统一</strong>。<strong>Matrix3D</strong> <a href="https://arxiv.org/abs/2502.07685">[9]</a>（CVPR 2025）用多模态扩散 Transformer 统一了位姿估计、深度预测和新视角合成。它的巧妙之处在于<strong>掩码学习策略</strong>——即使训练数据只有部分模态（比如只有图像-位姿对或图像-深度对），模型也能训练。这让它可以利用大量异构数据，还能通过多轮交互实现细粒度控制。</p>
 
 <div class="scene-box">三条路线，三种哲学：LRM 说"给我一个好的 3D 表示，我用大模型学映射"；LVSM 说"3D 表示是多余的，直接学视图间的映射"；Matrix3D 说"别争了，一个模型做所有任务"。</div>
 
-<p>2025 年，<strong>VGGT</strong> <a href="https://arxiv.org/abs/2503.11651">[19]</a> 把第三条路线推向了极致。它的核心洞察是：<strong>位姿估计、深度预测、点云生成、光流估计，这些任务本质上是相关的</strong>。一个 Transformer 同时输出：</p>
+<p>2025 年，<strong>VGGT</strong> <a href="https://arxiv.org/abs/2503.11651">[10]</a> 把第三条路线推向了极致。它的核心洞察是：<strong>位姿估计、深度预测、点云生成、光流估计，这些任务本质上是相关的</strong>。一个 Transformer 同时输出：</p>
 
 $$\{\hat{\mathbf{P}}, \hat{\mathbf{D}}, \hat{\mathbf{T}}, \hat{\mathbf{F}}\} = f_\theta(\mathbf{I}_{1:N})$$
 
@@ -373,7 +373,7 @@ $$\{\hat{\mathbf{P}}, \hat{\mathbf{D}}, \hat{\mathbf{T}}, \hat{\mathbf{F}}\} = f
 
 <h3>MVSplat360：扩散先验的第一次尝试</h3>
 
-<p>2024 年，研究者提出了 <strong>MVSplat360</strong> <a href="https://arxiv.org/abs/2411.04924">[178]</a>——第一个把扩散模型和前馈 3DGS 结合的工作。</p>
+<p>2024 年，研究者提出了 <strong>MVSplat360</strong> <a href="https://arxiv.org/abs/2411.04924">[11]</a>——第一个把扩散模型和前馈 3DGS 结合的工作。</p>
 
 <p>它的思路是：先用前馈方法预测初始的 3DGS，然后用 Stable Video Diffusion 模型"细化"渲染结果。</p>
 
@@ -389,7 +389,7 @@ $$\hat{\mathbf{x}}_0 = \epsilon_\theta(\mathbf{x}_t, t, \mathbf{c}_{\text{3DGS}}
 
 <h3>LatentSplat：潜空间中的语义高斯</h3>
 
-<p>同年，<strong>LatentSplat</strong> <a href="https://arxiv.org/abs/2403.16292">[180]</a> 提出了一个更优雅的方案：<strong>在潜空间中预测语义高斯</strong>。</p>
+<p>同年，<strong>LatentSplat</strong> <a href="https://arxiv.org/abs/2403.16292">[12]</a> 提出了一个更优雅的方案：<strong>在潜空间中预测语义高斯</strong>。</p>
 
 <p>传统前馈方法直接在像素空间预测高斯参数。LatentSplat 的做法是：先在<strong>3D 潜空间</strong>中预测语义高斯，然后用一个轻量级的 2D 生成架构解码渲染。核心是<strong>变分 3D 高斯</strong>表示——每个高斯编码的不是确定值，而是一个分布：</p>
 
@@ -401,21 +401,21 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <p>2025 年，两个独立的工作几乎同时提出了同一个想法：<strong>用单步扩散模型做后处理增强</strong>。</p>
 
-<p><strong>Difix3D+</strong> <a href="https://arxiv.org/abs/2503.09585">[181]</a> 来自 NVIDIA / Meta 团队。它的核心是一个叫 Difix 的单步图像扩散模型——输入一张有伪影的渲染图，一步去噪，输出干净的结果。把它插入到任何前馈 3DGS 流程的末端，就能"修复"新视角渲染中的模糊和伪影。</p>
+<p><strong>Difix3D+</strong> <a href="https://arxiv.org/abs/2503.09585">[13]</a> 来自 NVIDIA / Meta 团队。它的核心是一个叫 Difix 的单步图像扩散模型——输入一张有伪影的渲染图，一步去噪，输出干净的结果。把它插入到任何前馈 3DGS 流程的末端，就能"修复"新视角渲染中的模糊和伪影。</p>
 
-<p><strong>ProSplat</strong> <a href="https://arxiv.org/abs/2506.07670">[179]</a> 则更专注于<strong>宽基线稀疏视角</strong>场景。它额外引入了对极约束注意力（DWEA）和最大重叠参考视图注入（MORI），确保扩散细化不会破坏多视图几何一致性。</p>
+<p><strong>ProSplat</strong> <a href="https://arxiv.org/abs/2506.07670">[14]</a> 则更专注于<strong>宽基线稀疏视角</strong>场景。它额外引入了对极约束注意力（DWEA）和最大重叠参考视图注入（MORI），确保扩散细化不会破坏多视图几何一致性。</p>
 
 <h3>"提议-验证"范式：OracleGS 与 CoherentGS</h3>
 
 <p>但扩散模型的"幻觉"真的可靠吗？2025 年，一个关键问题浮出水面：<strong>如何确保生成先验不会引入结构性错误？</strong></p>
 
-<p><strong>OracleGS</strong> <a href="https://arxiv.org/abs/2509.23258">[318]</a> 提出了一个优雅的"提议-验证"框架。它的思路是：先用 3D 感知扩散模型"提议"一个完整的场景，然后用多视图立体（MVS）模型作为"3D 感知 oracle"来"验证"——通过注意力图揭示哪些区域有多视图证据支持，哪些区域是高不确定性区域。最终用不确定性加权损失优化 3DGS，过滤掉"幻觉"伪影，保留合理的补全。</p>
+<p><strong>OracleGS</strong> <a href="https://arxiv.org/abs/2509.23258">[15]</a> 提出了一个优雅的"提议-验证"框架。它的思路是：先用 3D 感知扩散模型"提议"一个完整的场景，然后用多视图立体（MVS）模型作为"3D 感知 oracle"来"验证"——通过注意力图揭示哪些区域有多视图证据支持，哪些区域是高不确定性区域。最终用不确定性加权损失优化 3DGS，过滤掉"幻觉"伪影，保留合理的补全。</p>
 
 <div class="scene-box">OracleGS 就像一个谨慎的画家：先用想象力画出整幅画（扩散模型提议），然后用尺子量一量哪些部分是准确的（MVS 验证），最后只保留画得对的部分。</div>
 
-<p><strong>CoherentGS</strong> <a href="https://arxiv.org/abs/2512.10369">[320]</a> 则走得更远——它用<strong>双先验策略</strong>同时解决稀疏视图和运动模糊两个问题：一个专业的去模糊网络恢复锐利细节，一个扩散模型提供几何先验填充未观测区域。两者通过一致性引导的相机探索模块协调工作。</p>
+<p><strong>CoherentGS</strong> <a href="https://arxiv.org/abs/2512.10369">[16]</a> 则走得更远——它用<strong>双先验策略</strong>同时解决稀疏视图和运动模糊两个问题：一个专业的去模糊网络恢复锐利细节，一个扩散模型提供几何先验填充未观测区域。两者通过一致性引导的相机探索模块协调工作。</p>
 
-<p>同期还有 <strong>FixingGS</strong> <a href="https://arxiv.org/abs/2509.18759">[319]</a>（免训练方法蒸馏扩散先验）、<strong>GSFix3D</strong> <a href="https://arxiv.org/abs/2508.14717">[321]</a>（定制微调的潜扩散模型适配多种环境）、<strong>ExploreGS</strong> <a href="https://arxiv.org/abs/2508.06014">[322]</a>（信息增益驱动的虚拟相机 + 视频扩散先验）等工作，共同构成了"生成增强"这一活跃方向。</p>
+<p>同期还有 <strong>FixingGS</strong> <a href="https://arxiv.org/abs/2509.18759">[17]</a>（免训练方法蒸馏扩散先验）、<strong>GSFix3D</strong> <a href="https://arxiv.org/abs/2508.14717">[18]</a>（定制微调的潜扩散模型适配多种环境）、<strong>ExploreGS</strong> <a href="https://arxiv.org/abs/2508.06014">[19]</a>（信息增益驱动的虚拟相机 + 视频扩散先验）等工作，共同构成了"生成增强"这一活跃方向。</p>
 
 <hr>
 
@@ -427,35 +427,35 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <p>Meta FAIR 的团队用两步回答了这个问题。</p>
 
-<p>第一步是 <strong>MASt3R</strong> <a href="https://arxiv.org/abs/2406.09756">[26]</a>。它在 DUSt3R 的基础上加了一个密集局部特征头——不仅能重建 3D 场景，还能做特征匹配。这意味着它可以接入 SfM 和 SLAM 的管线，不再是一个孤立的"点云生成器"。</p>
+<p>第一步是 <strong>MASt3R</strong> <a href="https://arxiv.org/abs/2406.09756">[20]</a>。它在 DUSt3R 的基础上加了一个密集局部特征头——不仅能重建 3D 场景，还能做特征匹配。这意味着它可以接入 SfM 和 SLAM 的管线，不再是一个孤立的"点云生成器"。</p>
 
-<p>第二步是 <strong>MUSt3R</strong> <a href="https://arxiv.org/abs/2503.01661">[111]</a>。它把 DUSt3R 的非对称架构改成了对称的，并引入多层内存机制，把计算复杂度从 $O(n^2)$ 降到了可管理的范围。结果：可以处理<strong>数千张图像</strong>的大规模集合，以高帧率推断 3D 点图。</p>
+<p>第二步是 <strong>MUSt3R</strong> <a href="https://arxiv.org/abs/2503.01661">[21]</a>。它把 DUSt3R 的非对称架构改成了对称的，并引入多层内存机制，把计算复杂度从 $O(n^2)$ 降到了可管理的范围。结果：可以处理<strong>数千张图像</strong>的大规模集合，以高帧率推断 3D 点图。</p>
 
 <div class="scene-box">DUSt3R 像一个只能看两张照片的画家。MUSt3R 则像一个能同时看几千张照片的画家——而且看得又快又好。</div>
 
 <h3>VGGT：统一的野心</h3>
 
-<p>如果说 MUSt3R 解决的是"多视图"问题，那 <strong>VGGT</strong> <a href="https://arxiv.org/abs/2503.11651">[19]</a> 解决的是"多任务"问题。</p>
+<p>如果说 MUSt3R 解决的是"多视图"问题，那 <strong>VGGT</strong> <a href="https://arxiv.org/abs/2503.11651">[10]</a> 解决的是"多任务"问题。</p>
 
 <p>VGGT 的野心很大：一个 Transformer 同时做位姿估计、深度预测、点云生成、光流估计。它的核心洞察是——这些任务本质上是相关的。深度图可以帮助位姿估计，位姿可以帮助点云生成，点云可以反过来约束深度。通过多任务预训练，任务间共享特征表示，互相提供监督信号。</p>
 
 <p>但 VGGT 有一个现实问题：<strong>太慢了</strong>。它需要对所有图像 token 做密集全局注意力，token 数量随视图数平方增长。</p>
 
-<p>这催生了一轮优化竞赛。<strong>FastVGGT</strong> 用免训练 token 合并提速 2 倍，<strong>Sparse VGGT</strong> 用自适应块稀疏核提速 3 倍，<strong>Evict3R</strong> 用 KV 缓存驱逐减少 50% 内存。其中最激进的是 <strong>FlashVGGT</strong> <a href="https://arxiv.org/abs/2512.01540">[306]</a>：它不再对所有 token 做密集注意力，而是把每帧压缩为一组描述子 token，全局注意力变成图像 token 与描述子的交叉注意力。结果：1000 张图像的推理时间仅为 VGGT 的 <strong>9.3%</strong>，可扩展到 3000+ 视图。</p>
+<p>这催生了一轮优化竞赛。<strong>FastVGGT</strong> 用免训练 token 合并提速 2 倍，<strong>Sparse VGGT</strong> 用自适应块稀疏核提速 3 倍，<strong>Evict3R</strong> 用 KV 缓存驱逐减少 50% 内存。其中最激进的是 <strong>FlashVGGT</strong> <a href="https://arxiv.org/abs/2512.01540">[22]</a>：它不再对所有 token 做密集注意力，而是把每帧压缩为一组描述子 token，全局注意力变成图像 token 与描述子的交叉注意力。结果：1000 张图像的推理时间仅为 VGGT 的 <strong>9.3%</strong>，可扩展到 3000+ 视图。</p>
 
 <h3>基础模型也需要"微调"</h3>
 
 <p>基础模型见多识广，但细节不够。2025 年出现了两个有趣的"元学习"方向。</p>
 
-<p><strong>Fin3R</strong> <a href="https://arxiv.org/abs/2511.22429">[301]</a>（NeurIPS 2025）的思路很简单：冻结解码器，只用轻量 LoRA 微调图像编码器，从强单目教师模型蒸馏精细几何细节。在 DUSt3R、MASt3R、VGGT 上都有效，几乎不增加推理成本。</p>
+<p><strong>Fin3R</strong> <a href="https://arxiv.org/abs/2511.22429">[23]</a>（NeurIPS 2025）的思路很简单：冻结解码器，只用轻量 LoRA 微调图像编码器，从强单目教师模型蒸馏精细几何细节。在 DUSt3R、MASt3R、VGGT 上都有效，几乎不增加推理成本。</p>
 
-<p><strong>Test3R</strong> <a href="https://arxiv.org/abs/2506.13750">[302]</a> 更激进——它甚至不需要训练。利用图像三元组 $(I_1, I_2, I_3)$，在测试时通过自监督目标最大化两个重建的几何一致性。几乎零成本，普遍适用。</p>
+<p><strong>Test3R</strong> <a href="https://arxiv.org/abs/2506.13750">[24]</a> 更激进——它甚至不需要训练。利用图像三元组 $(I_1, I_2, I_3)$，在测试时通过自监督目标最大化两个重建的几何一致性。几乎零成本，普遍适用。</p>
 
 <h3>最终目标：大规模 SfM</h3>
 
 <p>所有这些努力的终极目标是：<strong>用前馈模型替代传统的逐场景 SfM 管线</strong>。</p>
 
-<p>2025 年，多个工作从不同角度逼近这个目标。<strong>Regist3R</strong> <a href="https://arxiv.org/abs/2504.12356">[304]</a> 用增量式配准首次实现千视图级别的大规模重建。<strong>Light3R-SfM</strong> <a href="https://arxiv.org/abs/2501.14914">[346]</a> 用可学习注意力替代传统全局优化。<strong>SAIL-Recon</strong> <a href="https://arxiv.org/abs/2508.17972">[347]</a> 给场景回归网络赋予视觉定位能力。<strong>AMB3R</strong> <a href="https://arxiv.org/abs/2511.20343">[305]</a> 用体积场景表示做后端，甚至超越了基于优化的 SLAM 方法。</p>
+<p>2025 年，多个工作从不同角度逼近这个目标。<strong>Regist3R</strong> <a href="https://arxiv.org/abs/2504.12356">[25]</a> 用增量式配准首次实现千视图级别的大规模重建。<strong>Light3R-SfM</strong> <a href="https://arxiv.org/abs/2501.14914">[26]</a> 用可学习注意力替代传统全局优化。<strong>SAIL-Recon</strong> <a href="https://arxiv.org/abs/2508.17972">[27]</a> 给场景回归网络赋予视觉定位能力。<strong>AMB3R</strong> <a href="https://arxiv.org/abs/2511.20343">[28]</a> 用体积场景表示做后端，甚至超越了基于优化的 SLAM 方法。</p>
 
 <p>这些工作共同说明了一件事：<strong>前馈重建不再只是"玩具"——它开始能处理真实世界的大规模场景了</strong>。</p>
 
@@ -471,7 +471,7 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <h3>G3Splat：几何先验的注入</h3>
 
-<p><strong>G3Splat</strong> <a href="https://arxiv.org/abs/2512.17547">[308]</a> 解决了这个问题。它引入了<strong>可微几何先验</strong>：鼓励每个像素的高斯保持在 viewing ray 上，并根据局部表面方向定位。这些先验是架构无关的，可以插入任何已有的骨干网络。结果：高斯的几何保真度显著提升——在新视角深度、mesh 重建和位姿估计上都达到了 SOTA。</p>
+<p><strong>G3Splat</strong> <a href="https://arxiv.org/abs/2512.17547">[29]</a> 解决了这个问题。它引入了<strong>可微几何先验</strong>：鼓励每个像素的高斯保持在 viewing ray 上，并根据局部表面方向定位。这些先验是架构无关的，可以插入任何已有的骨干网络。结果：高斯的几何保真度显著提升——在新视角深度、mesh 重建和位姿估计上都达到了 SOTA。</p>
 
 <p>G3Splat 的意义在于：它揭示了一个深层问题——<strong>渲染质量不等于几何质量</strong>。未来的前馈 3DGS 方法不能只看 PSNR，还要看几何是否合理。</p>
 
@@ -479,15 +479,15 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <p>几何问题解决后，下一个挑战是：<strong>真实场景的多样性</strong>。输入视图可能基线很大也可能很小，场景可能简单也可能复杂。</p>
 
-<p><strong>MuGS</strong> <a href="https://arxiv.org/abs/2508.04297">[310]</a>（ICCV 2025）融合了 MVS 和单目深度估计的特征来处理多基线问题。<strong>H3R</strong> <a href="https://arxiv.org/abs/2508.03118">[311]</a>（ICCV 2025）则提出了一个混合框架——体积潜空间融合 + 注意力特征聚合。它还发现了一个有趣的事实：<strong>空间对齐的基础模型（如 SD-VAE）在重建任务上大幅优于语义对齐的模型（如 DINOv2）</strong>——语义表示和空间重建之间存在根本矛盾。</p>
+<p><strong>MuGS</strong> <a href="https://arxiv.org/abs/2508.04297">[30]</a>（ICCV 2025）融合了 MVS 和单目深度估计的特征来处理多基线问题。<strong>H3R</strong> <a href="https://arxiv.org/abs/2508.03118">[31]</a>（ICCV 2025）则提出了一个混合框架——体积潜空间融合 + 注意力特征聚合。它还发现了一个有趣的事实：<strong>空间对齐的基础模型（如 SD-VAE）在重建任务上大幅优于语义对齐的模型（如 DINOv2）</strong>——语义表示和空间重建之间存在根本矛盾。</p>
 
-<p>更激动人心的趋势是<strong>将语义理解融入 3D 重建</strong>。<strong>UniForward</strong> <a href="https://arxiv.org/abs/2506.09378">[317]</a> 是第一个统一 3D 场景和语义场的前馈模型——从稀疏无位姿图像中预测带语义特征的 3D 高斯，支持开放词汇的密集分割。<strong>TextSplat</strong> <a href="https://arxiv.org/abs/2504.09588">[316]</a> 则用文本引导融合深度先验和语义信息。这些工作共同指向一个方向：<strong>3D 重建不再只是"几何"的，而是"语义"的</strong>。</p>
+<p>更激动人心的趋势是<strong>将语义理解融入 3D 重建</strong>。<strong>UniForward</strong> <a href="https://arxiv.org/abs/2506.09378">[32]</a> 是第一个统一 3D 场景和语义场的前馈模型——从稀疏无位姿图像中预测带语义特征的 3D 高斯，支持开放词汇的密集分割。<strong>TextSplat</strong> <a href="https://arxiv.org/abs/2504.09588">[33]</a> 则用文本引导融合深度先验和语义信息。这些工作共同指向一个方向：<strong>3D 重建不再只是"几何"的，而是"语义"的</strong>。</p>
 
 <h3>从短序列到长序列</h3>
 
 <p>前馈 3DGS 的最后一个挑战是<strong>长视频序列</strong>。逐像素预测高斯会导致大量冗余——相邻帧的高斯高度重叠，但不完全一致。</p>
 
-<p><strong>SaLon3R</strong> <a href="https://arxiv.org/abs/2510.15072">[314]</a> 是第一个支持 50+ 视图在线重建的可泛化 GS 方法。它引入紧凑的锚点原语，通过显著性感知量化消除 50%-90% 的冗余，再用 3D Point Transformer 精炼锚点属性。在压缩方面，一个基于 Morton 序列化的前馈压缩框架 <a href="https://arxiv.org/abs/2512.00877">[337]</a> 实现了 20× 压缩比——全部在前馈推理中完成。</p>
+<p><strong>SaLon3R</strong> <a href="https://arxiv.org/abs/2510.15072">[34]</a> 是第一个支持 50+ 视图在线重建的可泛化 GS 方法。它引入紧凑的锚点原语，通过显著性感知量化消除 50%-90% 的冗余，再用 3D Point Transformer 精炼锚点属性。在压缩方面，一个基于 Morton 序列化的前馈压缩框架 <a href="https://arxiv.org/abs/2512.00877">[35]</a> 实现了 20× 压缩比——全部在前馈推理中完成。</p>
 
 <hr>
 
@@ -499,25 +499,25 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <h3>在线流式：逐帧跟踪</h3>
 
-<p><a href="https://streamsplat3d.github.io/"><strong>StreamSplat</strong></a> <a href="https://arxiv.org/abs/2506.08862">[182]</a> 选择了在线流式。它逐帧处理视频，增量更新 3DGS。每处理一帧，它不仅更新高斯的位置和颜色，还通过<strong>双向变形场</strong>预测每个高斯的运动轨迹：</p>
+<p><a href="https://streamsplat3d.github.io/"><strong>StreamSplat</strong></a> <a href="https://arxiv.org/abs/2506.08862">[36]</a> 选择了在线流式。它逐帧处理视频，增量更新 3DGS。每处理一帧，它不仅更新高斯的位置和颜色，还通过<strong>双向变形场</strong>预测每个高斯的运动轨迹：</p>
 
 $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad \Delta\mathbf{v}_i^t = g_\theta(\boldsymbol{\mu}_i^t, \mathbf{F}^t)$$
 
 <div class="scene-box">你给 StreamSplat 一段行人在街上走动的视频。它逐帧处理，实时更新场景。行人移动时，对应的高斯也跟着移动——而不是在每一帧都重新生成。</div>
 
-<p>但流式方法有一个固有缺陷：它只能看到当前帧和历史信息，不能"展望未来"。<strong>DGS-LRM</strong> <a href="https://hubert0527.github.io/dgslrm/">[183]</a> 用前馈大模型解决了这个问题——首个从单目视频预测可变形 3D 高斯的方法，实时、可泛化，质量可比肩基于优化的方法。<strong>STORM</strong> <a href="https://jiawei-yang.github.io/STORM/">[331]</a> 则专注于大规模户外场景，用自监督场景流聚合所有帧的高斯至目标时间步——<strong>200ms 完成</strong>，还能自动捕获动态实例。</p>
+<p>但流式方法有一个固有缺陷：它只能看到当前帧和历史信息，不能"展望未来"。<strong>DGS-LRM</strong> <a href="https://hubert0527.github.io/dgslrm/">[37]</a> 用前馈大模型解决了这个问题——首个从单目视频预测可变形 3D 高斯的方法，实时、可泛化，质量可比肩基于优化的方法。<strong>STORM</strong> <a href="https://jiawei-yang.github.io/STORM/">[38]</a> 则专注于大规模户外场景，用自监督场景流聚合所有帧的高斯至目标时间步——<strong>200ms 完成</strong>，还能自动捕获动态实例。</p>
 
 <h3>离线批处理：一次看完整个视频</h3>
 
 <p>离线方法可以看到整个视频，更好地保证时序一致性。</p>
 
-<p><a href="https://research.nvidia.com/labs/toronto-ai/l4gm"><strong>L4GM</strong></a> <a href="https://arxiv.org/abs/2406.10324">[186]</a> 是第一个大型 4D 重建模型。它基于 LGM 扩展到时间维度，加入<strong>时间自注意力层</strong>让不同帧的高斯互相"看到"彼此。<strong>4D-LRM</strong> <a href="https://4dlrm.github.io/">[190]</a> 更进一步——输入不受约束的视图和时间戳，渲染任意新视角-时间组合，单 A100 GPU 上 1.5 秒重建 24 帧序列。</p>
+<p><a href="https://research.nvidia.com/labs/toronto-ai/l4gm"><strong>L4GM</strong></a> <a href="https://arxiv.org/abs/2406.10324">[39]</a> 是第一个大型 4D 重建模型。它基于 LGM 扩展到时间维度，加入<strong>时间自注意力层</strong>让不同帧的高斯互相"看到"彼此。<strong>4D-LRM</strong> <a href="https://4dlrm.github.io/">[40]</a> 更进一步——输入不受约束的视图和时间戳，渲染任意新视角-时间组合，单 A100 GPU 上 1.5 秒重建 24 帧序列。</p>
 
 <p>但这些都是"重建"——需要视频输入。能不能从<strong>单张图像</strong>生成 4D 场景？</p>
 
-<p><strong>4DNeX</strong> <a href="https://4dnex.github.io/">[332]</a> 是第一个做到这一点的前馈框架。它构建了 4DNeX-10M 大规模数据集（1000 万高质量 4D 标注），将预训练视频扩散模型适配为 4D 建模工具。<strong>Diff4Splat</strong> <a href="https://paulpanwang.github.io/Diff4Splat">[353]</a>（CVPR 2026）则走得更远——给定一张图像、一条相机轨迹和可选文本提示，在<strong>单次前向传播</strong>中直接预测可变形 3D 高斯场，编码外观、几何和运动，30 秒内完成。</p>
+<p><strong>4DNeX</strong> <a href="https://4dnex.github.io/">[41]</a> 是第一个做到这一点的前馈框架。它构建了 4DNeX-10M 大规模数据集（1000 万高质量 4D 标注），将预训练视频扩散模型适配为 4D 建模工具。<strong>Diff4Splat</strong> <a href="https://paulpanwang.github.io/Diff4Splat">[42]</a>（CVPR 2026）则走得更远——给定一张图像、一条相机轨迹和可选文本提示，在<strong>单次前向传播</strong>中直接预测可变形 3D 高斯场，编码外观、几何和运动，30 秒内完成。</p>
 
-<p>（同期还有 <strong>C4D</strong> <a href="https://littlepure2333.github.io/C4D">[334]</a> 利用光流和点跟踪将 3D 扩展到 4D，<strong>D²USt3R</strong> <a href="https://cvlab-kaist.github.io/DDUSt3R/">[335]</a> 直接回归静态-动态对齐点图，<strong>LIM</strong> <a href="https://arxiv.org/abs/2503.22537">[333]</a> 在连续时间插值隐式 3D 表示。）</p>
+<p>（同期还有 <strong>C4D</strong> <a href="https://littlepure2333.github.io/C4D">[43]</a> 利用光流和点跟踪将 3D 扩展到 4D，<strong>D²USt3R</strong> <a href="https://cvlab-kaist.github.io/DDUSt3R/">[44]</a> 直接回归静态-动态对齐点图，<strong>LIM</strong> <a href="https://arxiv.org/abs/2503.22537">[45]</a> 在连续时间插值隐式 3D 表示。）</p>
 
 <hr>
 
@@ -529,21 +529,21 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <h3>3D 场景生成</h3>
 
-<p><strong>Bolt3D</strong> <a href="https://szymanowiczs.github.io/bolt3d">[349]</a>（ICCV 2025）用潜扩散模型在<strong>不到 7 秒</strong>内直接采样一个 3D 场景表示——比先前需要逐场景优化的方法快 300 倍。这不再是"重建"了，这是"生成"。</p>
+<p><strong>Bolt3D</strong> <a href="https://szymanowiczs.github.io/bolt3d">[46]</a>（ICCV 2025）用潜扩散模型在<strong>不到 7 秒</strong>内直接采样一个 3D 场景表示——比先前需要逐场景优化的方法快 300 倍。这不再是"重建"了，这是"生成"。</p>
 
-<p>生成之后还需要编辑。<strong>InstaInpaint</strong> <a href="https://dhmbb2.github.io/InstaInpaint_page/">[323]</a> 用掩码微调的 LRM 在 <strong>0.4 秒</strong>内完成 3D 场景修复。<strong>Edit3r</strong> <a href="https://edit3r.github.io/edit3r/">[324]</a> 从无位姿编辑图像单次前向传播重建和编辑 3D 场景。<strong>Tinker</strong> <a href="https://aim-uofa.github.io/Tinker">[325]</a> 利用扩散模型的 3D 感知，从一张图像实现多视图一致的编辑。</p>
+<p>生成之后还需要编辑。<strong>InstaInpaint</strong> <a href="https://dhmbb2.github.io/InstaInpaint_page/">[47]</a> 用掩码微调的 LRM 在 <strong>0.4 秒</strong>内完成 3D 场景修复。<strong>Edit3r</strong> <a href="https://edit3r.github.io/edit3r/">[48]</a> 从无位姿编辑图像单次前向传播重建和编辑 3D 场景。<strong>Tinker</strong> <a href="https://aim-uofa.github.io/Tinker">[49]</a> 利用扩散模型的 3D 感知，从一张图像实现多视图一致的编辑。</p>
 
 <h3>物理真实材质</h3>
 
 <p>但"生成"不只是几何——还需要<strong>物理真实的材质</strong>。目前的 3D 重建看起来真实，但不能"重光照"——因为缺少 PBR 属性（albedo、roughness、metallic）。</p>
 
-<p><strong>MGM</strong> <a href="https://arxiv.org/abs/2509.22112">[327]</a> 微调了多视图材质扩散模型，让高斯不仅编码颜色，还编码 PBR 材质通道，支持动态重光照。<strong>LIRM</strong> <a href="https://arxiv.org/abs/2504.20026">[329]</a>（CVPR 2025）在不到一秒内联合重建形状、材质和视角相关辐射场。<strong>SViM3D</strong> <a href="http://svim3d.aengelhardt.com">[328]</a>（ICCV 2025）扩展潜视频扩散模型输出 PBR 参数和表面法线。</p>
+<p><strong>MGM</strong> <a href="https://arxiv.org/abs/2509.22112">[50]</a> 微调了多视图材质扩散模型，让高斯不仅编码颜色，还编码 PBR 材质通道，支持动态重光照。<strong>LIRM</strong> <a href="https://arxiv.org/abs/2504.20026">[51]</a>（CVPR 2025）在不到一秒内联合重建形状、材质和视角相关辐射场。<strong>SViM3D</strong> <a href="http://svim3d.aengelhardt.com">[52]</a>（ICCV 2025）扩展潜视频扩散模型输出 PBR 参数和表面法线。</p>
 
 <h3>自动驾驶：最严苛的考验</h3>
 
 <p>自动驾驶对 3D 重建提出了最严苛的要求：<strong>大规模、动态、实时、几何精确、可生成</strong>。</p>
 
-<p><strong>LSD-3D</strong> <a href="https://light.princeton.edu/LSD-3D">[340]</a> 直接生成大规模 3D 驾驶场景，支持地图布局条件化——桥接了神经重建（几何精确但不可控）和扩散生成（可控但缺乏几何基础）之间的鸿沟。<strong>DriveGen3D</strong> <a href="https://lhmd.top/drivegen3d">[338]</a>（ICME 2026 Oral）统一了高效视频生成和前馈 3D 重建，支持 800×424 分辨率、12 FPS 的驾驶视频生成和对应 3D 场景重建。</p>
+<p><strong>LSD-3D</strong> <a href="https://light.princeton.edu/LSD-3D">[53]</a> 直接生成大规模 3D 驾驶场景，支持地图布局条件化——桥接了神经重建（几何精确但不可控）和扩散生成（可控但缺乏几何基础）之间的鸿沟。<strong>DriveGen3D</strong> <a href="https://lhmd.top/drivegen3d">[54]</a>（ICME 2026 Oral）统一了高效视频生成和前馈 3D 重建，支持 800×424 分辨率、12 FPS 的驾驶视频生成和对应 3D 场景重建。</p>
 
 <div class="scene-box">想象你坐在自动驾驶汽车里。LSD-3D 可以根据地图布局"想象"出前方场景的完整 3D 模型。DriveGen3D 可以生成任意长度的驾驶视频，同时保持 3D 一致性。STORM 能在 200ms 内重建整个动态场景。这不是科幻——这些都在 2025 年实现了。</div>
 
@@ -551,13 +551,13 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <p>但"生成"的终极目标不只是视觉真实——而是<strong>物理可交互</strong>。</p>
 
-<p>如果你让机器人去抓一个重建出来的杯子，它可能会失败——因为重建的杯子没有物理属性（质量、摩擦力、刚度）。<strong>PIXIE</strong> <a href="https://pixie-3d.github.io/">[197]</a> 从像素快速学习 3D 物理属性，利用 CLIP 特征零样本泛化到真实世界。<strong>PhysGM</strong> <a href="https://arxiv.org/abs/2508.13911">[198]</a>（CVPR 2026）更进一步——大型物理高斯模型，单次前向传播同时预测 3D 场景和物理属性。</p>
+<p>如果你让机器人去抓一个重建出来的杯子，它可能会失败——因为重建的杯子没有物理属性（质量、摩擦力、刚度）。<strong>PIXIE</strong> <a href="https://pixie-3d.github.io/">[55]</a> 从像素快速学习 3D 物理属性，利用 CLIP 特征零样本泛化到真实世界。<strong>PhysGM</strong> <a href="https://arxiv.org/abs/2508.13911">[56]</a>（CVPR 2026）更进一步——大型物理高斯模型，单次前向传播同时预测 3D 场景和物理属性。</p>
 
 <h3>世界模型的萌芽</h3>
 
 <p>这些工作共同指向一个更宏大的愿景：<strong>构建几何一致的世界模型</strong>——不仅能重建和生成 3D 场景，还能模拟物理世界的演化。</p>
 
-<p><strong>FantasyWorld</strong> <a href="https://arxiv.org/abs/2509.21657">[359]</a> 统一了视频预测和 3D 预测。<strong>WorldPack</strong> <a href="https://arxiv.org/abs/2512.02473">[360]</a> 基于 3D 空间相关性动态压缩视频帧，扩展世界模型的有效上下文。<strong>MILO</strong> <a href="https://arxiv.org/abs/2512.01821">[361]</a> 模拟人类空间想象力，增强多模态大语言模型的空间推理。</p>
+<p><strong>FantasyWorld</strong> <a href="https://arxiv.org/abs/2509.21657">[57]</a> 统一了视频预测和 3D 预测。<strong>WorldPack</strong> <a href="https://arxiv.org/abs/2512.02473">[58]</a> 基于 3D 空间相关性动态压缩视频帧，扩展世界模型的有效上下文。<strong>MILO</strong> <a href="https://arxiv.org/abs/2512.01821">[59]</a> 模拟人类空间想象力，增强多模态大语言模型的空间推理。</p>
 
 <p>从"重建"到"生成"，从"生成"到"模拟"，从"模拟"到"世界模型"——这是三维重建的下一个十年。</p>
 
@@ -569,7 +569,7 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <p>目前的前馈方法大多在室内场景或简单物体上训练。部署到户外场景时，效果急剧下降。</p>
 
-<p>不过，<strong>LAM3C</strong> <a href="https://ryosuke-yamada.github.io/lam3c/">[357]</a>（CVPR 2026）给出了一个令人鼓舞的信号：它从互联网视频（房地产漫游视频）生成的点云进行自监督 3D 预训练——<strong>完全不需要真实 3D 扫描</strong>。在室内语义分割上，它竟然超越了使用真实 3D 扫描的方法。这说明：<strong>互联网视频是 3D 自监督学习的丰富数据源</strong>。</p>
+<p>不过，<strong>LAM3C</strong> <a href="https://ryosuke-yamada.github.io/lam3c/">[60]</a>（CVPR 2026）给出了一个令人鼓舞的信号：它从互联网视频（房地产漫游视频）生成的点云进行自监督 3D 预训练——<strong>完全不需要真实 3D 扫描</strong>。在室内语义分割上，它竟然超越了使用真实 3D 扫描的方法。这说明：<strong>互联网视频是 3D 自监督学习的丰富数据源</strong>。</p>
 
 <h3>"幻觉"的可靠性</h3>
 
@@ -577,7 +577,7 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <div class="scene-box">你给模型一张汽车的照片，让它"脑补"出背面。如果训练数据里大多是轿车，它可能会生成一个轿车的背面。但如果实际是一辆 SUV，幻觉就错了。</div>
 
-<p>在安全关键应用中，这种错误可能是致命的。OracleGS 的"提议-验证"范式是一个有前景的方向。<strong>MEt3R</strong> <a href="https://geometric-rl.mpi-inf.mpg.de/met3r/">[358]</a> 则提出了一个独立于采样过程的<strong>多视图一致性度量</strong>——为评估生成式重建的可靠性提供了工具。</p>
+<p>在安全关键应用中，这种错误可能是致命的。OracleGS 的"提议-验证"范式是一个有前景的方向。<strong>MEt3R</strong> <a href="https://geometric-rl.mpi-inf.mpg.de/met3r/">[61]</a> 则提出了一个独立于采样过程的<strong>多视图一致性度量</strong>——为评估生成式重建的可靠性提供了工具。</p>
 
 <h3>从 3D 重建到世界模拟</h3>
 
@@ -609,141 +609,130 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <hr>
 
+
 <h2>参考文献</h2>
 
 <p>[1] Mildenhall, B., et al. "NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis." <em>ECCV 2020</em>. <a href="https://arxiv.org/abs/2003.08934">arXiv:2003.08934</a></p>
 
-<p>[2] Kerbl, B., et al. "3D Gaussian Splatting for Real-Time Radiance Field Rendering." <em>SIGGRAPH 2023</em>. <a href="https://arxiv.org/abs/2308.04079">arXiv:2308.04079</a></p>
+<p>[2] Yu, A., et al. "pixelNeRF: Neural Radiance Fields from One or Few Images." <em>CVPR 2021</em>. <a href="https://arxiv.org/abs/2012.02190">arXiv:2012.02190</a></p>
 
 <p>[3] Wang, S., et al. "DUSt3R: Geometric 3D Vision Made Easy." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.14132">arXiv:2312.14132</a></p>
 
-<p>[13] Yu, A., et al. "pixelNeRF: Neural Radiance Fields from One or Few Images." <em>CVPR 2021</em>. <a href="https://arxiv.org/abs/2012.02190">arXiv:2012.02190</a></p>
+<p>[4] Kerbl, B., et al. "3D Gaussian Splatting for Real-Time Radiance Field Rendering." <em>SIGGRAPH 2023</em>. <a href="https://arxiv.org/abs/2308.04079">arXiv:2308.04079</a></p>
 
-<p>[14] Hong, Y., et al. "LRM: Large Reconstruction Model for Single Image to 3D." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2311.04400">arXiv:2311.04400</a> · <a href="https://yiconghong.me/LRM">Project Page</a></p>
+<p>[5] Charat, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a> · <a href="https://dcharat.github.io/pixelsplat">Project Page</a></p>
 
-<p>[15] Charat, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a> · <a href="https://dcharat.github.io/pixelsplat">Project Page</a></p>
+<p>[6] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a> · <a href="https://donydchen.github.io/mvsplat">Project Page</a></p>
 
-<p>[16] Jin, H., et al. "LVSM: A Large View Synthesis Model with Minimal 3D Inductive Bias." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2410.17242">arXiv:2410.17242</a> · <a href="https://haian-jin.github.io/projects/LVSM/">Project Page</a></p>
+<p>[7] Hong, Y., et al. "LRM: Large Reconstruction Model for Single Image to 3D." <em>ICLR 2024</em>. <a href="https://arxiv.org/abs/2311.04400">arXiv:2311.04400</a> · <a href="https://yiconghong.me/LRM">Project Page</a></p>
 
-<p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a> · <a href="https://donydchen.github.io/mvsplat">Project Page</a></p>
+<p>[8] Jin, H., et al. "LVSM: A Large View Synthesis Model with Minimal 3D Inductive Bias." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2410.17242">arXiv:2410.17242</a> · <a href="https://haian-jin.github.io/projects/LVSM/">Project Page</a></p>
 
-<p>[18] Lu, Y., et al. "Matrix3D: Large Photogrammetry Model All-in-One." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2502.07685">arXiv:2502.07685</a> · <a href="https://nju-3dv.github.io/projects/matrix3d">Project Page</a></p>
+<p>[9] Lu, Y., et al. "Matrix3D: Large Photogrammetry Model All-in-One." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2502.07685">arXiv:2502.07685</a> · <a href="https://nju-3dv.github.io/projects/matrix3d">Project Page</a></p>
 
-<p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2503.11651">arXiv:2503.11651</a></p>
+<p>[10] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2503.11651">arXiv:2503.11651</a></p>
 
-<p>[26] Leroy, V., et al. "MASt3R: Geometry-Aware Visual Correspondences." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2406.09756">arXiv:2406.09756</a></p>
+<p>[11] Chen, Y., et al. "MVSplat360: Feed-Forward 360 Scene Synthesis from Sparse Views." <em>NeurIPS 2024</em>. <a href="https://arxiv.org/abs/2411.04924">arXiv:2411.04924</a> · <a href="https://donydchen.github.io/mvsplat360">Project Page</a></p>
 
-<p>[111] Cabon, Y., et al. "MUSt3R: Multi-view Network for Stereo 3D Reconstruction." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2503.01661">arXiv:2503.01661</a></p>
+<p>[12] Wewer, C., et al. "latentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2403.16292">arXiv:2403.16292</a> · <a href="https://geometric-rl.mpi-inf.mpg.de/latentsplat/">Project Page</a></p>
 
-<p>[178] Chen, Y., et al. "MVSplat360: Feed-Forward 360 Scene Synthesis from Sparse Views." <em>NeurIPS 2024</em>. <a href="https://arxiv.org/abs/2411.04924">arXiv:2411.04924</a> · <a href="https://donydchen.github.io/mvsplat360">Project Page</a></p>
+<p>[13] Wu, J. Z., et al. "Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.09585">arXiv:2503.09585</a></p>
 
-<p>[179] Lu, X., et al. "ProSplat: Improved Feed-Forward 3D Gaussian Splatting for Wide-Baseline Sparse Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.07670">arXiv:2506.07670</a></p>
+<p>[14] Lu, X., et al. "ProSplat: Improved Feed-Forward 3D Gaussian Splatting for Wide-Baseline Sparse Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.07670">arXiv:2506.07670</a></p>
 
-<p>[180] Wewer, C., et al. "latentSplat: Autoencoding Variational Gaussians for Fast Generalizable 3D Reconstruction." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2403.16292">arXiv:2403.16292</a> · <a href="https://geometric-rl.mpi-inf.mpg.de/latentsplat/">Project Page</a></p>
+<p>[15] Topaloglu, A., et al. "OracleGS: Grounding Generative Priors for Sparse-View Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.23258">arXiv:2509.23258</a></p>
 
-<p>[181] Wu, J. Z., et al. "Difix3D+: Improving 3D Reconstructions with Single-Step Diffusion Models." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.09585">arXiv:2503.09585</a></p>
+<p>[16] Xu, Z., et al. "CoherentGS: Breaking the Vicious Cycle: Coherent 3D Gaussian Splatting from Sparse and Motion-Blurred Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.10369">arXiv:2512.10369</a></p>
 
-<p>[182] Wu, Z., et al. "StreamSplat: Towards Online Dynamic 3D Reconstruction from Uncalibrated Video Streams." <em>ICLR 2026</em>. <a href="https://arxiv.org/abs/2506.08862">arXiv:2506.08862</a> · <a href="https://streamsplat3d.github.io/">Project Page</a></p>
+<p>[17] Wang, Z., et al. "FixingGS: Enhancing 3D Gaussian Splatting via Training-Free Score Distillation." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.18759">arXiv:2509.18759</a></p>
 
-<p>[183] Lin, C. H., et al. "DGS-LRM: Real-Time Deformable 3D Gaussian Reconstruction From Monocular Videos." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.09997">arXiv:2506.09997</a> · <a href="https://hubert0527.github.io/dgslrm/">Project Page</a></p>
+<p>[18] Wei, J., et al. "GSFix3D: Diffusion-Guided Repair of Novel Views in Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.14717">arXiv:2508.14717</a></p>
 
-<p>[186] Ren, J., et al. "L4GM: Large 4D Gaussian Reconstruction Model." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.10324">arXiv:2406.10324</a> · <a href="https://research.nvidia.com/labs/toronto-ai/l4gm">Project Page</a></p>
+<p>[19] Kim, M., et al. "ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.06014">arXiv:2508.06014</a></p>
 
-<p>[190] Ma, Z., et al. "4D-LRM: Large Space-Time Reconstruction Model From and To Any View at Any Time." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.18890">arXiv:2506.18890</a> · <a href="https://4dlrm.github.io/">Project Page</a></p>
+<p>[20] Leroy, V., et al. "MASt3R: Geometry-Aware Visual Correspondences." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2406.09756">arXiv:2406.09756</a></p>
 
-<p>[197] Le, L., et al. "PIXIE: Fast and Generalizable Supervised Learning of 3D Physics from Pixels." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17437">arXiv:2508.17437</a> · <a href="https://pixie-3d.github.io/">Project Page</a></p>
+<p>[21] Cabon, Y., et al. "MUSt3R: Multi-view Network for Stereo 3D Reconstruction." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2503.01661">arXiv:2503.01661</a></p>
 
-<p>[198] Lv, C., et al. "PhysGM: Large Physical Gaussian Model for Feed-Forward 4D Synthesis." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2508.13911">arXiv:2508.13911</a></p>
+<p>[22] Wang, Z. & Xu, D. "FlashVGGT: Efficient and Scalable Visual Geometry Transformers with Compressed Descriptor Attention." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2512.01540">arXiv:2512.01540</a></p>
 
-<p>[301] Ren, W., et al. "Fin3R: Fine-tuning Feed-forward 3D Reconstruction Models via Monocular Knowledge Distillation." <em>NeurIPS 2025</em>. <a href="https://arxiv.org/abs/2511.22429">arXiv:2511.22429</a></p>
+<p>[23] Ren, W., et al. "Fin3R: Fine-tuning Feed-forward 3D Reconstruction Models via Monocular Knowledge Distillation." <em>NeurIPS 2025</em>. <a href="https://arxiv.org/abs/2511.22429">arXiv:2511.22429</a></p>
 
-<p>[302] Yuan, Y., et al. "Test3R: Learning to Reconstruct 3D at Test Time." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.13750">arXiv:2506.13750</a></p>
+<p>[24] Yuan, Y., et al. "Test3R: Learning to Reconstruct 3D at Test Time." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.13750">arXiv:2506.13750</a></p>
 
-<p>[304] Liu, S., et al. "Regist3R: Incremental Registration with Stereo Foundation Model." <em>ACM MM 2025</em>. <a href="https://arxiv.org/abs/2504.12356">arXiv:2504.12356</a></p>
+<p>[25] Liu, S., et al. "Regist3R: Incremental Registration with Stereo Foundation Model." <em>ACM MM 2025</em>. <a href="https://arxiv.org/abs/2504.12356">arXiv:2504.12356</a></p>
 
-<p>[305] Wang, H. & Agapito, L. "AMB3R: Accurate Feed-forward Metric-scale 3D Reconstruction with Backend." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2511.20343">arXiv:2511.20343</a></p>
+<p>[26] Elflein, S., et al. "Light3R-SfM: Towards Feed-forward Structure-from-Motion." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.14914">arXiv:2501.14914</a></p>
 
-<p>[306] Wang, Z. & Xu, D. "FlashVGGT: Efficient and Scalable Visual Geometry Transformers with Compressed Descriptor Attention." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2512.01540">arXiv:2512.01540</a></p>
+<p>[27] Deng, J., et al. "SAIL-Recon: Large SfM by Augmenting Scene Regression with Localization." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17972">arXiv:2508.17972</a></p>
 
-<p>[308] Hosseinzadeh, M., et al. "G3Splat: Geometrically Consistent Generalizable Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.17547">arXiv:2512.17547</a></p>
+<p>[28] Wang, H. & Agapito, L. "AMB3R: Accurate Feed-forward Metric-scale 3D Reconstruction with Backend." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2511.20343">arXiv:2511.20343</a></p>
 
-<p>[309] Chang, H., et al. "MeshSplat: Generalizable Sparse-View Surface Reconstruction via Gaussian Splatting." <em>AAAI 2026</em>. <a href="https://arxiv.org/abs/2508.17811">arXiv:2508.17811</a></p>
+<p>[29] Hosseinzadeh, M., et al. "G3Splat: Geometrically Consistent Generalizable Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.17547">arXiv:2512.17547</a></p>
 
-<p>[310] Lou, Y., et al. "MuGS: Multi-Baseline Generalizable Gaussian Splatting Reconstruction." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.04297">arXiv:2508.04297</a></p>
+<p>[30] Lou, Y., et al. "MuGS: Multi-Baseline Generalizable Gaussian Splatting Reconstruction." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.04297">arXiv:2508.04297</a></p>
 
-<p>[311] Jia, H., et al. "H3R: Hybrid Multi-view Correspondence for Generalizable 3D Reconstruction." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.03118">arXiv:2508.03118</a></p>
+<p>[31] Jia, H., et al. "H3R: Hybrid Multi-view Correspondence for Generalizable 3D Reconstruction." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.03118">arXiv:2508.03118</a></p>
 
-<p>[312] Jena, S., et al. "SparSplat: Fast Multi-View Reconstruction with Generalizable 2D Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2505.02175">arXiv:2505.02175</a></p>
+<p>[32] Tian, Q., et al. "UniForward: Unified 3D Scene and Semantic Field Reconstruction via Feed-Forward Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.09378">arXiv:2506.09378</a></p>
 
-<p>[314] Guo, J., et al. "SaLon3R: Structure-aware Long-term Generalizable 3D Reconstruction from Unposed Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2510.15072">arXiv:2510.15072</a></p>
+<p>[33] Wu, Z., et al. "TextSplat: Text-Guided Semantic Fusion for Generalizable Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2504.09588">arXiv:2504.09588</a></p>
 
-<p>[316] Wu, Z., et al. "TextSplat: Text-Guided Semantic Fusion for Generalizable Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2504.09588">arXiv:2504.09588</a></p>
+<p>[34] Guo, J., et al. "SaLon3R: Structure-aware Long-term Generalizable 3D Reconstruction from Unposed Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2510.15072">arXiv:2510.15072</a></p>
 
-<p>[317] Tian, Q., et al. "UniForward: Unified 3D Scene and Semantic Field Reconstruction via Feed-Forward Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.09378">arXiv:2506.09378</a></p>
+<p>[35] Liu, Z., et al. "Feed-Forward 3D Gaussian Splatting Compression with Long-Context Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.00877">arXiv:2512.00877</a></p>
 
-<p>[318] Topaloglu, A., et al. "OracleGS: Grounding Generative Priors for Sparse-View Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.23258">arXiv:2509.23258</a></p>
+<p>[36] Wu, Z., et al. "StreamSplat: Towards Online Dynamic 3D Reconstruction from Uncalibrated Video Streams." <em>ICLR 2026</em>. <a href="https://arxiv.org/abs/2506.08862">arXiv:2506.08862</a> · <a href="https://streamsplat3d.github.io/">Project Page</a></p>
 
-<p>[319] Wang, Z., et al. "FixingGS: Enhancing 3D Gaussian Splatting via Training-Free Score Distillation." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.18759">arXiv:2509.18759</a></p>
+<p>[37] Lin, C. H., et al. "DGS-LRM: Real-Time Deformable 3D Gaussian Reconstruction From Monocular Videos." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.09997">arXiv:2506.09997</a> · <a href="https://hubert0527.github.io/dgslrm/">Project Page</a></p>
 
-<p>[320] Xu, Z., et al. "CoherentGS: Breaking the Vicious Cycle: Coherent 3D Gaussian Splatting from Sparse and Motion-Blurred Views." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.10369">arXiv:2512.10369</a></p>
+<p>[38] Yang, J., et al. "STORM: Spatio-Temporal Reconstruction Model for Large-Scale Outdoor Scenes." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.00602">arXiv:2501.00602</a> · <a href="https://jiawei-yang.github.io/STORM/">Project Page</a></p>
 
-<p>[321] Wei, J., et al. "GSFix3D: Diffusion-Guided Repair of Novel Views in Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.14717">arXiv:2508.14717</a></p>
+<p>[39] Ren, J., et al. "L4GM: Large 4D Gaussian Reconstruction Model." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2406.10324">arXiv:2406.10324</a> · <a href="https://research.nvidia.com/labs/toronto-ai/l4gm">Project Page</a></p>
 
-<p>[322] Kim, M., et al. "ExploreGS: Explorable 3D Scene Reconstruction with Virtual Camera Samplings and Diffusion Priors." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2508.06014">arXiv:2508.06014</a></p>
+<p>[40] Ma, Z., et al. "4D-LRM: Large Space-Time Reconstruction Model From and To Any View at Any Time." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.18890">arXiv:2506.18890</a> · <a href="https://4dlrm.github.io/">Project Page</a></p>
 
-<p>[323] You, J., et al. "InstaInpaint: Instant 3D-Scene Inpainting with Masked Large Reconstruction Model." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.10980">arXiv:2506.10980</a></p>
+<p>[41] Chen, Z., et al. "4DNeX: Feed-Forward 4D Generative Modeling Made Easy." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.13154">arXiv:2508.13154</a> · <a href="https://4dnex.github.io/">Project Page</a></p>
 
-<p>[324] Liu, J., et al. "Edit3r: Instant 3D Scene Editing from Sparse Unposed Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.25071">arXiv:2512.25071</a></p>
+<p>[42] Pan, P., et al. "Diff4Splat: Controllable 4D Scene Generation with Latent Dynamic Reconstruction Models." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2511.00503">arXiv:2511.00503</a></p>
 
-<p>[325] Zhao, C., et al. "Tinker: Diffusion's Gift to 3D--Multi-View Consistent Editing From Sparse Inputs." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.14811">arXiv:2508.14811</a></p>
+<p>[43] Wang, S., et al. "C4D: 4D Made from 3D through Dual Correspondences." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2510.14960">arXiv:2510.14960</a></p>
 
-<p>[327] Ye, J., et al. "MGM: Large Material Gaussian Model for Relightable 3D Generation." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.22112">arXiv:2509.22112</a></p>
+<p>[44] Han, J., et al. "D²USt3R: Enhancing 3D Reconstruction for Dynamic Scenes." <em>NeurIPS 2025</em>. <a href="https://arxiv.org/abs/2504.06264">arXiv:2504.06264</a></p>
 
-<p>[328] Engelhardt, A., et al. "SViM3D: Stable Video Material Diffusion for Single Image 3D Generation." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2510.08271">arXiv:2510.08271</a></p>
+<p>[45] Sabathier, R., et al. "LIM: Large Interpolator Model for Dynamic Reconstruction." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.22537">arXiv:2503.22537</a></p>
 
-<p>[329] Li, Z., et al. "LIRM: Large Inverse Rendering Model for Progressive Reconstruction of Shape, Materials and View-dependent Radiance Fields." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2504.20026">arXiv:2504.20026</a></p>
+<p>[46] Szymanowicz, S., et al. "Bolt3D: Generating 3D Scenes in Seconds." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2503.14445">arXiv:2503.14445</a></p>
 
-<p>[331] Yang, J., et al. "STORM: Spatio-Temporal Reconstruction Model for Large-Scale Outdoor Scenes." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.00602">arXiv:2501.00602</a> · <a href="https://jiawei-yang.github.io/STORM/">Project Page</a></p>
+<p>[47] You, J., et al. "InstaInpaint: Instant 3D-Scene Inpainting with Masked Large Reconstruction Model." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.10980">arXiv:2506.10980</a></p>
 
-<p>[332] Chen, Z., et al. "4DNeX: Feed-Forward 4D Generative Modeling Made Easy." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.13154">arXiv:2508.13154</a> · <a href="https://4dnex.github.io/">Project Page</a></p>
+<p>[48] Liu, J., et al. "Edit3r: Instant 3D Scene Editing from Sparse Unposed Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.25071">arXiv:2512.25071</a></p>
 
-<p>[333] Sabathier, R., et al. "LIM: Large Interpolator Model for Dynamic Reconstruction." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2503.22537">arXiv:2503.22537</a></p>
+<p>[49] Zhao, C., et al. "Tinker: Diffusion's Gift to 3D--Multi-View Consistent Editing From Sparse Inputs." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.14811">arXiv:2508.14811</a></p>
 
-<p>[334] Wang, S., et al. "C4D: 4D Made from 3D through Dual Correspondences." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2510.14960">arXiv:2510.14960</a></p>
+<p>[50] Ye, J., et al. "MGM: Large Material Gaussian Model for Relightable 3D Generation." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.22112">arXiv:2509.22112</a></p>
 
-<p>[335] Han, J., et al. "D²USt3R: Enhancing 3D Reconstruction for Dynamic Scenes." <em>NeurIPS 2025</em>. <a href="https://arxiv.org/abs/2504.06264">arXiv:2504.06264</a></p>
+<p>[51] Li, Z., et al. "LIRM: Large Inverse Rendering Model for Progressive Reconstruction of Shape, Materials and View-dependent Radiance Fields." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2504.20026">arXiv:2504.20026</a></p>
 
-<p>[336] Zhang, S., et al. "POMATO: Marrying Pointmap Matching with Temporal Motion for Dynamic 3D Reconstruction." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2504.05692">arXiv:2504.05692</a></p>
+<p>[52] Engelhardt, A., et al. "SViM3D: Stable Video Material Diffusion for Single Image 3D Generation." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2510.08271">arXiv:2510.08271</a></p>
 
-<p>[337] Liu, Z., et al. "Feed-Forward 3D Gaussian Splatting Compression with Long-Context Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.00877">arXiv:2512.00877</a></p>
+<p>[53] Ost, J., et al. "LSD-3D: Large-Scale 3D Driving Scene Generation with Geometry Grounding." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.19204">arXiv:2508.19204</a></p>
 
-<p>[338] Wang, W., et al. "DriveGen3D: Boosting Feed-Forward Driving Scene Generation with Efficient Video Diffusion." <em>ICME 2026</em>. <a href="https://arxiv.org/abs/2510.15264">arXiv:2510.15264</a></p>
+<p>[54] Wang, W., et al. "DriveGen3D: Boosting Feed-Forward Driving Scene Generation with Efficient Video Diffusion." <em>ICME 2026</em>. <a href="https://arxiv.org/abs/2510.15264">arXiv:2510.15264</a></p>
 
-<p>[339] Lu, H., et al. "PhiGenesis: 4D Driving Scene Generation With Stereo Forcing." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.20251">arXiv:2509.20251</a></p>
+<p>[55] Le, L., et al. "PIXIE: Fast and Generalizable Supervised Learning of 3D Physics from Pixels." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17437">arXiv:2508.17437</a> · <a href="https://pixie-3d.github.io/">Project Page</a></p>
 
-<p>[340] Ost, J., et al. "LSD-3D: Large-Scale 3D Driving Scene Generation with Geometry Grounding." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.19204">arXiv:2508.19204</a></p>
+<p>[56] Lv, C., et al. "PhysGM: Large Physical Gaussian Model for Feed-Forward 4D Synthesis." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2508.13911">arXiv:2508.13911</a></p>
 
-<p>[341] Tian, J., et al. "DynaRend: Learning 3D Dynamics via Masked Future Rendering for Robotic Manipulation." <em>NeurIPS 2025</em>. <a href="https://arxiv.org/abs/2510.24261">arXiv:2510.24261</a></p>
+<p>[57] Dai, Y., et al. "FantasyWorld: Geometry-Consistent World Modeling via Unified Video and 3D Prediction." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.21657">arXiv:2509.21657</a></p>
 
-<p>[344] Ma, M., et al. "SceneSplat++: A Large Dataset and Comprehensive Benchmark for Language Gaussian Splatting." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2506.08710">arXiv:2506.08710</a></p>
+<p>[58] Oshima, Y., et al. "WorldPack: Dynamic Frame Compression for Long-context Video World Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.02473">arXiv:2512.02473</a></p>
 
-<p>[346] Elflein, S., et al. "Light3R-SfM: Towards Feed-forward Structure-from-Motion." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.14914">arXiv:2501.14914</a></p>
+<p>[59] Cao, M., et al. "MILO: Learning Scene Geometry via Implicit Spatial World Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.01821">arXiv:2512.01821</a></p>
 
-<p>[347] Deng, J., et al. "SAIL-Recon: Large SfM by Augmenting Scene Regression with Localization." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2508.17972">arXiv:2508.17972</a></p>
+<p>[60] Yamada, R., et al. "3D sans 3D Scans: Scalable Pre-training from Video-Generated Point Clouds." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2512.23042">arXiv:2512.23042</a></p>
 
-<p>[349] Szymanowicz, S., et al. "Bolt3D: Generating 3D Scenes in Seconds." <em>ICCV 2025</em>. <a href="https://arxiv.org/abs/2503.14445">arXiv:2503.14445</a></p>
-
-<p>[353] Pan, P., et al. "Diff4Splat: Controllable 4D Scene Generation with Latent Dynamic Reconstruction Models." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2511.00503">arXiv:2511.00503</a></p>
-
-<p>[357] Yamada, R., et al. "3D sans 3D Scans: Scalable Pre-training from Video-Generated Point Clouds." <em>CVPR 2026</em>. <a href="https://arxiv.org/abs/2512.23042">arXiv:2512.23042</a></p>
-
-<p>[358] Asim, M., et al. "MEt3R: Measuring Multi-View Consistency in Generated Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.06336">arXiv:2501.06336</a></p>
-
-<p>[359] Dai, Y., et al. "FantasyWorld: Geometry-Consistent World Modeling via Unified Video and 3D Prediction." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2509.21657">arXiv:2509.21657</a></p>
-
-<p>[360] Oshima, Y., et al. "WorldPack: Dynamic Frame Compression for Long-context Video World Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.02473">arXiv:2512.02473</a></p>
-
-<p>[361] Cao, M., et al. "MILO: Learning Scene Geometry via Implicit Spatial World Modeling." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2512.01821">arXiv:2512.01821</a></p>
+<p>[61] Asim, M., et al. "MEt3R: Measuring Multi-View Consistency in Generated Images." <em>arXiv 2025</em>. <a href="https://arxiv.org/abs/2501.06336">arXiv:2501.06336</a></p>
 
 <hr>
 
