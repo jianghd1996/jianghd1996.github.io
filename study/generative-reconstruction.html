@@ -201,6 +201,7 @@
     <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2024</span>
     <strong>pixelSplat</strong> / <strong>MVSplat</strong> — 前馈 3DGS 重建<br>
     <span style="margin-left: 58px; color:#666;"><strong>LRM</strong> — 大型重建模型，5 亿参数，单图 5 秒出 NeRF</span><br>
+    <span style="margin-left: 58px; color:#666;"><strong>LVSM</strong> — 纯 Transformer 视图合成，抛弃显式 3D 表示</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>MVSplat360</strong> — 首次将扩散先验注入前馈 3DGS</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>LatentSplat</strong> — 潜空间语义高斯 + 变分 3D 表示</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>L4GM</strong> — 大型 4D 高斯重建模型</span>
@@ -209,6 +210,7 @@
   <div style="margin-bottom: 18px;">
     <span style="display:inline-block; background:#27ae60; color:#fff; font-size:13px; font-weight:bold; padding:2px 10px; border-radius:12px; margin-right:8px;">2025</span>
     <strong>VGGT</strong> — 统一基础模型，同时做位姿/深度/点云/光流<br>
+    <span style="margin-left: 58px; color:#666;"><strong>Matrix3D</strong> — 多模态 DiT，掩码学习统一位姿/深度/新视角合成</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>MUSt3R</strong> — 对称多视图架构，支持千视图级大规模重建</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>FlashVGGT</strong> — 推理时间仅为 VGGT 的 9.3%，可扩展至 3000+ 视图</span><br>
     <span style="margin-left: 58px; color:#666;"><strong>Bolt3D</strong> — 潜扩散模型前馈 3D 场景生成，7 秒完成，推理成本降低 300×</span><br>
@@ -341,23 +343,23 @@ $$C = \sum_{i \in \mathcal{N}} c_i \, \alpha_i \prod_{j=1}^{i-1}(1 - \alpha_j)$$
 <li><strong>3DGS 路线（pixelSplat）</strong>：预测高斯参数，支持高质量渲染</li>
 </ul>
 
-<h3>大规模前馈模型：LRM 与多任务统一</h3>
+<h3>大规模前馈模型：三条路线</h3>
 
-<p>2024 年，研究者开始把"前馈"思想推向更大规模。一个标志性的工作是 <strong>LRM（Large Reconstruction Model）</strong> <a href="https://arxiv.org/abs/2311.04400">[14]</a>。</p>
+<p>2024 年，"前馈"思想开始和"大模型"碰撞。但怎么把大模型用到 3D 重建？研究者分成了三个阵营。</p>
 
-<p>LRM 的核心思想很直接：既然 LLM 可以处理语言，ViT 可以处理图像，那为什么不能用一个大型 Transformer 直接处理 3D 重建？</p>
+<p>第一条路线：<strong>大模型 + 显式 3D 表示</strong>。代表是 <strong>LRM</strong> <a href="https://arxiv.org/abs/2311.04400">[14]</a>——5 亿参数的 Transformer，输入一张图像，5 秒输出完整的 NeRF。它证明了 3D 重建可以走"大模型"路线，训练一次，几秒钟重建新场景。</p>
 
-<pre>输入图像 → ViT 编码器 → Transformer 解码器 → NeRF 参数</pre>
+<p>第二条路线：<strong>大模型 + 抛弃 3D 表示</strong>。<strong>LVSM</strong> <a href="https://arxiv.org/abs/2410.17242">[16]</a> 更激进——它连 NeRF 和 3DGS 都不要了。一个纯 Transformer，输入视图和位姿，直接输出新视角的图像。没有显式的三维中间表示，没有可微渲染。模型从数据中直接学习"从这个角度看，那个角度应该是什么样"。它的 decoder-only 变体在多个基准上超越了所有先前的方法——甚至不需要 3D 归纳偏置。</p>
 
-<p>5 亿参数，在 100 万个 3D 对象上训练。结果：输入一张图像，5 秒内输出完整的 NeRF 模型。</p>
+<p>第三条路线：<strong>大模型 + 多任务统一</strong>。<strong>Matrix3D</strong> <a href="https://arxiv.org/abs/2502.07685">[18]</a>（CVPR 2025）用多模态扩散 Transformer 统一了位姿估计、深度预测和新视角合成。它的巧妙之处在于<strong>掩码学习策略</strong>——即使训练数据只有部分模态（比如只有图像-位姿对或图像-深度对），模型也能训练。这让它可以利用大量异构数据，还能通过多轮交互实现细粒度控制。</p>
 
-<p>LRM 的意义在于：<strong>它证明了 3D 重建也可以走"大模型"路线</strong>。训练一次，推理时不需要逐场景优化，几秒钟就能重建新场景。</p>
+<div class="scene-box">三条路线，三种哲学：LRM 说"给我一个好的 3D 表示，我用大模型学映射"；LVSM 说"3D 表示是多余的，直接学视图间的映射"；Matrix3D 说"别争了，一个模型做所有任务"。</div>
 
-<p>2025 年，<strong>VGGT（Visual Geometry Grounded Transformer）</strong> <a href="https://arxiv.org/abs/2503.11651">[19]</a> 把这个思路推向了极致。它的核心洞察是：<strong>位姿估计、深度预测、新视角合成，这些任务本质上是相关的</strong>。一个 Transformer 同时输出：</p>
+<p>2025 年，<strong>VGGT</strong> <a href="https://arxiv.org/abs/2503.11651">[19]</a> 把第三条路线推向了极致。它的核心洞察是：<strong>位姿估计、深度预测、点云生成、光流估计，这些任务本质上是相关的</strong>。一个 Transformer 同时输出：</p>
 
 $$\{\hat{\mathbf{P}}, \hat{\mathbf{D}}, \hat{\mathbf{T}}, \hat{\mathbf{F}}\} = f_\theta(\mathbf{I}_{1:N})$$
 
-<p>其中 $\hat{\mathbf{P}}$ 为点图、$\hat{\mathbf{D}}$ 为深度图、$\hat{\mathbf{T}}$ 为相机位姿、$\hat{\mathbf{F}}$ 为光流。通过多任务预训练，任务间共享特征表示，互相提供监督信号。</p>
+<p>通过多任务预训练，任务间共享特征表示，互相提供监督信号。VGGT 在各个任务上都达到了 SOTA，而且可以泛化到未见过的场景。</p>
 
 <hr>
 
@@ -419,13 +421,11 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <h2>第四章：走向基础模型（2024-2025）</h2>
 
-<p>DUSt3R 证明了前馈重建可以又快又好。但它有一个根本性的限制：<strong>只能处理两张图像</strong>。</p>
-
-<p>现实世界不是两张照片。你可能有几十张、几百张、甚至上千张。怎么办？</p>
+<p>DUSt3R 证明了前馈重建可以又快又好。但它有一个根本性的限制：<strong>只能处理两张图像</strong>。现实世界不是两张照片——你可能有几十张、几百张、甚至上千张。怎么办？</p>
 
 <h3>从成对到多视图</h3>
 
-<p>Meta FAIR 的团队给出了两步答案。</p>
+<p>Meta FAIR 的团队用两步回答了这个问题。</p>
 
 <p>第一步是 <strong>MASt3R</strong> <a href="https://arxiv.org/abs/2406.09756">[26]</a>。它在 DUSt3R 的基础上加了一个密集局部特征头——不仅能重建 3D 场景，还能做特征匹配。这意味着它可以接入 SfM 和 SLAM 的管线，不再是一个孤立的"点云生成器"。</p>
 
@@ -445,7 +445,7 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <h3>基础模型也需要"微调"</h3>
 
-<p>基础模型 trained on everything，但细节不够。2025 年出现了两个有趣的"元学习"方向。</p>
+<p>基础模型见多识广，但细节不够。2025 年出现了两个有趣的"元学习"方向。</p>
 
 <p><strong>Fin3R</strong> <a href="https://arxiv.org/abs/2511.22429">[301]</a>（NeurIPS 2025）的思路很简单：冻结解码器，只用轻量 LoRA 微调图像编码器，从强单目教师模型蒸馏精细几何细节。在 DUSt3R、MASt3R、VGGT 上都有效，几乎不增加推理成本。</p>
 
@@ -463,7 +463,7 @@ $$q(\mathbf{z}_i | \mathbf{x}) = \mathcal{N}(\boldsymbol{\mu}_\phi(\mathbf{x}),\
 
 <h2>第五章：3DGS 的几何觉醒（2025）</h2>
 
-<p>前馈重建有两条路线：点图和 3DGS。点图路线在第四章已经讲过。现在来看 3DGS 路线。</p>
+<p>第四章讲的是点图路线——直接预测像素级 3D 坐标。另一条路线是 3DGS——预测高斯参数，支持高质量渲染。</p>
 
 <p>2024 年，pixelSplat 和 MVSplat 证明了前馈 3DGS 可以工作。但 2025 年，一个尴尬的事实浮出水面：<strong>大多数前馈 3DGS 方法预测的高斯方向/尺度没有几何含义</strong>。</p>
 
@@ -623,7 +623,11 @@ $$\boldsymbol{\mu}_i^{t+1} = \boldsymbol{\mu}_i^t + \Delta\mathbf{v}_i^t, \quad 
 
 <p>[15] Charat, D., et al. "pixelSplat: 3D Gaussian Splats from Image Pairs for Scalable Generalizable Novel View Synthesis." <em>CVPR 2024</em>. <a href="https://arxiv.org/abs/2312.12337">arXiv:2312.12337</a> · <a href="https://dcharat.github.io/pixelsplat">Project Page</a></p>
 
+<p>[16] Jin, H., et al. "LVSM: A Large View Synthesis Model with Minimal 3D Inductive Bias." <em>arXiv 2024</em>. <a href="https://arxiv.org/abs/2410.17242">arXiv:2410.17242</a> · <a href="https://haian-jin.github.io/projects/LVSM/">Project Page</a></p>
+
 <p>[17] Chen, C., et al. "MVSplat: Efficient 3D Gaussian Splatting from Sparse Multi-View Images." <em>ECCV 2024</em>. <a href="https://arxiv.org/abs/2403.14627">arXiv:2403.14627</a> · <a href="https://donydchen.github.io/mvsplat">Project Page</a></p>
+
+<p>[18] Lu, Y., et al. "Matrix3D: Large Photogrammetry Model All-in-One." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2502.07685">arXiv:2502.07685</a> · <a href="https://nju-3dv.github.io/projects/matrix3d">Project Page</a></p>
 
 <p>[19] Wang, S., et al. "VGGT: Visual Geometry Grounded Transformer." <em>CVPR 2025</em>. <a href="https://arxiv.org/abs/2503.11651">arXiv:2503.11651</a></p>
 
