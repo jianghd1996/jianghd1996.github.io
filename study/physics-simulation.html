@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>万物之理：物理仿真的千年演进</title>
+  <link rel="stylesheet" type="text/css" href="../files/stylesheet.css">
+  <style>
+    body { background: #fff; color: #333; }
+    #article-container { max-width: 820px; margin: 0 auto; padding: 40px 20px 60px; font-family: 'Georgia', 'Noto Serif SC', serif; line-height: 1.85; font-size: 16px; }
+    #article-container h1 { font-size: 28px; text-align: center; margin-bottom: 5px; color: #1a1a1a; border-bottom: none; }
+    #article-container .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    #article-container h2 { font-size: 22px; color: #1a1a1a; margin-top: 48px; margin-bottom: 16px; padding-bottom: 6px; border-bottom: 2px solid #e0e0e0; }
+    #article-container h3 { font-size: 18px; color: #2a2a2a; margin-top: 32px; margin-bottom: 12px; }
+    #article-container h4 { font-size: 16px; color: #444; margin-top: 24px; margin-bottom: 8px; }
+    #article-container p { margin-bottom: 16px; text-align: justify; }
+    #article-container strong { color: #1a1a1a; }
+    #article-container blockquote { border-left: 3px solid #c0392b; margin: 20px 0; padding: 12px 20px; background: #fdf6f0; font-style: italic; color: #555; }
+    #article-container pre { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 14px 18px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 16px 0; }
+    #article-container code { font-family: 'Menlo', 'Consolas', monospace; font-size: 14px; }
+    #article-container p code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; }
+    #article-container hr { border: none; border-top: 1px solid #ddd; margin: 40px 0; }
+    #article-container ul, #article-container ol { margin: 12px 0; padding-left: 24px; }
+    #article-container li { margin-bottom: 6px; }
+    #article-container table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 14px; }
+    #article-container th, #article-container td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+    #article-container th { background: #f5f5f5; font-weight: bold; }
+    #article-container a { color: #c0392b; text-decoration: none; }
+    #article-container a:hover { text-decoration: underline; }
+    #back-link { text-align: center; margin-bottom: 30px; }
+    #back-link a { color: #888; font-size: 14px; font-family: sans-serif; }
+    .scene-box { background: #f9f9f9; border-left: 3px solid #3498db; padding: 12px 16px; margin: 16px 0; font-size: 15px; }
+    .scene-box::before { content: "🎬 "; }
+    .think-box { background: linear-gradient(135deg, #fff9f0 0%, #fff5eb 100%); border: 1px solid #f0d9b5; border-left: 4px solid #e67e22; border-radius: 6px; padding: 16px 20px; margin: 24px 0; }
+    .think-box::before { content: "💡 思考题"; display: block; font-size: 12px; font-weight: 700; color: #e67e22; letter-spacing: 1px; margin-bottom: 8px; }
+    .think-box p { margin-bottom: 6px; font-size: 15px; color: #555; }
+    .think-box p:last-child { margin-bottom: 0; }
+    .think-box .think-num { display: inline-block; background: #e67e22; color: #fff; font-size: 11px; font-weight: 700; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 50%; margin-right: 6px; }
+    #toc-sidebar { position: fixed; left: 16px; top: 80px; width: 220px; max-height: calc(100vh - 120px); overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; padding-right: 12px; z-index: 100; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
+    #toc-sidebar::-webkit-scrollbar { width: 3px; }
+    #toc-sidebar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+    #toc-sidebar .toc-title { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-left: 10px; }
+    #toc-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    #toc-sidebar li { margin-bottom: 2px; }
+    #toc-sidebar a { display: block; padding: 3px 10px; color: #999; text-decoration: none; border-left: 2px solid transparent; transition: all 0.15s ease; font-size: 12.5px; }
+    #toc-sidebar a:hover { color: #c0392b; }
+    #toc-sidebar a.active { color: #c0392b; border-left-color: #c0392b; font-weight: 600; }
+    #toc-sidebar .toc-h3 { padding-left: 14px; }
+    #toc-sidebar .toc-h3 a { font-size: 12px; }
+    @media (max-width: 1280px) { #toc-sidebar { display: none; } }
+    @media (min-width: 1281px) { #article-container { margin-left: auto; margin-right: 80px; } }
+    @media (min-width: 1500px) { #article-container { margin-right: auto; margin-left: 260px; } }
+    @media (max-width: 600px) { #article-container { padding: 20px 16px 40px; font-size: 15px; } #article-container h1 { font-size: 22px; } #article-container h2 { font-size: 19px; } }
+  </style>
+</head>
+<body>
+<div id="article-container">
+
+<p id="back-link"><a href="../index.html">← Back to Homepage</a></p>
+
+<h1>万物之理：物理仿真的千年演进</h1>
+<p class="subtitle">最后更新：2026-07-27 &nbsp;|&nbsp; 用 AI 写的领域调研小说</p>
+
+<hr>
+
+<h2>序章：牛顿的遗产</h2>
+
+<p>1687 年，艾萨克·牛顿出版了《自然哲学的数学原理》。在这本书中，他用三个定律描述了宏观世界的运动规律。从此，人类有了一种强大的能力：<strong>预测未来。</strong></p>
+
+<p>给定一个物体的初始位置和速度，给定它受到的力，牛顿定律可以告诉你它下一秒在哪里、下下一秒在哪里——理论上，可以预测到永远。</p>
+
+<div class="scene-box">想象你扔出一个球。牛顿定律告诉你：球会沿着抛物线飞行，落点是哪里，弹起多高。你不需要真的扔出这个球——你在脑海中就能"模拟"它的轨迹。这就是物理仿真的本质：用数学方程，在计算机中"预测"物理世界的演化。</div>
+
+<p>但牛顿的遗产有一个问题：<strong>方程容易写，解不容易求。</strong>一个球的运动很简单，但一万个球的碰撞、一块布的飘动、一杯水的泼溅——这些"多体问题"的解析解不存在。人类花了三百年，才找到用计算机"近似求解"的方法。</p>
+
+<p>这个故事有三条线索：</p>
+
+<ul>
+<li><strong>图形学线索</strong>：从刚体到柔体，从流体到毛发——计算机图形学让物理仿真"可见"</li>
+<li><strong>机器人线索</strong>：从仿真到现实——具身智能让物理仿真"可用"</li>
+<li><strong>AI 线索</strong>：从方程到学习——神经网络让物理仿真"加速"</li>
+</ul>
+
+<p>这三条线索在 2024-2025 年汇聚，催生了一个全新的领域：<strong>可微物理仿真 + 具身智能</strong>。</p>
+
+<hr>
+
+<h2>第一章：刚体动力学——从台球到电影</h2>
+
+<h3>最古老的仿真</h3>
+
+<p>刚体动力学（Rigid Body Dynamics）是物理仿真中最古老、最成熟的分支。核心问题：</p>
+
+<blockquote>给定一组刚体（不可变形的物体），它们之间的碰撞和摩擦，预测它们的运动轨迹。</blockquote>
+
+<p>数学上，刚体动力学是一组常微分方程（ODE）：</p>
+
+<pre>对于每个刚体 i：
+  平移：m_i · a_i = Σ F_i（牛顿第二定律）
+  旋转：I_i · α_i = Σ τ_i（欧拉方程）
+
+约束条件：
+  碰撞：物体不能穿透彼此
+  关节：铰链、球窝等连接约束</pre>
+
+<p>求解这些方程的核心挑战是<strong>碰撞检测与响应</strong>。两个物体碰撞时，需要：1）检测到碰撞发生；2）计算碰撞法向和穿透深度；3）施加冲量使物体分离。</p>
+
+<div class="scene-box">想象一桌台球。白球撞击红球，红球又撞击黑球——每一次碰撞都需要精确计算。如果计算不准，球会"穿模"（穿过彼此），或者"粘在一起"（碰撞后不分离）。这在游戏里叫"bug"，在电影里叫"穿帮"。</div>
+
+<h3>游戏引擎中的物理</h3>
+
+<p>2000 年代，物理仿真开始进入游戏引擎。</p>
+
+<p><strong>Havok</strong>（1998）：第一个商业物理引擎，被用于《光晕》《半条命 2》等游戏。它解决了刚体碰撞的基本问题，但柔体、流体还做不了。</p>
+
+<p><strong>PhysX</strong>（2005，AGEIA → NVIDIA）：加入了粒子系统、布料模拟、流体模拟。2008 年被 NVIDIA 收购后，利用 GPU 加速，成为游戏物理的主流。</p>
+
+<p><strong>Box2D</strong>（2007）：开源的 2D 物理引擎，被用于《愤怒的小鸟》。简单、高效、稳定。</p>
+
+<p>游戏物理的核心需求是<strong>实时性</strong>——60fps，每帧只有 16ms。这意味着不能用太精确的求解器，必须用"近似但快"的方法。这就是为什么游戏里的物理看起来"差不多对"，但物理学家看了会皱眉。</p>
+
+<h3>SIGGRAPH 的贡献</h3>
+
+<p>与游戏引擎追求"快"不同，SIGGRAPH 社区追求<strong>"真实"</strong>。</p>
+
+<p><strong>Baraff & Witkin (1998)</strong>：提出了基于隐式积分的布料模拟方法，解决了显式积分的不稳定问题。这是布料仿真的里程碑。</p>
+
+<p><strong>Müller et al. (2005)</strong>：提出了 Position Based Dynamics (PBD)，用位置约束替代力计算，极其稳定且快速。PBD 成为游戏和电影特效的主流方法。</p>
+
+<p><strong>Takahashi et al. (2015)</strong>：提出了 Unified Particle Animation (UPIC)，统一了刚体、柔体、流体的粒子表示。这是"统一物理仿真"的早期尝试。</p>
+
+<div class="scene-box">在电影《冰雪奇缘》中，Elsa 的裙子在风中飘动。这不是动画师一帧帧画的，而是物理仿真算出来的。迪士尼的动画师只需要告诉系统"裙子是什么材质、风从哪里吹"，物理引擎就能算出裙子的每一帧运动。这就是 SIGGRAPH 技术的力量。</div>
+
+<hr>
+
+<h2>第二章：连续介质——柔体、流体与毛发</h2>
+
+<h3>有限元方法（FEM）</h3>
+
+<p>现实世界的物体大多不是刚体——它们会变形。橡皮球会弹、果冻会抖、肌肉会收缩。这些"可变形物体"的仿真需要<strong>连续介质力学</strong>。</p>
+
+<p>核心方程是<strong>弹性力学方程</strong>：</p>
+
+<pre>应力-应变关系：σ = C : ε（胡克定律的广义形式）
+运动方程：ρ · ∂²u/∂t² = ∇·σ + f
+
+其中：
+σ = 应力张量
+ε = 应变张量
+C = 弹性张量（材料属性）
+u = 位移场
+f = 外力</pre>
+
+<p>这个偏微分方程（PDE）没有解析解，需要用<strong>有限元方法（FEM）</strong>数值求解。核心思想：将连续物体离散为有限个"单元"（四面体、六面体），在每个单元上近似求解。</p>
+
+<p><strong>SIGGRAPH 代表工作</strong>：</p>
+
+<ul>
+<li><strong>Irving et al. (2004)</strong>：可反转的 FEM，解决了物体翻转时仿真崩溃的问题</li>
+<li><strong>Terzopoulos & Fleischer (1988)</strong>：可变形物体的早期工作，奠定了弹性体仿真的基础</li>
+<li><strong>Stomakhin et al. (2013)</strong>：迪士尼的"雪怪"——用 FEM 仿真雪、冰、雪的融化，获 SIGGRAPH 最佳论文</li>
+</ul>
+
+<div class="scene-box">在电影《冰雪奇缘》中，Elsa 用魔法造出一座冰宫。冰柱的生长、冰面的裂纹、雪花的飘落——这些都是用 FEM 仿真的。迪士尼的特效团队开发了专门的"雪引擎"，可以模拟雪的压缩、堆积、融化。每一个镜头背后，都是数百万个四面体单元的数值计算。</div>
+
+<h3>流体仿真：从 Navier-Stokes 到 SPH</h3>
+
+<p>流体（水、烟、火）的仿真更加复杂。核心方程是 <strong>Navier-Stokes 方程</strong>：</p>
+
+<pre>动量守恒：ρ(∂v/∂t + v·∇v) = -∇p + μ∇²v + f
+质量守恒：∇·v = 0（不可压缩流体）
+
+其中：
+v = 速度场
+p = 压力场
+ρ = 密度
+μ = 粘度
+f = 外力（重力等）</pre>
+
+<p>这组非线性 PDE 是数学界七大千禧年难题之一——我们甚至不知道它的解是否存在。但在工程中，我们用数值方法"近似求解"。</p>
+
+<p><strong>两大流派</strong>：</p>
+
+<p><strong>欧拉方法（Grid-based）</strong>：在固定网格上求解。优点是稳定、精度高；缺点是处理自由表面（如水的飞溅）困难。代表：MAC Grid (Harlow & Welch, 1965)、FLIP (Zhu & Bridson, 2005)。</p>
+
+<p><strong>拉格朗日方法（Particle-based）</strong>：用粒子表示流体。优点是处理自由表面容易；缺点是粒子数多时计算量大。代表：SPH (Müller et al., 2003)、PCISPF (Solenthaler & Pajarola, 2009)。</p>
+
+<table>
+<tr><th>方法</th><th>表示</th><th>优点</th><th>缺点</th><th>代表工作</th></tr>
+<tr><td>Grid (FLIP/APIC)</td><td>网格 + 粒子</td><td>稳定、精度高</td><td>自由表面难</td><td>Jiang et al. 2015 (APIC)</td></tr>
+<tr><td>SPH</td><td>粒子</td><td>自由表面易</td><td>计算量大</td><td>Müller et al. 2003</td></tr>
+<tr><td>DFG (Divergence-free)</td><td>网格</td><td>无散度保证</td><td>复杂边界难</td><td>Batty et al. 2007</td></tr>
+<tr><td>Material Point Method</td><td>粒子 + 网格</td><td>统一刚柔流</td><td>实现复杂</td><td>Stomakhin et al. 2013</td></tr>
+</table>
+
+<p><strong>SIGGRAPH 里程碑</strong>：</p>
+
+<ul>
+<li><strong>Fedkiw et al. (2001)</strong>：基于 Level Set 的自由表面捕捉，成为流体仿真的标准方法</li>
+<li><strong>Enright et al. (2002)</strong>：混合欧拉-拉格朗日方法，解决了气泡和飞溅问题</li>
+<li><strong>Kugelstadt et al. (2021)</strong>：PCISPH 的改进，实时 SPH 流体</li>
+</ul>
+
+<h3>毛发仿真：最难的连续介质</h3>
+
+<p>毛发（头发、毛皮、草地）的仿真是图形学中最棘手的问题之一。每根头发是一个细长的弹性体，数百万根头发之间的碰撞和摩擦，计算量极其恐怖。</p>
+
+<p><strong>核心挑战</strong>：</p>
+
+<ul>
+<li><strong>几何复杂性</strong>：一根头发有数千个节点，百万根头发 = 数十亿节点</li>
+<li><strong>碰撞复杂性</strong>：头发之间、头发与身体之间的碰撞检测</li>
+<li><strong>摩擦模型</strong>：头发之间的摩擦极其复杂，各向异性</li>
+</ul>
+
+<p><strong>SIGGRAPH 代表工作</strong>：</p>
+
+<ul>
+<li><strong>Ward et al. (2007)</strong>：基于链式结构的毛发动力学，迪士尼用于《长发公主》</li>
+<li><strong>Sellán et al. (2023)</strong>：GPU 加速的毛发碰撞，百万根头发实时仿真</li>
+</ul>
+
+<div class="scene-box">在电影《勇敢传说》中，Merida 有一头红色卷发。每一根卷发都需要仿真——它要随头部运动而摆动，要随风吹而飘动，要与其他头发碰撞而不穿模。皮克斯的特效团队花了数年开发毛发引擎，最终实现了 1500 簇、每簇约 100 根头发的仿真。这在 2012 年是世界纪录。</div>
+
+<hr>
+
+<h2>第三章：可微仿真——当物理遇上梯度</h2>
+
+<h3>一个革命性的想法</h3>
+
+<p>传统物理仿真是"正向"的：给定初始条件和参数，仿真得到结果。但很多问题是"反向"的：</p>
+
+<blockquote>给定期望的结果，反推初始条件或参数。</blockquote>
+
+<p>比如：想让机器人抓住一个杯子，反推机器人关节的力矩；想让布料落在特定位置，反推布料的材质参数；想让流体形成特定形状，反推初始速度场。</p>
+
+<p>这些"反问题"需要<strong>梯度信息</strong>——结果对参数的导数。但传统仿真器是"黑盒"——输入进去，结果出来，中间不可导。</p>
+
+<p><strong>可微仿真（Differentiable Simulation）</strong>的革命性在于：<strong>让物理仿真器变成可微的</strong>——可以对参数求梯度，从而用梯度下降优化参数。</p>
+
+<h3>Taichi：可微仿真的基础设施</h3>
+
+<p>2019 年，胡渊铭发布了 <strong>Taichi</strong>——一个面向高性能图形学的编程语言。核心创新：<strong>自动微分 + GPU 并行</strong>。</p>
+
+<pre>Taichi 代码示例：
+import taichi as ti
+
+ti.init(arch=ti.gpu)
+
+@ti.kernel
+def simulate(x: ti.field(), v: ti.field()):
+    for i in range(N):
+        v[i] += gravity * dt
+        x[i] += v[i] * dt
+
+# 可微仿真：可以对 x, v 求梯度
+# 从而优化初始条件、材质参数等</pre>
+
+<p>Taichi 的意义在于：<strong>让可微仿真变得简单。</strong>以前需要手动推导梯度、手写伴随方程，现在 Taichi 自动完成。这极大降低了可微仿真的门槛。</p>
+
+<p><strong>SIGGRAPH 代表工作</strong>：</p>
+
+<ul>
+<li><strong>Difftaichi (Hu et al., 2020)</strong>：用 Taichi 实现可微物理仿真，可以优化数百个时间步的参数</li>
+<li><strong>GenDP (Du et al., 2023)</strong>：可微粒子动力学，用于机器人操控</li>
+<li><strong>Warp (NVIDIA, 2023)</strong>：GPU 加速的可微仿真框架</li>
+</ul>
+
+<h3>可微仿真的应用</h3>
+
+<p><strong>机器人学</strong>：优化抓取策略、运动规划、材质估计</p>
+
+<p><strong>计算机视觉</strong>：从视频中反推物理参数（逆物理）</p>
+
+<p><strong>设计优化</strong>：优化结构形状、材料分布</p>
+
+<div class="scene-box">想象你是一个陶艺师。传统方法是：做出来，看看行不行，不行再改。可微仿真是：先在计算机里模拟，算出"怎么改最好"，然后一次做对。这就是可微仿真的力量——它把"试错"变成了"优化"。</div>
+
+<hr>
+
+<h2>第四章：从仿真到现实——具身智能的崛起</h2>
+
+<h3>Sim-to-Real Gap：仿真的最大谎言</h3>
+
+<p>物理仿真很美好，但它有一个致命问题：<strong>仿真和现实不一样。</strong></p>
+
+<p>在仿真中，摩擦力是恒定的、碰撞是完美的、传感器是精确的。但在现实中，摩擦力千变万化、碰撞有弹性、传感器有噪声。</p>
+
+<div class="scene-box">在仿真中训练一个机器人"抓杯子"。仿真里的杯子摩擦力是 0.5，机器人学会了用 2N 的力抓取。但现实中的杯子沾了水，摩擦力变成 0.3。机器人还是用 2N 的力——杯子滑了，掉在地上碎了。这就是 sim-to-real gap。</div>
+
+<p><strong>Sim-to-Real Gap 的来源</strong>：</p>
+
+<ul>
+<li><strong>几何差异</strong>：仿真中的物体形状和现实不完全一致</li>
+<li><strong>物理参数差异</strong>：摩擦系数、弹性模量、质量分布等不准确</li>
+<li><strong>传感器噪声</strong>：仿真中的传感器是完美的，现实中有噪声和延迟</li>
+<li><strong>未建模动态</strong>：现实中有风、振动、温度变化等仿真中忽略的因素</li>
+</ul>
+
+<h3>Domain Randomization：以毒攻毒</h3>
+
+<p>Domain Randomization（域随机化）是解决 sim-to-real gap 最流行的方法。核心思想：</p>
+
+<blockquote>在仿真中随机化物理参数，让策略学会"适应各种情况"。</blockquote>
+
+<pre>训练时：
+  随机化摩擦系数：μ ~ U(0.1, 1.0)
+  随机化质量：m ~ U(0.5, 2.0) kg
+  随机化视觉：光照、纹理、相机位姿
+  随机化动力学：延迟、噪声
+
+推理时：
+  策略已经"见过"各种情况，可以泛化到现实</pre>
+
+<p><strong>代表工作</strong>：</p>
+
+<ul>
+<li><strong>Tobin et al. (2017)</strong>：首次用域随机化实现 sim-to-real 的视觉抓取</li>
+<li><strong>Tobin et al. (2020)</strong>：Dexterous hand 的 sim-to-real，用域随机化训练灵巧手操控</li>
+<li><strong>Peng et al. (2023)</strong>：Google 的 RT-2 用大规模域随机化训练 VLA</li>
+</ul>
+
+<h3>GPU 并行仿真：NVIDIA Isaac</h3>
+
+<p>域随机化需要大量仿真数据。传统 CPU 仿真器太慢——一个环境每秒只能仿真几十帧。但机器人需要数百万次尝试才能学会一个技能。</p>
+
+<p><strong>NVIDIA Isaac Gym</strong>（2021）→ <strong>Isaac Sim</strong>（2023）→ <strong>Isaac Lab</strong>（2024）：在 GPU 上并行运行数千个仿真环境。</p>
+
+<pre>传统仿真：
+  CPU 运行 1 个环境 → 100 FPS
+  训练 100 万步 → 需要 3 小时
+
+Isaac Gym：
+  GPU 并行运行 4096 个环境 → 400,000 FPS
+  训练 100 万步 → 需要 10 分钟</pre>
+
+<p>加速比达到 <strong>1000×</strong>。这使得"在仿真中训练，在现实中部署"成为可行的工程方案。</p>
+
+<table>
+<tr><th>仿真器</th><th>开发者</th><th>并行方式</th><th>物理引擎</th><th>特色</th></tr>
+<tr><td>Isaac Lab</td><td>NVIDIA</td><td>GPU 并行</td><td>PhysX 5</td><td>最快速度、最完整生态</td></tr>
+<tr><td>MuJoCo MJX</td><td>Google DeepMind</td><td>GPU 并行</td><td>MuJoCo</td><td>学术主流、精确接触</td></tr>
+<tr><td>SAPIEN</td><td>UCSD / 清华</td><td>CPU + GPU</td><td>自研</td><td>交互物体丰富</td></tr>
+<tr><td>Genesis</td><td>CMU / Stanford</td><td>GPU 并行</td><td>自研</td><td>统一刚柔流、可微</td></tr>
+<tr><td>Brax</td><td>Google</td><td>JAX GPU</td><td>自研</td><td>纯函数式、可微</td></tr>
+<tr><td>Drake</td><td>TRI</td><td>CPU</td><td>自研</td><td>最精确、工业级</td></tr>
+</table>
+
+<h3>Genesis：统一物理仿真的新尝试</h3>
+
+<p>2024 年，CMU 和 Stanford 的团队发布了 <strong>Genesis</strong>——一个统一的、可微的、GPU 加速的物理仿真器。</p>
+
+<p>Genesis 的核心创新：<strong>统一表示刚体、柔体、流体、毛发。</strong></p>
+
+<pre>Genesis 架构：
+  统一粒子表示 → 所有物体都是粒子
+  可微物理引擎 → 支持自动微分
+  GPU 并行 → 10,000+ 环境并行
+  多物理耦合 → 刚柔流交互</pre>
+
+<p>Genesis 的速度：<strong>43 万 FPS</strong>（4096 个并行环境），比 Isaac Gym 快 5-10 倍。</p>
+
+<div class="scene-box">想象你在训练一个机器人"倒水"。这需要：刚体（杯子）、流体（水）、柔体（可能还有布）。传统方法需要三个仿真器耦合，极其复杂。Genesis 用一个统一的引擎搞定——杯子是刚体粒子，水是流体粒子，布是柔体粒子，它们在同一个物理引擎中交互。</div>
+
+<hr>
+
+<h2>第五章：神经物理仿真——当 AI 学会物理</h2>
+
+<h3>从方程到神经网络</h3>
+
+<p>传统物理仿真用数值方法求解物理方程。但神经网络提供了一种新可能：<strong>直接从数据中学习物理规律。</strong></p>
+
+<p><strong>Neural ODE (Chen et al., 2018)</strong>：用神经网络参数化 ODE 的右端项，用可微 ODE 求解器训练。</p>
+
+<pre>传统 ODE：dx/dt = f(x, t)（已知 f）
+Neural ODE：dx/dt = f_θ(x, t)（用神经网络学习 f）
+
+训练：从数据中学习 f_θ
+推理：用 ODE 求解器积分</pre>
+
+<p><strong>Physics-Informed Neural Networks (PINN, Raissi et al., 2019)</strong>：将物理方程作为损失函数的约束，训练神经网络满足物理规律。</p>
+
+<pre>PINN 损失：
+L = L_data + λ · L_physics
+
+L_data = 数据拟合损失
+L_physics = PDE 残差（如 Navier-Stokes 方程）</pre>
+
+<h3>Neural Fields for Physics</h3>
+
+<p>2023-2024 年，<strong>神经场（Neural Fields）</strong>开始用于物理仿真。核心思想：用神经网络表示物理场（速度场、压力场、温度场等）。</p>
+
+<p><strong>代表工作</strong>：</p>
+
+<ul>
+<li><strong>Fourier Neural Operator (FNO, Li et al., 2021)</strong>：用傅里叶空间学习算子，加速 PDE 求解</li>
+<li><strong>Neural Lagrangian (Morton et al., 2023)</strong>：用神经网络学习拉格朗日量，保证物理守恒律</li>
+<li><strong>PhyScene (Ling et al., 2024)</strong>：用扩散模型生成物理合理的 3D 场景</li>
+</ul>
+
+<h3>世界模型：物理仿真的终极形态？</h3>
+
+<p>2024 年，OpenAI 的 Sora 论文提出了一个惊人的观点：</p>
+
+<blockquote>"视频生成模型在某种程度上是世界模拟器（World Simulators）。"</blockquote>
+
+<p>这意味着：一个足够强大的视频生成模型，可能已经"学会"了物理规律——它知道物体如何运动、碰撞、变形。这本质上是一种<strong>数据驱动的物理仿真</strong>。</p>
+
+<p><strong>世界模型的代表工作</strong>：</p>
+
+<ul>
+<li><strong>Genie (DeepMind, 2024)</strong>：从视频学习交互式世界模型</li>
+<li><strong>UniSim (DeepMind, 2024)</strong>：通用模拟器，用于机器人训练</li>
+<li><strong>DIAMOND (2025)</strong>：用扩散模型作为世界模型</li>
+<li><strong>Cosmos (NVIDIA, 2025)</strong>：世界基础模型，用于自动驾驶和机器人</li>
+</ul>
+
+<div class="scene-box">传统物理仿真是"白盒"——你知道物理方程，用数值方法求解。世界模型是"黑盒"——你不知道它学到了什么物理规律，但它能"预测"物理世界的演化。这两种方法正在融合：用物理方程约束世界模型，用世界模型加速物理仿真。</div>
+
+<hr>
+
+<h2>第六章：具身智能——物理仿真的终极应用</h2>
+
+<h3>从 VLA 到物理智能</h3>
+
+<p>具身智能（Embodied AI）的核心挑战是：<strong>让机器人在物理世界中行动。</strong></p>
+
+<p>这需要三种能力：</p>
+
+<ul>
+<li><strong>感知</strong>：理解物理世界的状态（视觉、触觉、本体感觉）</li>
+<li><strong>推理</strong>：预测行动的后果（"如果我推这个杯子，它会滑到哪里？"）</li>
+<li><strong>控制</strong>：执行精确的动作（关节力矩、末端位姿）</li>
+</ul>
+
+<p>物理仿真在具身智能中扮演什么角色？</p>
+
+<p><strong>第一，训练数据生成。</strong>在仿真中生成数百万条训练轨迹，用域随机化弥合 sim-to-real gap。</p>
+
+<p><strong>第二，策略评估。</strong>在仿真中测试策略的安全性，避免在现实中"试错"导致损坏。</p>
+
+<p><strong>第三，物理推理。</strong>用世界模型"想象"行动的后果，做出更好的决策。</p>
+
+<h3>Physical Intelligence (π)：物理智能的先锋</h3>
+
+<p>2024 年，Physical Intelligence 发布了 <strong>π0</strong>——一个通用机器人策略。</p>
+
+<p>π0 的核心创新：<strong>用 Flow Matching 生成动作序列。</strong></p>
+
+<pre>输入：当前观测 + 语言指令
+    ↓
+VLM 编码器：理解观测和指令
+    ↓
+Flow Matching 解码器：从噪声生成动作序列
+    ↓
+输出：未来 N 步的动作</pre>
+
+<p>π0 的"物理理解"来自哪里？来自大规模仿真训练。它在 Isaac Sim 中训练了数百万条轨迹，用域随机化适应现实世界的物理差异。</p>
+
+<h3>Google DeepMind 的物理智能路线</h3>
+
+<p>DeepMind 在物理智能方面有多条路线：</p>
+
+<p><strong>RT-2 (2023)</strong>：将动作离散化为 token，用 VLM 直接预测。简单但精度有限。</p>
+
+<p><strong>SayCan (2022)</strong>：将 VLM 的高层规划与低层控制策略结合。VLM 说"把杯子拿过来"，低层策略执行具体动作。</p>
+
+<p><strong>RoboCat (2023)</strong>：多机器人、多任务的通用策略。用大规模仿真数据训练。</p>
+
+<p><strong>Gemini for Robotics (2025)</strong>：用 Gemini 多模态模型理解物理世界，指导机器人行动。</p>
+
+<h3>中国力量：具身智能的东方军团</h3>
+
+<p>中国在具身智能领域快速崛起：</p>
+
+<ul>
+<li><strong>智元机器人（Agibot）</strong>：稚晖君创立，专注人形机器人端到端控制</li>
+<li><strong>银河通用（Galbot）</strong>：通用人形机器人，强调灵巧手</li>
+<li><strong>宇树科技（Unitree）</strong>：四足机器人起家，向人形扩展</li>
+<li><strong>上海 AI Lab</strong>：InternSim 仿真平台、大规模数据集</li>
+</ul>
+
+<div class="scene-box">在国内某电商仓库的试点中，智元的机器人被用来分拣包裹。它能识别快递单上的地址信息，然后把包裹放到对应的区域。但在"双十一"期间，包裹的形状、大小、重量千差万别——有大有小、有软有硬、有方有圆。机器人在处理标准纸箱时表现不错，但遇到异形件就频繁出错。这就是物理仿真的挑战——现实世界比仿真复杂得多。</div>
+
+<hr>
+
+<h2>第七章：物理仿真的未来</h2>
+
+<h3>趋势一：统一仿真</h3>
+
+<p>未来的物理仿真器将统一刚体、柔体、流体、毛发、电磁等所有物理现象。Genesis 是早期尝试，但距离"统一场论"还很远。</p>
+
+<h3>趋势二：可微 + GPU + 学习</h3>
+
+<p>可微仿真 + GPU 并行 + 神经网络的"三驾马车"将成为标配。物理仿真不再只是"数值计算"，而是"可学习的物理引擎"。</p>
+
+<h3>趋势三：世界模型与物理仿真的融合</h3>
+
+<p>世界模型（数据驱动）和物理仿真（方程驱动）正在融合。未来的"物理引擎"可能既有方程约束，又有学习能力——既精确又灵活。</p>
+
+<h3>趋势四：具身智能的大规模部署</h3>
+
+<p>随着仿真器加速（1000× 以上）、域随机化成熟、VLA 模型进步，具身智能将从实验室走向工厂、仓库、家庭。</p>
+
+<div class="scene-box">也许有一天，每个机器人都能在"梦境"中练习数百万次，然后在现实中"一次做对"。物理仿真就是机器人的"梦境"——一个安全、可控、无限的练习场。</div>
+
+<hr>
+
+<h2>参考文献</h2>
+
+<ol>
+<li>Baraff, D., & Witkin, A. (1998). <em>Large Steps in Cloth Simulation</em>. SIGGRAPH.</li>
+<li>Müller, M., et al. (2005). <em>Position Based Dynamics</em>. VRIPHYS.</li>
+<li>Fedkiw, R., et al. (2001). <em>A Non-Convolution Based Approach to Free Surface Flow</em>. SIGGRAPH.</li>
+<li>Enright, D., et al. (2002). <em>A Hybrid Particle Level Set Method for Characterizing Higher Order Motion</em>. SIGGRAPH.</li>
+<li>Müller, M., et al. (2003). <em>Particle-Based Fluid Simulation for Interactive Applications</em>. SCA.</li>
+<li>Stomakhin, A., et al. (2013). <em>A Material Point Method for Snow Simulation</em>. SIGGRAPH.</li>
+<li>Jiang, C., et al. (2015). <em>The Affine Particle-In-Cell Method</em>. SIGGRAPH.</li>
+<li>Hu, Y., et al. (2019). <em>Taichi: High-Performance Computation on Arbitrary Data Structures</em>. SIGGRAPH Asia.</li>
+<li>Hu, Y., et al. (2020). <em>Difftaichi: Differentiable Programming for Physical Simulation</em>. SIGGRAPH.</li>
+<li>Tobin, J., et al. (2017). <em>Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World</em>. IROS.</li>
+<li>Makoviychuk, V., et al. (2021). <em>Isaac Gym: High Performance GPU-Based Physics Simulation for Robot Learning</em>. NeurIPS.</li>
+<li>Chen, R. T. Q., et al. (2018). <em>Neural Ordinary Differential Equations</em>. NeurIPS.</li>
+<li>Raissi, M., et al. (2019). <em>Physics-Informed Neural Networks</em>. JCP.</li>
+<li>Li, Z., et al. (2021). <em>Fourier Neural Operator for Parametric Partial Differential Equations</em>. ICLR.</li>
+<li>Du, Y., et al. (2024). <em>GenDP: 3D Semantic Fields for Category-Level Object Detection and Pose Estimation</em>. RSS.</li>
+<li>Brooks, T., et al. (2024). <em>Video Generation Models as World Simulators</em>. OpenAI.</li>
+<li>Bruce, J., et al. (2024). <em>Genie: Generative Interactive Environments</em>. DeepMind.</li>
+<li>NVIDIA. (2025). <em>Cosmos: A World Foundation Model for Physical AI</em>.</li>
+<li>Genesis Team. (2024). <em>Genesis: A Universal and Generative Physics Engine for Robotics and Beyond</em>.</li>
+<li>Physical Intelligence. (2024). <em>π0: A Foundation Model for General Robot Control</em>.</li>
+</ol>
+
+<p style="text-align:center; color:#aaa; font-size:13px; margin-top:60px;">
+  本文撰写于 2026 年 7 月，反映截至当时的技术状态。<br>
+  物理仿真与具身智能领域进展迅速，建议结合最新 SIGGRAPH / RSS / CoRL 论文持续跟踪。
+</p>
+
+</div>
+
+<script>
+(function() {
+  var container = document.getElementById('article-container');
+  if (!container) return;
+  var headings = container.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  headings.forEach(function(h, i) { if (!h.id) h.id = 'section-' + i; });
+  var toc = document.createElement('nav');
+  toc.id = 'toc-sidebar';
+  var title = document.createElement('div');
+  title.className = 'toc-title';
+  title.textContent = '\u76EE\u5F55';
+  toc.appendChild(title);
+  var ul = document.createElement('ul');
+  toc.appendChild(ul);
+  headings.forEach(function(h) {
+    var li = document.createElement('li');
+    li.className = h.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.trim();
+    a.dataset.target = h.id;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  document.body.appendChild(toc);
+  var tocLinks = toc.querySelectorAll('a');
+  function updateActive() {
+    var scrollTop = window.scrollY + 120;
+    var current = null;
+    headings.forEach(function(h) { if (h.offsetTop <= scrollTop) current = h.id; });
+    tocLinks.forEach(function(a) { a.classList.toggle('active', a.dataset.target === current); });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) { requestAnimationFrame(function() { updateActive(); ticking = false; }); ticking = true; }
+  });
+  updateActive();
+  toc.addEventListener('click', function(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    var target = document.getElementById(a.dataset.target);
+    if (target) { window.scrollTo({ top: target.offsetTop - 60, behavior: 'smooth' }); tocLinks.forEach(function(l) { l.classList.remove('active'); }); a.classList.add('active'); }
+  });
+})();
+</script>
+
+</body>
+</html>

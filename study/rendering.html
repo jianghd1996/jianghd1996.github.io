@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>光影的魔法：渲染技术的千年演进</title>
+  <link rel="stylesheet" type="text/css" href="../files/stylesheet.css">
+  <style>
+    body { background: #fff; color: #333; }
+    #article-container { max-width: 820px; margin: 0 auto; padding: 40px 20px 60px; font-family: 'Georgia', 'Noto Serif SC', serif; line-height: 1.85; font-size: 16px; }
+    #article-container h1 { font-size: 28px; text-align: center; margin-bottom: 5px; color: #1a1a1a; border-bottom: none; }
+    #article-container .subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 40px; }
+    #article-container h2 { font-size: 22px; color: #1a1a1a; margin-top: 48px; margin-bottom: 16px; padding-bottom: 6px; border-bottom: 2px solid #e0e0e0; }
+    #article-container h3 { font-size: 18px; color: #2a2a2a; margin-top: 32px; margin-bottom: 12px; }
+    #article-container h4 { font-size: 16px; color: #444; margin-top: 24px; margin-bottom: 8px; }
+    #article-container p { margin-bottom: 16px; text-align: justify; }
+    #article-container strong { color: #1a1a1a; }
+    #article-container blockquote { border-left: 3px solid #c0392b; margin: 20px 0; padding: 12px 20px; background: #fdf6f0; font-style: italic; color: #555; }
+    #article-container pre { background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px; padding: 14px 18px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 16px 0; }
+    #article-container code { font-family: 'Menlo', 'Consolas', monospace; font-size: 14px; }
+    #article-container p code { background: #f0f0f0; padding: 2px 5px; border-radius: 3px; }
+    #article-container hr { border: none; border-top: 1px solid #ddd; margin: 40px 0; }
+    #article-container ul, #article-container ol { margin: 12px 0; padding-left: 24px; }
+    #article-container li { margin-bottom: 6px; }
+    #article-container table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 14px; }
+    #article-container th, #article-container td { border: 1px solid #ddd; padding: 8px 12px; text-align: left; }
+    #article-container th { background: #f5f5f5; font-weight: bold; }
+    #article-container a { color: #c0392b; text-decoration: none; }
+    #article-container a:hover { text-decoration: underline; }
+    #back-link { text-align: center; margin-bottom: 30px; }
+    #back-link a { color: #888; font-size: 14px; font-family: sans-serif; }
+    .scene-box { background: #f9f9f9; border-left: 3px solid #3498db; padding: 12px 16px; margin: 16px 0; font-size: 15px; }
+    .scene-box::before { content: "🎬 "; }
+    .think-box { background: linear-gradient(135deg, #fff9f0 0%, #fff5eb 100%); border: 1px solid #f0d9b5; border-left: 4px solid #e67e22; border-radius: 6px; padding: 16px 20px; margin: 24px 0; }
+    .think-box::before { content: "💡 思考题"; display: block; font-size: 12px; font-weight: 700; color: #e67e22; letter-spacing: 1px; margin-bottom: 8px; }
+    .think-box p { margin-bottom: 6px; font-size: 15px; color: #555; }
+    .think-box p:last-child { margin-bottom: 0; }
+    .think-box .think-num { display: inline-block; background: #e67e22; color: #fff; font-size: 11px; font-weight: 700; width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 50%; margin-right: 6px; }
+    #toc-sidebar { position: fixed; left: 16px; top: 80px; width: 220px; max-height: calc(100vh - 120px); overflow-y: auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; line-height: 1.5; padding-right: 12px; z-index: 100; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
+    #toc-sidebar::-webkit-scrollbar { width: 3px; }
+    #toc-sidebar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+    #toc-sidebar .toc-title { font-size: 11px; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-left: 10px; }
+    #toc-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    #toc-sidebar li { margin-bottom: 2px; }
+    #toc-sidebar a { display: block; padding: 3px 10px; color: #999; text-decoration: none; border-left: 2px solid transparent; transition: all 0.15s ease; font-size: 12.5px; }
+    #toc-sidebar a:hover { color: #c0392b; }
+    #toc-sidebar a.active { color: #c0392b; border-left-color: #c0392b; font-weight: 600; }
+    #toc-sidebar .toc-h3 { padding-left: 14px; }
+    #toc-sidebar .toc-h3 a { font-size: 12px; }
+    @media (max-width: 1280px) { #toc-sidebar { display: none; } }
+    @media (min-width: 1281px) { #article-container { margin-left: auto; margin-right: 80px; } }
+    @media (min-width: 1500px) { #article-container { margin-right: auto; margin-left: 260px; } }
+    @media (max-width: 600px) { #article-container { padding: 20px 16px 40px; font-size: 15px; } #article-container h1 { font-size: 22px; } #article-container h2 { font-size: 19px; } }
+  </style>
+</head>
+<body>
+<div id="article-container">
+
+<p id="back-link"><a href="../index.html">← Back to Homepage</a></p>
+
+<h1>光影的魔法：渲染技术的千年演进</h1>
+<p class="subtitle">最后更新：2026-07-27 &nbsp;|&nbsp; 用 AI 写的领域调研小说</p>
+
+<hr>
+
+<h2>序章：光的故事</h2>
+
+<p>人类对"光影"的迷恋，可以追溯到洞穴壁画。原始人在岩壁上画下野牛，用简单的线条和阴影，试图捕捉"真实"。从那时起，一个问题始终困扰着人类：</p>
+
+<blockquote>如何在二维表面上，呈现三维世界的"真实感"？</blockquote>
+
+<p>文艺复兴时期，布鲁内莱斯基发明了<strong>线性透视</strong>——用数学方法在平面上表现深度。达芬奇用<strong>明暗法</strong>（chiaroscuro）让画面有了体积感。维米尔用<strong>暗箱</strong>（camera obscura）捕捉光影的微妙变化。</p>
+
+<p>但真正的革命发生在 20 世纪——计算机的发明让人类可以用<strong>数值方法</strong>模拟光的传播。这就是<strong>渲染（Rendering）</strong>：从 3D 场景描述，生成 2D 图像的过程。</p>
+
+<div class="scene-box">想象你是一个画家，面前有一张白纸。你的任务是画出一个"真实的苹果"。传统画家靠观察和经验；计算机靠物理方程和数值计算。渲染就是让计算机"画"出真实感图像的技术——它需要理解光的传播、材质的反射、相机的成像。</div>
+
+<p>这个故事有四条线索：</p>
+
+<ul>
+<li><strong>图形学线索</strong>：从光栅化到光线追踪，渲染算法的演进</li>
+<li><strong>硬件线索</strong>：从 CPU 到 GPU，渲染硬件的革命</li>
+<li><strong>神经渲染线索</strong>：从 NeRF 到 3DGS，深度学习的颠覆</li>
+<li><strong>逆渲染线索</strong>：从图像反推场景，计算机视觉的逆袭</li>
+</ul>
+
+<hr>
+
+<h2>第一章：光栅化——实时的艺术</h2>
+
+<h3>最古老的渲染算法</h3>
+
+<p><strong>光栅化（Rasterization）</strong>是最古老的渲染算法之一。核心思想：</p>
+
+<blockquote>将 3D 三角形投影到 2D 屏幕，然后填充像素。</blockquote>
+
+<pre>对于每个三角形：
+  1. 顶点变换：世界坐标 → 相机坐标 → 屏幕坐标
+  2. 光栅化：确定三角形覆盖哪些像素
+  3. 着色：对每个像素计算颜色（光照、纹理）</pre>
+
+<p>光栅化的优势是<strong>快</strong>。每个三角形独立处理，可以高度并行。现代 GPU 每秒可以光栅化数十亿个三角形。</p>
+
+<p>但光栅化的问题是<strong>不真实</strong>。它只处理"可见表面"，不处理全局光照（间接光、焦散、软阴影）。这就是为什么游戏画面看起来"假"——缺少真实世界的光影层次。</p>
+
+<h3>GPU 的诞生：为光栅化而生</h3>
+
+<p>1999 年，NVIDIA 发布了 <strong>GeForce 256</strong>——第一块"GPU"（Graphics Processing Unit）。它的核心创新：<strong>硬件变换与光照（T&L）</strong>。</p>
+
+<p>在此之前，3D 变换和光照由 CPU 完成，GPU 只负责光栅化。GeForce 256 将这些操作也搬到 GPU 上，大幅提升了性能。</p>
+
+<p><strong>GPU 的演进</strong>：</p>
+
+<table>
+<tr><th>年代</th><th>GPU</th><th>核心创新</th><th>性能（GFLOPs）</th></tr>
+<tr><td>1999</td><td>GeForce 256</td><td>硬件 T&L</td><td>0.5</td></tr>
+<tr><td>2001</td><td>GeForce 3</td><td>可编程着色器</td><td>20</td></tr>
+<tr><td>2006</td><td>GeForce 8800</td><td>CUDA（通用计算）</td><td>500</td></tr>
+<tr><td>2016</td><td>GTX 1080</td><td>Pascal 架构</td><td>9,000</td></tr>
+<tr><td>2020</td><td>RTX 3090</td><td>RT Core（光追加速）</td><td>36,000</td></tr>
+<tr><td>2022</td><td>RTX 4090</td><td>Ada Lovelace</td><td>83,000</td></tr>
+<tr><td>2024</td><td>RTX 5090</td><td>Blackwell 架构</td><td>200,000+</td></tr>
+</table>
+
+<p>GPU 的性能增长遵循<strong>黄氏定律</strong>（Huang's Law）：每两年性能翻倍。这比摩尔定律还快。</p>
+
+<h3>可编程着色器：GPU 的灵魂</h3>
+
+<p>2001 年，GeForce 3 引入了<strong>可编程着色器</strong>（Programmable Shader）。这是 GPU 历史上最重要的创新之一。</p>
+
+<p>在此之前，光照模型是固定的（如 Phong、Blinn-Phong）。可编程着色器允许开发者用<strong>程序</strong>定义光照、材质、特效——GPU 变成了"像素级并行计算机"。</p>
+
+<pre>顶点着色器（Vertex Shader）：
+  输入：顶点属性（位置、法线、纹理坐标）
+  输出：变换后的顶点位置、插值属性
+
+片元着色器（Fragment Shader）：
+  输入：插值后的属性
+  输出：像素颜色
+
+// 简单的片元着色器示例
+void main() {
+    vec3 normal = normalize(v_normal);
+    vec3 light_dir = normalize(light_pos - v_pos);
+    float diffuse = max(dot(normal, light_dir), 0.0);
+    frag_color = vec4(diffuse * albedo, 1.0);
+}</pre>
+
+<p>可编程着色器让 GPU 不再只是"渲染加速器"，而是"通用并行处理器"。这直接催生了 GPGPU（General-Purpose GPU Computing）和深度学习革命。</p>
+
+<div class="scene-box">想象一个工厂。固定功能 GPU 是"流水线"——只能生产一种产品。可编程 GPU 是"柔性制造"——可以生产任何产品，只要你告诉它怎么生产。可编程着色器就是"生产说明书"——它告诉 GPU 如何处理每个像素。</div>
+
+<hr>
+
+<h2>第二章：光线追踪——真实的代价</h2>
+
+<h3>物理上正确的渲染</h3>
+
+<p>光栅化很快，但不真实。要渲染"照片级真实"的图像，需要模拟光的<strong>物理传播</strong>。这就是<strong>光线追踪（Ray Tracing）</strong>。</p>
+
+<p>光线追踪的核心思想：</p>
+
+<blockquote>从相机发射光线，追踪它与场景的交互，计算最终颜色。</blockquote>
+
+<pre>对于每个像素：
+  1. 从相机发射一条光线（primary ray）
+  2. 找到光线与场景的第一个交点
+  3. 从交点发射多条次级光线（shadow ray, reflection ray, refraction ray）
+  4. 递归追踪次级光线
+  5. 累加所有光线的贡献，得到像素颜色</pre>
+
+<p>光线追踪的优势是<strong>真实</strong>——它可以自然处理阴影、反射、折射、焦散、全局光照。但问题是<strong>慢</strong>——每个像素需要追踪数百条光线，每条光线需要与场景求交。</p>
+
+<h3>渲染方程：光的数学</h3>
+
+<p>1986 年，James Kajiya 提出了<strong>渲染方程</strong>（Rendering Equation）——光的传播的完整数学描述：</p>
+
+<pre>L_o(x, ω_o) = L_e(x, ω_o) + ∫_Ω f_r(x, ω_i, ω_o) L_i(x, ω_i) (ω_i · n) dω_i
+
+其中：
+L_o = 出射辐射度（我们要求的）
+L_e = 自发光
+f_r = BRDF（双向反射分布函数）
+L_i = 入射辐射度
+ω_i, ω_o = 入射/出射方向
+n = 表面法线</pre>
+
+<p>渲染方程是一个<strong>积分方程</strong>——它描述了光在场景中的完整传播。求解渲染方程是渲染的核心问题。</p>
+
+<p><strong>求解方法</strong>：</p>
+
+<ul>
+<li><strong>路径追踪（Path Tracing）</strong>：用蒙特卡洛方法随机采样光路（Whitted, 1980; Kajiya, 1986）</li>
+<li><strong>光子映射（Photon Mapping）</strong>：从光源发射光子，存储光子图（Jensen, 1996）</li>
+<li><strong>双向路径追踪（Bidirectional Path Tracing）</strong>：同时从相机和光源追踪（Veach & Guibas, 1997）</li>
+<li><strong>梅特罗波利斯光传输（MLT）</strong>：用马尔可夫链采样重要光路（Pauly et al., 2000）</li>
+</ul>
+
+<h3>实时光线追踪：梦想成真</h3>
+
+<p>光线追踪很慢——传统上每帧需要数小时。但 2018 年，NVIDIA 发布了 <strong>RTX</strong> 系列 GPU，内置<strong>RT Core</strong>——专用的光线追踪加速单元。</p>
+
+<p>RT Core 的核心功能：<strong>加速光线与三角形的求交测试</strong>。它用 <strong>Bound Volume Hierarchy (BVH)</strong> 的硬件遍历，将求交速度提升了 10-100 倍。</p>
+
+<pre>传统光追：CPU 遍历 BVH → 100M rays/s
+RT Core：硬件遍历 BVH → 10G rays/s（100× 加速）</pre>
+
+<p>RTX 让<strong>实时光线追踪</strong>成为可能。游戏《赛博朋克 2077》《控制》《使命召唤》都支持 RTX 光追，实现了真实的反射、阴影、全局光照。</p>
+
+<div class="scene-box">在《赛博朋克 2077》中，夜之城的霓虹灯在湿漉漉的地面上反射，雨水在车窗上形成水珠，光线在玻璃幕墙间多次弹射——这些都是实时光线追踪的效果。在 RTX 之前，这些效果需要离线渲染数小时；现在，它们可以在 60fps 下实时呈现。</div>
+
+<h3>SIGGRAPH 的贡献</h3>
+
+<p>SIGGRAPH 社区在渲染算法方面做出了巨大贡献：</p>
+
+<ul>
+<li><strong>Christensen (2016)</strong>：Production Rendering 的综述，总结了电影工业的渲染管线</li>
+<li><strong>Pharr, Jakob, Humphreys (2023)</strong>：<em>Physically Based Rendering</em> 第四版，渲染领域的"圣经"</li>
+<li><strong>Bitterli et al. (2016)</strong>：渲染算法的基准测试框架</li>
+<li><strong>Nimier-David et al. (2019)</strong>：Mitsuba 2——可微渲染器</li>
+</ul>
+
+<hr>
+
+<h2>第三章：神经渲染——深度学习的颠覆</h2>
+
+<h3>NeRF：一个意外的革命</h3>
+
+<p>2020 年，Ben Mildenhall 等人发表了 <strong>NeRF</strong>（Neural Radiance Fields）。这篇论文只有 8 页，但引发了渲染领域的革命。</p>
+
+<p>NeRF 的核心思想：</p>
+
+<blockquote>用神经网络表示 3D 场景——输入 3D 坐标和视角方向，输出颜色和密度。</blockquote>
+
+<pre>NeRF 网络：
+  输入：(x, y, z, θ, φ)  // 3D 坐标 + 视角方向
+  输出：(r, g, b, σ)      // 颜色 + 密度
+
+训练：从多张 2D 图像学习
+推理：用体渲染（volume rendering）生成新视角
+  C(ray) = ∫ T(t) σ(t) c(t) dt
+  T(t) = exp(-∫_0^t σ(s) ds)  // 透射率</pre>
+
+<p>NeRF 的突破在于：<strong>从少量照片重建照片级真实的 3D 场景。</strong>不需要激光扫描仪，不需要深度相机，只需要几张照片。</p>
+
+<div class="scene-box">想象你拍了一个雕像的 50 张照片，从不同角度。NeRF 可以从这 50 张照片"学会"整个 3D 场景，然后生成任意角度的新照片——效果逼真到难以分辨真假。这就是 NeRF 的魔力。</div>
+
+<h3>NeRF 的局限与改进</h3>
+
+<p>NeRF 虽然惊艳，但有几个致命问题：</p>
+
+<ul>
+<li><strong>训练慢</strong>：需要数小时到数天</li>
+<li><strong>渲染慢</strong>：每条光线需要数百次网络查询</li>
+<li><strong>静态场景</strong>：不能处理动态物体</li>
+<li><strong>难以编辑</strong>：隐式表示难以修改</li>
+</ul>
+
+<p><strong>改进方向</strong>：</p>
+
+<table>
+<tr><th>方法</th><th>核心创新</th><th>速度提升</th><th>代表工作</th></tr>
+<tr><td>Instant NGP</td><td>多分辨率哈希编码</td><td>1000×</td><td>Müller et al. 2022</td></tr>
+<tr><td>Plenoxels</td><td>无网络，直接用稀疏体素</td><td>100×</td><td>Fridovich-Keil et al. 2022</td></tr>
+<tr><td>3DGS</td><td>3D 高斯溅射</td><td>10000×</td><td>Kerbl et al. 2023</td></tr>
+<tr><td>Mip-NeRF 360</td><td>抗锯齿 + 室外场景</td><td>2×</td><td>Barron et al. 2022</td></tr>
+<tr><td>Nerfacto</td><td>工程优化集大成</td><td>10×</td><td>nerfstudio 2023</td></tr>
+</table>
+
+<h3>3D Gaussian Splatting：实时神经渲染</h3>
+
+<p>2023 年，Kerbl 等人提出了 <strong>3D Gaussian Splatting (3DGS)</strong>。这是神经渲染的又一个里程碑。</p>
+
+<p>3DGS 的核心思想：</p>
+
+<blockquote>用数百万个 3D 高斯椭球表示场景，用光栅化（而非光线追踪）渲染。</blockquote>
+
+<pre>场景表示：
+  {G_i} = {(μ_i, Σ_i, c_i, α_i)}  // 位置、协方差、颜色、不透明度
+  每个高斯是一个 3D 椭球
+
+渲染：
+  1. 将 3D 高斯投影到 2D（得到 2D 高斯）
+  2. 按深度排序
+  3. 用 alpha blending 合成颜色
+  // 这个过程可以用 GPU 光栅化管线加速</pre>
+
+<p>3DGS 的突破：<strong>实时渲染</strong>。它用 GPU 的光栅化管线渲染高斯，速度达到 30-300 fps——比 NeRF 快 10000 倍。</p>
+
+<table>
+<tr><th>方法</th><th>表示</th><th>训练时间</th><th>渲染速度</th><th>质量</th></tr>
+<tr><td>NeRF</td><td>MLP</td><td>数小时</td><td>~1 fps</td><td>高</td></tr>
+<tr><td>Instant NGP</td><td>哈希编码 + MLP</td><td>数分钟</td><td>~10 fps</td><td>高</td></tr>
+<tr><td>3DGS</td><td>3D 高斯</td><td>数十分钟</td><td>30-300 fps</td><td>极高</td></tr>
+<tr><td>Mip-NeRF 360</td><td>MLP + 抗锯齿</td><td>数小时</td><td>~2 fps</td><td>极高（室外）</td></tr>
+</table>
+
+<div class="scene-box">3DGS 的渲染速度快到什么程度？你可以在手机上实时浏览一个城市的 3D 重建——拖动视角，画面流畅更新，没有延迟。这在 NeRF 时代是不可想象的。</div>
+
+<h3>动态场景与可编辑表示</h3>
+
+<p>2024-2025 年，神经渲染向<strong>动态场景</strong>和<strong>可编辑表示</strong>发展：</p>
+
+<ul>
+<li><strong>4D Gaussian Splatting</strong>：用 4D 高斯表示动态场景</li>
+<li><strong>Neural Fields + Physics</strong>：将物理仿真集成到神经场中</li>
+<li><strong>Gaussian Editing</strong>：直接编辑 3D 高斯（移动、删除、变形）</li>
+<li><strong>Language-guided 3D</strong>：用自然语言编辑 3D 场景</li>
+</ul>
+
+<hr>
+
+<h2>第四章：逆渲染——从图像到场景</h2>
+
+<h3>渲染的反问题</h3>
+
+<p><strong>渲染</strong>是"正向"问题：从 3D 场景 → 2D 图像。</p>
+
+<p><strong>逆渲染</strong>（Inverse Rendering）是"反向"问题：从 2D 图像 → 3D 场景（包括几何、材质、光照）。</p>
+
+<blockquote>给定一张或多张照片，反推场景的 3D 形状、材质属性、光照条件。</blockquote>
+
+<p>逆渲染的应用：</p>
+
+<ul>
+<li><strong>3D 重建</strong>：从照片重建 3D 模型</li>
+<li><strong>材质估计</strong>：从图像反推 BRDF 参数</li>
+<li><strong>光照估计</strong>：从图像反推环境光照</li>
+<li><strong>虚拟现实</strong>：将真实物体"放入"虚拟场景</li>
+<li><strong>自动驾驶</strong>：从相机图像理解场景几何</li>
+</ul>
+
+<h3>可微渲染：逆渲染的关键</h3>
+
+<p>逆渲染需要<strong>梯度</strong>——图像对场景参数的导数。但传统渲染器是"黑盒"——不可微。</p>
+
+<p><strong>可微渲染器</strong>（Differentiable Renderer）让渲染过程可微——可以对场景参数求梯度，从而用梯度下降优化。</p>
+
+<p><strong>代表工作</strong>：</p>
+
+<ul>
+<li><strong>Kato et al. (2018)</strong>：Neural 3D Mesh Renderer——第一个可微光栅化器</li>
+<li><strong>Loper & Black (2014)</strong>：OpenDR——可微渲染框架</li>
+<li><strong>Li et al. (2018)</strong>：Mitsuba 的前身，可微路径追踪</li>
+<li><strong>Nimier-David et al. (2019)</strong>：Mitsuba 2——高性能可微渲染器</li>
+<li><strong>Jakob et al. (2022)</strong>：Dr.Jit——可微渲染的 JIT 编译器</li>
+</ul>
+
+<pre>可微渲染的基本流程：
+  1. 初始化场景参数 θ（几何、材质、光照）
+  2. 渲染图像 I_render = Render(θ)
+  3. 计算损失 L = ||I_render - I_target||²
+  4. 反向传播：dL/dθ = dL/dI_render · dI_render/dθ
+  5. 梯度下降：θ ← θ - α · dL/dθ
+  6. 重复 2-5，直到收敛</pre>
+
+<h3>从逆渲染到神经重建</h3>
+
+<p>2023-2025 年，逆渲染与神经渲染融合，催生了<strong>神经重建</strong>（Neural Reconstruction）：</p>
+
+<ul>
+<li><strong>Neuralangelo (Li et al., 2023)</strong>：用 Instant NGP + 可微渲染重建高保真 3D 表面</li>
+<li><strong>VGGSfM (Wang et al., 2024)</strong>：用视觉基础模型做 Structure from Motion</li>
+<li><strong>DUSt3R (Wang et al., 2024)</strong>：前馈式 3D 重建，无需逐场景优化</li>
+<li><strong>MASt3R (Leroy et al., 2024)</strong>：DUSt3R 的改进，加入局部特征</li>
+</ul>
+
+<div class="scene-box">想象你有一张老照片，照片里有你的祖父母。逆渲染可以从这张照片反推出：祖父母的面部 3D 形状、衣服的材质、房间的光照。然后你可以"走进"这个 3D 场景，从不同角度观看——就像时间旅行。</div>
+
+<h3>逆渲染的挑战</h3>
+
+<p>逆渲染是一个<strong>病态问题</strong>（ill-posed problem）——一张 2D 图像对应无数个 3D 场景。需要额外约束：</p>
+
+<ul>
+<li><strong>多视角</strong>：从多个角度拍摄，增加约束</li>
+<li><strong>先验知识</strong>：用神经网络学习"什么是合理的场景"</li>
+<li><strong>物理约束</strong>：材质必须满足能量守恒、互易性等</li>
+<li><strong>正则化</strong>：鼓励平滑、简单的解</li>
+</ul>
+
+<hr>
+
+<h2>第五章：GPU 架构——渲染的引擎</h2>
+
+<h3>从固定管线到通用计算</h3>
+
+<p>GPU 的架构演进可以分为三个阶段：</p>
+
+<p><strong>第一阶段（1999-2006）：固定功能管线。</strong>GPU 只能做光栅化，光照模型固定。代表：GeForce 256、Radeon 7500。</p>
+
+<p><strong>第二阶段（2006-2018）：可编程着色器。</strong>GPU 可以执行任意程序，催生了 GPGPU。代表：GeForce 8800（CUDA）、Tesla（计算卡）。</p>
+
+<p><strong>第三阶段（2018-）：专用硬件加速。</strong>GPU 加入专用单元：RT Core（光追）、Tensor Core（AI）、DX Core（DirectX 优化）。代表：RTX 系列、A100/H100。</p>
+
+<h3>现代 GPU 架构</h3>
+
+<p>以 NVIDIA Ada Lovelace（RTX 40 系列）为例：</p>
+
+<pre>GPU 架构：
+  Streaming Multiprocessor (SM) × 128
+    ↓
+  每个 SM 包含：
+    - CUDA Core × 128（通用计算）
+    - RT Core × 1（光追加速）
+    - Tensor Core × 4（AI 加速）
+    - 寄存器文件、L1 Cache、共享内存</pre>
+
+<p><strong>关键指标</strong>：</p>
+
+<table>
+<tr><th>指标</th><th>RTX 4090</th><th>RTX 5090</th><th>A100</th><th>H100</th></tr>
+<tr><td>CUDA Cores</td><td>16,384</td><td>24,576</td><td>6,912</td><td>16,896</td></tr>
+<tr><td>RT Cores</td><td>128</td><td>192</td><td>0</td><td>0</td></tr>
+<tr><td>Tensor Cores</td><td>512</td><td>768</td><td>432</td><td>528</td></tr>
+<tr><td>显存</td><td>24 GB GDDR6X</td><td>32 GB GDDR7</td><td>80 GB HBM2e</td><td>80 GB HBM3</td></tr>
+<tr><td>FP32 算力</td><td>83 TFLOPs</td><td>200+ TFLOPs</td><td>20 TFLOPs</td><td>60 TFLOPs</td></tr>
+<tr><td>目标场景</td><td>游戏/创作</td><td>游戏/创作</td><td>AI 训练</td><td>AI 训练</td></tr>
+</table>
+
+<h3>RT Core：光追的心脏</h3>
+
+<p>RT Core 的核心功能：<strong>加速 BVH 遍历和光线-三角形求交</strong>。</p>
+
+<pre>传统光追（CPU/GPU 通用计算）：
+  遍历 BVH：O(log N) 次内存访问
+  求交测试：O(1) 次计算
+  总时间：~100 ns / ray
+
+RT Core：
+  硬件遍历 BVH：并行处理
+  硬件求交测试：专用电路
+  总时间：~1 ns / ray（100× 加速）</pre>
+
+<p>RT Core 让实时光追成为可能，但也引发了一个问题：<strong>为什么不用更多 RT Core？</strong></p>
+
+<p>答案是<strong>面积</strong>。RT Core 占用大量芯片面积，但只在光追时有用。对于 AI 训练、科学计算等场景，RT Core 是浪费。所以计算卡（A100/H100）没有 RT Core。</p>
+
+<h3>Tensor Core：AI 的引擎</h3>
+
+<p>Tensor Core 的核心功能：<strong>加速矩阵乘法</strong>。</p>
+
+<pre>Tensor Core 操作：
+  D = A × B + C
+  其中 A, B, C, D 是小矩阵（如 4×4）
+  
+  支持精度：FP64, FP32, TF32, FP16, BF16, INT8, INT4, FP8
+
+  H100 Tensor Core：
+  FP8: 3,958 TFLOPs（稀疏）
+  FP16: 1,979 TFLOPs（稀疏）
+  FP64: 67 TFLOPs</pre>
+
+<p>Tensor Core 是 AI 训练的核心。H100 的 FP8 算力是 A100 的 3 倍，这直接推动了大模型训练。</p>
+
+<hr>
+
+<h2>第六章：渲染的未来</h2>
+
+<h3>趋势一：神经渲染与传统渲染的融合</h3>
+
+<p>3DGS 证明了神经渲染可以实时，但缺乏物理正确性。未来方向：<strong>物理约束的神经渲染</strong>——既有神经渲染的速度，又有传统渲染的真实性。</p>
+
+<h3>趋势二：可微渲染的普及</h3>
+
+<p>可微渲染让"从图像反推场景"成为可能。随着 Dr.Jit、Mitsuba 3 等工具的成熟，可微渲染将成为计算机视觉的标配。</p>
+
+<h3>趋势三：实时全局光照</h3>
+
+<p>RTX 已经实现了实时光追，但全局光照仍然昂贵。未来方向：<strong>AI 加速的全局光照</strong>——用神经网络预测间接光照。</p>
+
+<h3>趋势四：3D 基础模型</h3>
+
+<p>DUSt3R、VGGSfM 等工作表明，<strong>前馈式 3D 重建</strong>正在取代逐场景优化。未来可能出现"3D 的 GPT"——一个模型重建所有场景。</p>
+
+<div class="scene-box">也许有一天，你只需要用手机拍几张照片，AI 就能重建出照片级真实的 3D 场景——包括几何、材质、光照。你可以"走进"这个场景，从任意角度观看，甚至修改它。这就是渲染技术的终极目标——让虚拟和现实无法区分。</div>
+
+<hr>
+
+<h2>参考文献</h2>
+
+<ol>
+<li>Kajiya, J. T. (1986). <em>The Rendering Equation</em>. SIGGRAPH.</li>
+<li>Whitted, T. (1980). <em>An Improved Illumination Model for Shaded Display</em>. Communications of the ACM.</li>
+<li>Jensen, H. W. (1996). <em>Global Illumination Using Photon Maps</em>. Eurographics.</li>
+<li>Pharr, M., Jakob, W., & Humphreys, G. (2023). <em>Physically Based Rendering: From Theory to Implementation</em> (4th ed.). MIT Press.</li>
+<li>Mildenhall, B., et al. (2020). <em>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</em>. ECCV.</li>
+<li>Müller, T., et al. (2022). <em>Instant Neural Graphics Primitives with a Multiresolution Hash Encoding</em>. SIGGRAPH.</li>
+<li>Kerbl, B., et al. (2023). <em>3D Gaussian Splatting for Real-Time Radiance Field Rendering</em>. SIGGRAPH.</li>
+<li>Barron, J. T., et al. (2022). <em>Mip-NeRF 360: Unbounded Anti-Aliased Neural Radiance Fields</em>. CVPR.</li>
+<li>Kato, H., et al. (2018). <em>Neural 3D Mesh Renderer</em>. CVPR.</li>
+<li>Nimier-David, M., et al. (2019). <em>Mitsuba 2: A Retargetable Forward and Inverse Renderer</em>. SIGGRAPH Asia.</li>
+<li>Jakob, W., et al. (2022). <em>Dr. JIT: A Just-In-Time Compiler for Differentiable Rendering</em>. SIGGRAPH.</li>
+<li>Li, Z., et al. (2023). <em>Neuralangelo: High-Fidelity Neural Surface Reconstruction</em>. CVPR.</li>
+<li>Wang, J., et al. (2024). <em>DUSt3R: Geometric 3D Vision Made Easy</em>. CVPR.</li>
+<li>Leroy, V., et al. (2024). <em>MASt3R: Geometry-Aware Visual Correspondences</em>. ECCV.</li>
+<li>NVIDIA. (2024). <em>Ada Lovelace Architecture Whitepaper</em>.</li>
+<li>NVIDIA. (2024). <em>Blackwell Architecture Whitepaper</em>.</li>
+</ol>
+
+<p style="text-align:center; color:#aaa; font-size:13px; margin-top:60px;">
+  本文撰写于 2026 年 7 月，反映截至当时的技术状态。<br>
+  渲染技术领域进展迅速，建议结合最新 SIGGRAPH / CVPR / ECCV 论文持续跟踪。
+</p>
+
+</div>
+
+<script>
+(function() {
+  var container = document.getElementById('article-container');
+  if (!container) return;
+  var headings = container.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+  headings.forEach(function(h, i) { if (!h.id) h.id = 'section-' + i; });
+  var toc = document.createElement('nav');
+  toc.id = 'toc-sidebar';
+  var title = document.createElement('div');
+  title.className = 'toc-title';
+  title.textContent = '\u76EE\u5F55';
+  toc.appendChild(title);
+  var ul = document.createElement('ul');
+  toc.appendChild(ul);
+  headings.forEach(function(h) {
+    var li = document.createElement('li');
+    li.className = h.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.trim();
+    a.dataset.target = h.id;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+  document.body.appendChild(toc);
+  var tocLinks = toc.querySelectorAll('a');
+  function updateActive() {
+    var scrollTop = window.scrollY + 120;
+    var current = null;
+    headings.forEach(function(h) { if (h.offsetTop <= scrollTop) current = h.id; });
+    tocLinks.forEach(function(a) { a.classList.toggle('active', a.dataset.target === current); });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) { requestAnimationFrame(function() { updateActive(); ticking = false; }); ticking = true; }
+  });
+  updateActive();
+  toc.addEventListener('click', function(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    var target = document.getElementById(a.dataset.target);
+    if (target) { window.scrollTo({ top: target.offsetTop - 60, behavior: 'smooth' }); tocLinks.forEach(function(l) { l.classList.remove('active'); }); a.classList.add('active'); }
+  });
+})();
+</script>
+
+</body>
+</html>
