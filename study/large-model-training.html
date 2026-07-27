@@ -162,17 +162,19 @@
 
 <hr>
 
-<h2>序章：从暴力美学到精密工程</h2>
+<h2>序章：烧钱的战争</h2>
 
-<p>2020 年，OpenAI 发布 GPT-3 时，整个 AI 界都被震撼了。</p>
+<p>2020 年 6 月，OpenAI 发布 GPT-3 的那天，整个 AI 圈都安静了。</p>
 
-<p>175B 参数，300B token 的训练数据，4.8TB 的模型权重。这是人类历史上最大的语言模型。训练它花了 3000 张 V100 GPU，跑了整整一个月，电费加硬件折旧大约 500 万美元。</p>
+<p>175B 参数。300B token 的训练数据。4.8TB 的模型权重。这是人类历史上最大的语言模型。训练它花了 3000 张 V100 GPU，跑了整整一个月，电费加硬件折旧大约 500 万美元。</p>
 
-<div class="scene-box">想象你在盖一栋楼。GPT-3 之前，大家用小砖块（小模型）盖小房子。GPT-3 之后，OpenAI 说：我们用巨型砖块（大模型）盖摩天大楼。所有人都震惊了：这得花多少钱？但更震惊的是：这大楼居然能用！</div>
+<div class="scene-box">想象你在赌场。其他玩家都在用小筹码下注（小模型），突然有个人把一整箱筹码推到桌上（GPT-3）。所有人都惊呆了：这得多少钱？但更震惊的是——他赢了。GPT-3 展现出了前所未有的语言能力：写诗、编程、翻译、推理，样样都行。</div>
 
 <p>GPT-3 证明了一件事：<strong>规模即智能。</strong> 模型越大，数据越多，性能越好。这就是著名的 <strong>Scaling Law</strong>。</p>
 
-<p>但问题也随之而来：训练成本指数级增长。</p>
+<p>但赌局才刚刚开始。</p>
+
+<p>两年后，Google 发布 PaLM（540B 参数），训练成本翻倍。又一年后，OpenAI 发布 GPT-4，传闻用了 1.8T 参数（MoE 架构），训练成本约 1 亿美元。2024 年，Meta 发布 Llama 3 405B，用了 15T token 训练，成本同样约 1 亿美元。</p>
 
 <table>
 <tr><th>模型</th><th>年份</th><th>参数</th><th>数据</th><th>训练成本</th></tr>
@@ -184,33 +186,33 @@
 
 <p>从 500 万到 1 亿，成本增长了 20 倍。这还只是直接成本，不算人力、运维、故障恢复等隐性成本。</p>
 
-<p>训练阶段的核心挑战已从"能不能训练"转变为"如何高效训练"。这带来三个独特问题：</p>
+<p>训练阶段的核心挑战已从"能不能训练"转变为"如何高效训练"。这带来三堵墙：</p>
 
 <p><strong>第一，数据墙。</strong> 高质量语料正在耗尽。互联网文本约 10T token，但去重、去噪、去毒后，可用数据可能不足 1T。Llama 3 用了 15T token，已经接近互联网文本的极限。</p>
 
 <p><strong>第二，算力墙。</strong> 训练 405B 模型需要 16K GPU 小时，任何硬件故障都可能导致训练崩溃。Meta 训练 Llama 3 时，平均每 3 天就有一次 GPU 故障。</p>
 
-<p><strong>第三，工程墙。</strong> 分布式训练的通信开销、显存管理、故障恢复，已成为制约训练效率的瓶颈。如何在 1000+ GPU 上稳定训练，是一个巨大的工程挑战。</p>
+<p><strong>第三，工程墙。</strong> 分布式训练的通信开销、显存管理、故障恢复，已成为制约训练效率的瓶颈。</p>
 
-<p>这篇文章讲的，就是人类如何翻越这三堵墙的故事。</p>
+<div class="scene-box">想象你在建一座摩天大楼。地基（数据）快挖完了，起重机（算力）不够用了，工人（工程师）也不够分了。但你必须继续建，因为竞争对手也在建。这就是大模型训练的战争。</div>
+
+<p>这篇文章讲的，就是这场战争的故事。</p>
 
 <hr>
 
-<h2>第一章：预训练——从暴力美学到精密工程</h2>
+<h2>第一章：Scaling Law——赌徒的信仰</h2>
 
-<h3>Scaling Law：训练的第一性原理</h3>
+<h3>OpenAI 的"暴力美学"</h3>
 
-<p>2020 年，OpenAI 发布了划时代的论文 <em>Scaling Laws for Neural Language Models</em>。核心发现：</p>
+<p>2020 年，OpenAI 发布了划时代的论文 <em>Scaling Laws for Neural Language Models</em>。核心发现极其简洁：</p>
 
-<blockquote>模型性能（loss）与三个因素呈幂律关系：参数量 N、数据量 D、计算量 C。</blockquote>
+<blockquote>模型性能（loss）与三个因素呈幂律关系：参数量 N、数据量 D、计算量 C。更大的模型、更多的数据、更强的算力，必然带来更好的性能。</blockquote>
 
 <p>数学表达：</p>
 
 <pre>L(N) ∝ N^(-α_N)
 L(D) ∝ D^(-α_D)
 L(C) ∝ C^(-α_C)</pre>
-
-<p>这意味着：<strong>更大的模型、更多的数据、更强的算力，必然带来更好的性能。</strong></p>
 
 <p>这一定律看似简单，但影响深远。它告诉研究者：</p>
 
@@ -220,17 +222,17 @@ L(C) ∝ C^(-α_C)</pre>
 <li>算力是瓶颈，需要投资硬件</li>
 </ul>
 
+<div class="scene-box">想象你在玩一个游戏。Scaling Law 告诉你：充钱就能变强。充得越多，变得越强。没有技巧，没有策略，就是"暴力美学"。OpenAI 信了，于是他们充了最多的钱（算力），造出了 GPT-3。结果，他们赢了。</div>
+
 <p>GPT-3 用 175B 参数和 300B token 验证了这一定律。但问题也随之而来：<strong>应该把资源分配给参数还是数据？</strong></p>
 
-<h3>Chinchilla：数据比参数更重要</h3>
+<h3>Chinchilla：DeepMind 的反叛</h3>
 
 <p>2022 年，DeepMind 发布了 <em>Training Compute-Optimal Large Language Models</em>（Chinchilla）。这篇论文颠覆了 GPT-3 的范式。</p>
 
 <p>核心洞察：</p>
 
-<blockquote>给定固定的计算预算 C，最优的参数量 N 和数据量 D 应满足：N ∝ C^0.5, D ∝ C^0.5</blockquote>
-
-<p>这意味着：<strong>参数量和数据量应该同步增长。</strong></p>
+<blockquote>给定固定的计算预算 C，最优的参数量 N 和数据量 D 应满足：N ∝ C^0.5, D ∝ C^0.5。参数量和数据量应该同步增长。</blockquote>
 
 <p>Chinchilla 用实验证明：GPT-3（175B 参数，300B token）是"欠训练"的——如果保持参数量不变，应该用 3.6T token 训练；如果保持数据量不变，应该用 25B 参数训练。</p>
 
@@ -245,20 +247,23 @@ L(C) ∝ C^(-α_C)</pre>
 
 <p>这直接影响了后续模型的设计：Llama 2 70B 用 2T token，Llama 3 8B 用 15T token（远超 Chinchilla 建议的 150B）。</p>
 
-<h3>数据：训练的核心资产</h3>
+<h3>路线之争：规模 vs 效率</h3>
 
-<p>预训练数据的质量直接决定模型的上限。核心挑战：</p>
+<p>Chinchilla 之后，业界分成了两派：</p>
 
-<h4>数据来源</h4>
+<p><strong>规模派</strong>：继续扩大参数和数据，相信"大就是好"。代表：OpenAI（GPT-4）、Google（Gemini）、Meta（Llama 3）。</p>
 
-<ul>
-<li><strong>Common Crawl</strong>：互联网爬取，噪声大，需大量清洗</li>
-<li><strong>The Stack</strong>：代码数据，质量高，但领域窄</li>
-<li><strong>Books</strong>：书籍数据，质量高，但版权风险</li>
-<li><strong>Wikipedia</strong>：百科数据，质量高，但覆盖有限</li>
-</ul>
+<p><strong>效率派</strong>：优化数据质量和训练效率，相信"小而美"。代表：Mistral（7B 媲美 Llama 2 13B）、Microsoft（Phi 系列，小模型用高质量数据）。</p>
 
-<h4>数据清洗</h4>
+<div class="scene-box">规模派像"大力士"——用蛮力解决问题。效率派像"武术家"——用技巧解决问题。两种路线都有道理，但谁对谁错，只有时间知道。目前看来，规模派赢了（GPT-4 最强），但效率派也在追赶（Mistral 7B 性价比最高）。</div>
+
+<hr>
+
+<h2>第二章：数据——训练的"石油"</h2>
+
+<h3>数据清洗：淘金者的工作</h3>
+
+<p>预训练数据的质量直接决定模型的上限。但互联网数据是"脏"的——充满噪声、重复、有毒内容。</p>
 
 <p>数据清洗是预训练的核心环节，通常包括：</p>
 
@@ -270,7 +275,7 @@ L(C) ∝ C^(-α_C)</pre>
 <li><strong>质量过滤</strong>：基于启发式规则或分类器</li>
 </ol>
 
-<div class="scene-box">想象你在淘金。Common Crawl 是一堆泥沙，里面混着金粒。数据清洗就是筛选过程：先用水冲洗（去噪），再用筛子过滤（去重），最后用磁铁吸走铁屑（去毒）。剩下的金粒，才是真正有价值的训练数据。</div>
+<div class="scene-box">想象你在淘金。Common Crawl 是一堆泥沙，里面混着金粒。数据清洗就是筛选过程：先用水冲洗（去噪），再用筛子过滤（去重），最后用磁铁吸走铁屑（去毒）。剩下的金粒，才是真正有价值的训练数据。Llama 3 从 15T token 的泥沙中，淘出了 15T 高质量金粒。</div>
 
 <p><strong>Llama 3 的数据清洗</strong>：</p>
 <ul>
@@ -280,7 +285,7 @@ L(C) ∝ C^(-α_C)</pre>
 <li>最终保留约 15T 高质量 token</li>
 </ul>
 
-<h4>数据混合</h4>
+<h3>数据混合：配比的智慧</h3>
 
 <p>数据混合（Data Mixing）是预训练的关键技术。不同领域的数据配比直接影响模型能力。</p>
 
@@ -307,15 +312,33 @@ L(C) ∝ C^(-α_C)</pre>
 
 <p><strong>数据混合的洞察</strong>：</p>
 <ul>
-<li>代码数据对推理能力提升显著</li>
-<li>书籍数据对长文本理解重要</li>
-<li>学术数据对专业知识关键</li>
+<li>代码数据对推理能力提升显著（+5%）</li>
+<li>书籍数据对长文本理解重要（+3%）</li>
+<li>学术数据对专业知识关键（+4%）</li>
 <li>社交数据对对话能力有帮助</li>
 </ul>
 
-<h3>架构：Transformer 的统治与 MoE 的崛起</h3>
+<h3>数据质量 vs 数据数量</h3>
 
-<h4>Transformer 的标准架构</h4>
+<p>数据质量 vs 数据数量是一个核心权衡。</p>
+
+<p><strong>Chinchilla 的结论</strong>：数据量更重要<br>
+<strong>Llama 3 的实践</strong>：数据质量更重要</p>
+
+<p><strong>Llama 3 的数据策略</strong>：</p>
+<ul>
+<li>用 15T token（远超 Chinchilla 建议的 1.4T）</li>
+<li>但数据质量极高（严格清洗、去重、过滤）</li>
+<li>最终性能远超 Chinchilla 预测</li>
+</ul>
+
+<div class="scene-box">想象你在做饭。Chinchilla 说：食材数量很重要，10 个土豆比 5 个土豆好。Llama 3 说：食材质量更重要，5 个优质土豆比 10 个烂土豆好。最终，Llama 3 用 15T 高质量 token，做出了比 Chinchilla 预测更好的"菜"。这说明：数据质量可以弥补数量的不足。</div>
+
+<hr>
+
+<h2>第三章：架构——Transformer 的统治</h2>
+
+<h3>标准架构</h3>
 
 <p>现代 LLM 的标准架构：</p>
 
@@ -343,7 +366,7 @@ LM Head (输出词表概率)</pre>
 <li><strong>GQA vs MHA</strong>：GQA 节省 KV Cache，Llama 2/3 都用 GQA</li>
 </ul>
 
-<h4>MoE：稀疏激活的革命</h4>
+<h3>MoE：稀疏激活的革命</h3>
 
 <p>Mixture of Experts (MoE) 是 2024 年的主流架构。核心思想：</p>
 
@@ -357,25 +380,11 @@ LM Head (输出词表概率)</pre>
 <li>速度: 快 6×</li>
 </ul>
 
-<div class="scene-box">想象一家公司。传统模型是"全员开会"——每个决策都要所有员工参与。MoE 是"专家会议"——只让相关专家参与决策。Mixtral 有 8 个专家，每次只叫 2 个，所以虽然公司有 46.7B 员工，但每次会议只有 12.9B 参与。</div>
-
-<p><strong>MoE 的优势</strong>：</p>
-<ul>
-<li>参数量大，但计算量小</li>
-<li>不同专家学习不同能力</li>
-<li>可扩展性强</li>
-</ul>
-
-<p><strong>MoE 的挑战</strong>：</p>
-<ul>
-<li>负载均衡：避免某些专家过载</li>
-<li>通信开销：专家分布在不同 GPU</li>
-<li>训练不稳定：需要特殊优化</li>
-</ul>
+<div class="scene-box">想象一家公司。传统模型是"全员开会"——每个决策都要所有员工参与。MoE 是"专家会议"——只让相关专家参与决策。Mixtral 有 8 个专家，每次只叫 2 个，所以虽然公司有 46.7B 员工，但每次会议只有 12.9B 参与。这就是 MoE 的妙处：参数量大，但计算量小。</div>
 
 <hr>
 
-<h2>第二章：退火——训练末期的精调</h2>
+<h2>第四章：退火——末期的精调</h2>
 
 <h3>退火的本质</h3>
 
@@ -425,42 +434,6 @@ LM Head (输出词表概率)</pre>
 <li>后期 cosine：平滑收敛</li>
 </ul>
 
-<h4>Llama 3 的学习率调度</h4>
-
-<p>Llama 3 405B 的训练：</p>
-<ul>
-<li>总步数: 约 1.5M</li>
-<li>Warmup: 2000 步</li>
-<li>Cosine decay: 从 3e-4 降到 3e-5</li>
-<li>末期退火: 最后 5% 步数用高质量数据</li>
-</ul>
-
-<h3>高质量数据精调</h3>
-
-<p>退火阶段的数据选择至关重要。</p>
-
-<p><strong>Llama 3 的退火数据</strong>：</p>
-<ul>
-<li>高质量网页: 50%</li>
-<li>代码: 30%</li>
-<li>书籍: 15%</li>
-<li>学术: 5%</li>
-</ul>
-
-<p><strong>Phi 系列的退火策略</strong>：</p>
-<ul>
-<li>用"教科书级"合成数据</li>
-<li>由 GPT-4 生成高质量问答</li>
-<li>退火阶段占比 20%</li>
-</ul>
-
-<p><strong>退火的洞察</strong>：</p>
-<ul>
-<li>退火数据质量 > 数量</li>
-<li>退火步数通常为总步数的 5-10%</li>
-<li>退火可提升 1-3% 的 benchmark 分数</li>
-</ul>
-
 <h3>退火的工程实践</h3>
 
 <p><strong>Llama 3 405B 的退火</strong>：</p>
@@ -480,20 +453,13 @@ LM Head (输出词表概率)</pre>
 
 <hr>
 
-<h2>第三章：后训练——对齐的艺术</h2>
+<h2>第五章：后训练——对齐的艺术</h2>
 
 <h3>后训练的本质</h3>
 
 <p>预训练模型（Base Model）只是"语言模型"，不会"对话"。后训练（Post-training）的目标：</p>
 
 <blockquote>将 Base Model 转化为"助手"，使其遵循指令、对齐人类偏好。</blockquote>
-
-<p><strong>后训练的核心挑战</strong>：</p>
-<ul>
-<li>如何定义"好"的回答？</li>
-<li>如何收集人类偏好数据？</li>
-<li>如何稳定训练？</li>
-</ul>
 
 <div class="scene-box">想象一个天才学生。预训练让他学会了知识，但他不会"说话"——你问他问题，他会继续写文章，而不是回答你。后训练就是教他"对话"——理解问题，给出回答，遵循指令。</div>
 
@@ -540,17 +506,7 @@ LM Head (输出词表概率)</pre>
 <li><strong>PPO 优化</strong>：用 Reward Model 指导策略模型优化</li>
 </ol>
 
-<p><strong>奖励模型训练</strong>：</p>
-
-<pre>输入：prompt + 两个回答 (y1, y2)
-标注：人类偏好 (y1 > y2)
-损失：-log(σ(r(y1) - r(y2)))</pre>
-
-<p><strong>PPO 优化</strong>：</p>
-
-<pre>目标：max E[r(y)] - β·KL(π_θ || π_ref)
-其中 r(y) 是奖励模型打分
-KL 项防止偏离参考模型太远</pre>
+<div class="scene-box">想象你在训练一只狗。SFT 是教它"坐下""握手"等基本指令。RLHF 是教它"什么行为主人喜欢"——你给它打分（奖励），它学会做让你高兴的事。但问题是：狗可能学会"作弊"——比如它发现装可怜能让你给高分，就不再真正听话了。这就是 RLHF 的"奖励黑客"问题。</div>
 
 <p><strong>RLHF 的挑战</strong>：</p>
 <ul>
@@ -558,8 +514,6 @@ KL 项防止偏离参考模型太远</pre>
 <li>奖励黑客：模型学会"欺骗"奖励模型</li>
 <li>计算昂贵：需要 4 个模型（策略、参考、奖励、价值）</li>
 </ul>
-
-<div class="scene-box">想象你在训练一只狗。SFT 是教它"坐下""握手"等基本指令。RLHF 是教它"什么行为主人喜欢"——你给它打分（奖励），它学会做让你高兴的事。但问题是：狗可能学会"作弊"——比如它发现装可怜能让你给高分，就不再真正听话了。</div>
 
 <p><strong>InstructGPT 的 RLHF</strong>：</p>
 <ul>
@@ -575,24 +529,11 @@ KL 项防止偏离参考模型太远</pre>
 
 <blockquote>跳过奖励模型，直接从偏好数据优化策略模型。</blockquote>
 
-<p><strong>DPO 的损失函数</strong>：</p>
-
-<pre>L_DPO = -log(σ(β · log(π_θ(y_w|x)/π_ref(y_w|x)) - β · log(π_θ(y_l|x)/π_ref(y_l|x))))
-
-其中 y_w 是偏好回答，y_l 是非偏好回答</pre>
-
 <p><strong>DPO 的优势</strong>：</p>
 <ul>
 <li>无需奖励模型，节省 50% 计算</li>
 <li>训练更稳定，无需 PPO</li>
 <li>实现简单，易于调试</li>
-</ul>
-
-<p><strong>DPO 的局限</strong>：</p>
-<ul>
-<li>对数据质量敏感</li>
-<li>需要高质量的偏好数据</li>
-<li>泛化能力略逊于 RLHF</li>
 </ul>
 
 <p><strong>Zephyr 的 DPO</strong>：</p>
@@ -621,13 +562,6 @@ KL 项防止偏离参考模型太远</pre>
 原则 2: 选择最不虚伪的回答
 原则 3: 选择最诚实的回答</pre>
 
-<p><strong>CAI 的优势</strong>：</p>
-<ul>
-<li>减少人工标注成本</li>
-<li>模型自我对齐</li>
-<li>可控性强</li>
-</ul>
-
 <p><strong>Claude 3 的 CAI</strong>：</p>
 <ul>
 <li>用 100+ 条宪法原则</li>
@@ -645,117 +579,11 @@ KL 项防止偏离参考模型太远</pre>
 <tr><td>CAI</td><td>低</td><td>中</td><td>中</td><td>中-高</td></tr>
 </table>
 
-<p><strong>实践建议</strong>：</p>
-<ul>
-<li>资源有限 → SFT + DPO</li>
-<li>追求极致 → RLHF</li>
-<li>强调安全 → CAI</li>
-</ul>
-
 <hr>
 
-<h2>第四章：数据混合——配比的智慧</h2>
+<h2>第六章：技术报告解读——从论文到实践</h2>
 
-<h3>数据混合的本质</h3>
-
-<p>数据混合（Data Mixing）是预训练的核心技术。核心思想：</p>
-
-<blockquote>不同领域的数据配比直接影响模型能力。</blockquote>
-
-<p><strong>数据混合的挑战</strong>：</p>
-<ul>
-<li>如何确定最优配比？</li>
-<li>如何平衡通用能力与专业能力？</li>
-<li>如何避免数据偏差？</li>
-</ul>
-
-<h3>数据混合的策略</h3>
-
-<h4>均匀混合</h4>
-
-<p>最简单的策略：各领域数据均匀混合。</p>
-
-<p><strong>优点</strong>：实现简单，覆盖广泛<br>
-<strong>缺点</strong>：可能引入过多噪声</p>
-
-<h4>课程学习</h4>
-
-<p>课程学习（Curriculum Learning）：先学简单数据，再学复杂数据。</p>
-
-<p><strong>示例</strong>：</p>
-<ul>
-<li>阶段 1: 简单文本（Wikipedia、Books）</li>
-<li>阶段 2: 中等文本（网页、新闻）</li>
-<li>阶段 3: 复杂文本（代码、学术）</li>
-</ul>
-
-<p><strong>优点</strong>：训练更稳定，收敛更快<br>
-<strong>缺点</strong>：需要设计课程</p>
-
-<h4>动态混合</h4>
-
-<p>动态混合：根据训练进度调整数据配比。</p>
-
-<p><strong>示例</strong>：</p>
-<ul>
-<li>初期: 通用数据为主</li>
-<li>中期: 增加代码数据</li>
-<li>末期: 增加高质量数据（退火）</li>
-</ul>
-
-<p><strong>优点</strong>：适应训练阶段<br>
-<strong>缺点</strong>：需要实验调优</p>
-
-<h3>数据混合的实验</h3>
-
-<p><strong>RedPajama 的数据混合实验</strong>：</p>
-
-<table>
-<tr><th>数据源</th><th>配比</th><th>影响</th></tr>
-<tr><td>Common Crawl</td><td>87%</td><td>通用能力</td></tr>
-<tr><td>C4</td><td>5%</td><td>语言理解</td></tr>
-<tr><td>GitHub</td><td>3%</td><td>代码能力</td></tr>
-<tr><td>Books</td><td>2%</td><td>长文本</td></tr>
-<tr><td>ArXiv</td><td>1.5%</td><td>学术能力</td></tr>
-<tr><td>Wikipedia</td><td>1%</td><td>知识密度</td></tr>
-<tr><td>StackExchange</td><td>0.5%</td><td>问答能力</td></tr>
-</table>
-
-<p><strong>关键发现</strong>：</p>
-<ul>
-<li>代码数据对推理能力提升显著（+5%）</li>
-<li>书籍数据对长文本理解重要（+3%）</li>
-<li>学术数据对专业知识关键（+4%）</li>
-</ul>
-
-<h3>数据质量的权衡</h3>
-
-<p>数据质量 vs 数据数量是一个核心权衡。</p>
-
-<p><strong>Chinchilla 的结论</strong>：数据量更重要<br>
-<strong>Llama 3 的实践</strong>：数据质量更重要</p>
-
-<p><strong>Llama 3 的数据策略</strong>：</p>
-<ul>
-<li>用 15T token（远超 Chinchilla 建议的 1.4T）</li>
-<li>但数据质量极高（严格清洗、去重、过滤）</li>
-<li>最终性能远超 Chinchilla 预测</li>
-</ul>
-
-<div class="scene-box">想象你在做饭。Chinchilla 说：食材数量很重要，10 个土豆比 5 个土豆好。Llama 3 说：食材质量更重要，5 个优质土豆比 10 个烂土豆好。最终，Llama 3 用 15T 高质量 token，做出了比 Chinchilla 预测更好的"菜"。</div>
-
-<p><strong>洞察</strong>：</p>
-<ul>
-<li>数据质量可以弥补数量的不足</li>
-<li>高质量数据的边际收益更高</li>
-<li>数据清洗是预训练的核心环节</li>
-</ul>
-
-<hr>
-
-<h2>第五章：技术报告解读——从论文到实践</h2>
-
-<h3>Llama 3 技术报告</h3>
+<h3>Llama 3：开源的王者</h3>
 
 <p><strong>Llama 3 的核心创新</strong>：</p>
 
@@ -781,7 +609,7 @@ KL 项防止偏离参考模型太远</pre>
 <li>后训练需要多阶段优化</li>
 </ul>
 
-<h3>GPT-4 技术报告</h3>
+<h3>GPT-4：闭源的巅峰</h3>
 
 <p><strong>GPT-4 的核心创新</strong>（推测）：</p>
 
@@ -799,14 +627,7 @@ KL 项防止偏离参考模型太远</pre>
 <li>多模态能力：图像、音频</li>
 </ul>
 
-<p><strong>GPT-4 的洞察</strong>：</p>
-<ul>
-<li>MoE 是扩展参数的有效方式</li>
-<li>多模态数据提升泛化能力</li>
-<li>RLHF 是对齐的关键</li>
-</ul>
-
-<h3>Claude 3 技术报告</h3>
+<h3>Claude 3：安全的标杆</h3>
 
 <p><strong>Claude 3 的核心创新</strong>：</p>
 
@@ -824,14 +645,7 @@ KL 项防止偏离参考模型太远</pre>
 <li>长上下文：200K token 几乎无损</li>
 </ul>
 
-<p><strong>Claude 3 的洞察</strong>：</p>
-<ul>
-<li>安全性是核心竞争力</li>
-<li>CAI 减少人工标注成本</li>
-<li>长上下文是刚需</li>
-</ul>
-
-<h3>Phi 系列技术报告</h3>
+<h3>Phi 系列：小而美的典范</h3>
 
 <p><strong>Phi 的核心创新</strong>：</p>
 
@@ -859,7 +673,7 @@ KL 项防止偏离参考模型太远</pre>
 
 <h2>尾声：五个核心洞察</h2>
 
-<p>回顾这场大模型训练的演进，我们可以提炼出五个核心洞察：</p>
+<p>回顾这场大模型训练的战争，我们可以提炼出五个核心洞察：</p>
 
 <p><strong>第一，Scaling Law 是第一性原理。</strong> 参数、数据、算力同步增长，这是训练的基础。</p>
 
@@ -890,8 +704,6 @@ KL 项防止偏离参考模型太远</pre>
 <li>Ouyang, L., et al. (2022). <em>Training language models to follow instructions with human feedback</em>. NeurIPS.</li>
 <li>Rafailov, R., et al. (2023). <em>Direct Preference Optimization: Your Language Model is Secretly a Reward Model</em>. NeurIPS.</li>
 <li>Bai, Y., et al. (2022). <em>Constitutional AI: Harmlessness from AI Feedback</em>. arXiv.</li>
-<li>Penedo, G., et al. (2023). <em>The RedPajama: an Open Dataset for Training Large Language Models</em>. NeurIPS.</li>
-<li>Li, R., et al. (2023). <em>The Stack: 3TB of Multilingual Code Data</em>. NeurIPS.</li>
 </ol>
 
 <p style="text-align:center; color:#aaa; font-size:13px; margin-top:60px;">
