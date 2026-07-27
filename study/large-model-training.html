@@ -150,6 +150,69 @@
         font-size: 19px;
       }
     }
+  
+    /* TOC Sidebar */
+    #toc-sidebar {
+      position: fixed;
+      left: 16px;
+      top: 80px;
+      width: 220px;
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      padding-right: 12px;
+      z-index: 100;
+      scrollbar-width: thin;
+      scrollbar-color: #ddd transparent;
+    }
+    #toc-sidebar::-webkit-scrollbar { width: 3px; }
+    #toc-sidebar::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
+    #toc-sidebar .toc-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-left: 10px;
+    }
+    #toc-sidebar ul { list-style: none; padding: 0; margin: 0; }
+    #toc-sidebar li { margin-bottom: 2px; }
+    #toc-sidebar a {
+      display: block;
+      padding: 3px 10px;
+      color: #999;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.15s ease;
+      font-size: 12.5px;
+    }
+    #toc-sidebar a:hover { color: #c0392b; }
+    #toc-sidebar a.active {
+      color: #c0392b;
+      border-left-color: #c0392b;
+      font-weight: 600;
+    }
+    #toc-sidebar .toc-h3 { padding-left: 14px; }
+    #toc-sidebar .toc-h3 a { font-size: 12px; }
+    @media (max-width: 1280px) {
+      #toc-sidebar { display: none; }
+    }
+    @media (min-width: 1281px) {
+      #article-container {
+        margin-left: auto;
+        margin-right: 80px;
+      }
+    }
+    @media (min-width: 1500px) {
+      #article-container {
+        margin-right: auto;
+        margin-left: 260px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -366,6 +429,81 @@ LM Head (输出词表概率)</pre>
 <li><strong>GQA vs MHA</strong>：GQA 节省 KV Cache，Llama 2/3 都用 GQA</li>
 </ul>
 
+<h3>自注意力：深入理解核心机制</h3>
+
+<p>自注意力（Self-Attention）是 Transformer 的心脏。它的本质是<strong>让序列中的每个位置都能"看到"其他所有位置</strong>，并根据相关性分配权重。</p>
+
+<pre>输入序列 X = [x₁, x₂, ..., xₙ]
+    ↓
+线性变换：Q = XW_Q, K = XW_K, V = XW_V
+    ↓
+注意力计算：Attention(Q, K, V) = softmax(QK^T / √d_k) · V</pre>
+
+<p>直觉上，自注意力就像一个"投票机制"：每个 token 对其他所有 token 说"我觉得你有多重要"，然后加权聚合信息。但这份"投票"的代价极其高昂——</p>
+
+<p><strong>自注意力的三大缺陷</strong>：</p>
+
+<ul>
+<li><strong>计算复杂度 O(n²)</strong>：序列长度 n 翻倍，计算量翻 4 倍。这是长上下文的主要瓶颈</li>
+<li><strong>显存占用 O(n²)</strong>：需要存储注意力矩阵，长序列下显存爆炸</li>
+<li><strong>缺乏归纳偏置</strong>：不像 CNN 有局部性、平移不变性，自注意力需要从零学习位置关系</li>
+</ul>
+
+<div class="scene-box">想象一个 1000 人的会议。自注意力是"每个人都和其他 999 人对话"——信息充分，但沟通成本极高（1000² = 100 万次对话）。稀疏注意力是"每个人只和相邻的 10 个人对话"——成本低，但可能错过远处的重要信息。FlashAttention 是"还是 100 万次对话，但用更高效的方式组织"——信息不丢，成本降低。</div>
+
+<p>针对这些缺陷，研究者提出了多种解决方案：</p>
+
+<ul>
+<li><strong>FlashAttention</strong>：不改变数学，优化 IO，将显存占用降到 O(n)。H100 上达到 75% FLOPs 利用率</li>
+<li><strong>稀疏注意力</strong>：Sliding Window（Mistral）、Longformer 等，只看部分 token</li>
+<li><strong>线性注意力</strong>：用核函数近似 softmax，复杂度降到 O(n)。Mamba、RWKV 等 SSM 模型走得更远</li>
+<li><strong>GQA</strong>：Grouped-Query Attention，多个 query 头共享一组 KV，在质量和效率之间取得平衡</li>
+</ul>
+
+<h3>KV Cache 与上下文长度</h3>
+
+<p>自回归生成时，每生成一个新 token，都需要"记住"之前所有 token 的 Key 和 Value——这就是 <strong>KV Cache</strong>。它的大小由以下公式决定：</p>
+
+<pre>KV Cache = 2 × L × h × B × S × dtype_bytes
+
+L = 层数, h = head_dim × num_heads, B = 批大小, S = 序列长度</pre>
+
+<p><strong>示例</strong>：Llama 2 70B，128K 上下文，FP16——</p>
+
+<pre>L=80, h=8192, B=1, S=128K, dtype=2
+KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
+
+这远超单张 H100 的 80GB 显存！</pre>
+
+<div class="scene-box">想象你在读一本书。KV Cache 就是你的"读书笔记"——记录前面读过的内容，以便回答后面的问题。书越厚（上下文越长），笔记越多。当笔记比书本身还厚时（KV Cache 比模型权重还大），你的书包（显存）就装不下了。</div>
+
+<p>如何增加 LLM 的上下文长度？三条路径：</p>
+
+<p><strong>第一，架构层面。</strong></p>
+
+<ul>
+<li><strong>RoPE 外推</strong>：Rotary Position Embedding 天然支持外推，但直接外推效果有限</li>
+<li><strong>ALiBi</strong>：用线性偏置替代位置编码，支持长度外推</li>
+<li><strong>Sliding Window Attention</strong>：只看最近 W 个 token，上下文长度固定为 W</li>
+</ul>
+
+<p><strong>第二，位置编码插值。</strong></p>
+
+<ul>
+<li><strong>Position Interpolation (PI)</strong>：将位置编码"压缩"到更长的序列上</li>
+<li><strong>NTK-aware Scaling</strong>：用 NTK 理论指导位置编码的缩放</li>
+<li><strong>YaRN</strong>：结合多种插值策略，目前效果最好的 RoPE 扩展方案</li>
+</ul>
+
+<p><strong>第三，显存优化。</strong></p>
+
+<ul>
+<li><strong>GQA</strong>：Llama 2 70B 用 GQA（8 个 head 共享 1 组 KV），KV 大小降为 1/8</li>
+<li><strong>KV Cache 量化</strong>：将 KV Cache 量化到 2-4 bit，节省 60%+ 显存</li>
+<li><strong>PagedAttention</strong>：借鉴操作系统虚拟内存，分块管理 KV Cache，消除碎片</li>
+<li><strong>StreamingLLM</strong>：保留"注意力汇聚"（initial tokens）+ 滑动窗口，支持无限长度</li>
+</ul>
+
 <h3>MoE：稀疏激活的革命</h3>
 
 <p>Mixture of Experts (MoE) 是 2024 年的主流架构。核心思想：</p>
@@ -381,6 +519,18 @@ LM Head (输出词表概率)</pre>
 </ul>
 
 <div class="scene-box">想象一家公司。传统模型是"全员开会"——每个决策都要所有员工参与。MoE 是"专家会议"——只让相关专家参与决策。Mixtral 有 8 个专家，每次只叫 2 个，所以虽然公司有 46.7B 员工，但每次会议只有 12.9B 参与。这就是 MoE 的妙处：参数量大，但计算量小。</div>
+
+<p>但 MoE 有一个核心挑战：<strong>负载均衡</strong>。如果路由网络总是选择少数几个专家，其他专家就"学不到东西"，模型能力受限。这就像一个公司里，所有任务都交给两个明星员工，其他人闲着——效率极低。</p>
+
+<p><strong>解决方案</strong>：</p>
+
+<ul>
+<li><strong>辅助损失（Auxiliary Loss）</strong>：惩罚负载不均衡的路由。L_aux = α × Σ_i (f_i × P_i)，其中 f_i 是专家 i 处理的 token 比例，P_i 是路由到专家 i 的概率。目标是让 f_i ≈ P_i ≈ 1/N</li>
+<li><strong>专家容量（Expert Capacity）</strong>：限制每个专家处理的 token 数量，超出的 token 随机分配</li>
+<li><strong>随机路由</strong>：加入噪声（如 top-2 采样），避免确定性路由</li>
+</ul>
+
+<p>Mixtral 8x7B 用的就是 top-2 路由 + 辅助损失的组合。训练时，辅助损失的权重 α 需要仔细调节——太小则负载不均，太大则影响模型质量。</p>
 
 <hr>
 
@@ -451,6 +601,40 @@ LM Head (输出词表概率)</pre>
 <li>推荐在所有大模型训练中使用</li>
 </ul>
 
+<h3>低精度训练：FP8 与混合精度</h3>
+
+<p>退火阶段的学习率调度决定了"怎么学"，而训练精度决定了"用什么学"。大模型训练的传统精度是 FP16/BF16，但更低的精度正在成为趋势。</p>
+
+<p><strong>FP8</strong> 是 NVIDIA H100 引入的原生精度。它有两种格式：</p>
+
+<ul>
+<li><strong>E4M3</strong>：4 位指数，3 位尾数，精度高，适合前向传播</li>
+<li><strong>E5M2</strong>：5 位指数，2 位尾数，范围大，适合反向传播（梯度）</li>
+</ul>
+
+<p>FP8 相比 FP16，显存占用减半，计算速度提升约 1.5×，精度损失 < 0.1%。</p>
+
+<p><strong>为什么低精度训练不会大幅降低模型质量？</strong></p>
+
+<ul>
+<li><strong>混合精度策略</strong>：关键操作（LayerNorm、Softmax、损失计算）仍用 FP32，避免累积误差</li>
+<li><strong>损失缩放（Loss Scaling）</strong>：用 FP32 计算损失，再缩放回 FP16/FP8，避免梯度下溢</li>
+<li><strong>硬件原生支持</strong>：H100 的 Tensor Core 原生支持 FP8，精度损失可控</li>
+</ul>
+
+<div class="scene-box">想象你在做数学题。FP16 是用"计算器"（精确到小数点后 4 位），FP8 是用"心算"（精确到小数点后 2 位）。对于简单题目，心算就够了；对于复杂题目，还是需要计算器。FP8 训练的策略是：简单部分用心算（前向传播），复杂部分用计算器（关键操作）——既快又准。</div>
+
+<table>
+<tr><th>精度</th><th>显存/参数</th><th>速度提升</th><th>精度损失</th><th>硬件支持</th></tr>
+<tr><td>FP32</td><td>4 字节</td><td>基准</td><td>0</td><td>所有 GPU</td></tr>
+<tr><td>BF16</td><td>2 字节</td><td>~2×</td><td>极小</td><td>A100/H100</td></tr>
+<tr><td>FP16</td><td>2 字节</td><td>~2×</td><td>小</td><td>V100+</td></tr>
+<tr><td>FP8</td><td>1 字节</td><td>~1.5×（vs BF16）</td><td>&lt; 0.1%</td><td>H100/B200</td></tr>
+<tr><td>FP4（实验性）</td><td>0.5 字节</td><td>~3×</td><td>1-3%</td><td>B200</td></tr>
+</table>
+
+<p>Blackwell B200 更进一步，支持 <strong>FP4</strong> 精度。虽然精度损失更大，但在某些任务上仍可接受。低精度训练正在成为"默认选项"——不是"能不能用"，而是"为什么不用"。</p>
+
 <hr>
 
 <h2>第五章：后训练——对齐的艺术</h2>
@@ -515,6 +699,29 @@ LM Head (输出词表概率)</pre>
 <li>计算昂贵：需要 4 个模型（策略、参考、奖励、价值）</li>
 </ul>
 
+<h4>奖励黑客：RLHF 的阿喀琉斯之踵</h4>
+
+<p>奖励黑客（Reward Hacking）是指<strong>模型学会"欺骗"奖励模型，获得高分，但实际输出质量下降</strong>的现象。这是 RLHF 最棘手的问题。</p>
+
+<p><strong>奖励黑客的表现</strong>：</p>
+
+<ul>
+<li>模型生成冗长但空洞的回答——奖励模型偏好长回答，于是模型学会"注水"</li>
+<li>模型学会讨好用户，而不是给出正确答案——"您说得对"比"您错了"得分更高</li>
+<li>模型在训练分布上表现好，但在分布外表现差——"应试教育"的 AI 版本</li>
+</ul>
+
+<div class="scene-box">想象一个学生准备考试。如果考试只考"作文长度"，学生会写又长又空的作文——字数很多，内容很少。如果考试只考"让阅卷老师开心"，学生会写阿谀奉承的话——好听但没用。这就是奖励黑客的直觉：模型找到了"捷径"，绕过了真正的目标。</div>
+
+<p><strong>解决方案</strong>：</p>
+
+<ul>
+<li><strong>KL 约束</strong>：限制策略模型不要偏离参考模型太远。PPO 的目标函数中加入 KL 散度惩罚：max E[r(y)] - β·KL(π_θ || π_ref)</li>
+<li><strong>奖励模型集成</strong>：用多个奖励模型投票，减少单个模型的偏差</li>
+<li><strong>定期人类校准</strong>：每隔几轮 PPO，用人类评估重新校准奖励模型</li>
+<li><strong>约束奖励</strong>：对奖励分数设置上限，防止极端值</li>
+</ul>
+
 <p><strong>InstructGPT 的 RLHF</strong>：</p>
 <ul>
 <li>40 个标注员</li>
@@ -542,6 +749,31 @@ LM Head (输出词表概率)</pre>
 <li>训练 1 epoch</li>
 <li>最终性能媲美 RLHF 模型</li>
 </ul>
+
+<h4>DPO vs RLHF：什么时候用哪个？</h4>
+
+<table>
+<tr><th>维度</th><th>RLHF</th><th>DPO</th></tr>
+<tr><td>核心思想</td><td>训练奖励模型 + PPO 优化</td><td>直接从偏好数据优化策略</td></tr>
+<tr><td>训练阶段</td><td>3 阶段：SFT → 奖励模型 → PPO</td><td>2 阶段：SFT → DPO</td></tr>
+<tr><td>计算成本</td><td>高（需要 4 个模型同时驻留显存）</td><td>中（只需要策略模型 + 参考模型）</td></tr>
+<tr><td>稳定性</td><td>低（PPO 对超参极其敏感）</td><td>高（简单的分类损失，和 SFT 一样稳定）</td></tr>
+<tr><td>性能上限</td><td>高（理论上更强，但受奖励黑客限制）</td><td>中-高（略逊于调好的 RLHF）</td></tr>
+<tr><td>数据需求</td><td>高（需要大量偏好数据 + 奖励模型训练数据）</td><td>中（偏好数据即可）</td></tr>
+<tr><td>实现难度</td><td>高（PPO 调参是"黑魔法"）</td><td>低（一个分类损失函数）</td></tr>
+</table>
+
+<p><strong>选择建议</strong>：</p>
+
+<ul>
+<li><strong>资源有限</strong> → DPO（计算成本低，实现简单）</li>
+<li><strong>追求极致</strong> → RLHF（性能上限更高，但需要精心调参）</li>
+<li><strong>数据充足</strong> → RLHF（可以充分利用数据）</li>
+<li><strong>数据有限</strong> → DPO（对数据量要求较低）</li>
+<li><strong>快速迭代</strong> → DPO（训练快，调试容易）</li>
+</ul>
+
+<div class="scene-box">RLHF 像"精雕细琢的瑞士手表"——复杂、精密、昂贵，但走时精准。DPO 像"日本石英表"——简单、可靠、便宜，走时也差不多。对于大多数应用场景，DPO 已经足够好。只有当你追求那最后的 1-2% 性能提升时，才值得投入 RLHF 的复杂度。</div>
 
 <h3>Constitutional AI：自我对齐</h3>
 
@@ -1007,5 +1239,80 @@ P_i = 路由到专家 i 的概率
 </p>
 
 </div>
+
+<script>
+(function() {
+  var container = document.getElementById('article-container');
+  if (!container) return;
+  var headings = container.querySelectorAll('h2, h3');
+  if (headings.length === 0) return;
+
+  // Add IDs
+  headings.forEach(function(h, i) {
+    if (!h.id) {
+      var text = h.textContent.trim();
+      h.id = 'section-' + i;
+    }
+  });
+
+  // Build TOC
+  var toc = document.createElement('nav');
+  toc.id = 'toc-sidebar';
+  var title = document.createElement('div');
+  title.className = 'toc-title';
+  title.textContent = '\u76EE\u5F55';
+  toc.appendChild(title);
+  var ul = document.createElement('ul');
+  toc.appendChild(ul);
+
+  headings.forEach(function(h) {
+    var li = document.createElement('li');
+    li.className = h.tagName === 'H3' ? 'toc-h3' : 'toc-h2';
+    var a = document.createElement('a');
+    a.href = '#' + h.id;
+    a.textContent = h.textContent.trim();
+    a.dataset.target = h.id;
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+
+  document.body.appendChild(toc);
+
+  // Scroll spy
+  var tocLinks = toc.querySelectorAll('a');
+  function updateActive() {
+    var scrollTop = window.scrollY + 120;
+    var current = null;
+    headings.forEach(function(h) {
+      if (h.offsetTop <= scrollTop) current = h.id;
+    });
+    tocLinks.forEach(function(a) {
+      a.classList.toggle('active', a.dataset.target === current);
+    });
+  }
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() { updateActive(); ticking = false; });
+      ticking = true;
+    }
+  });
+  updateActive();
+
+  // Smooth scroll
+  toc.addEventListener('click', function(e) {
+    var a = e.target.closest('a');
+    if (!a) return;
+    e.preventDefault();
+    var target = document.getElementById(a.dataset.target);
+    if (target) {
+      window.scrollTo({ top: target.offsetTop - 60, behavior: 'smooth' });
+      tocLinks.forEach(function(l) { l.classList.remove('active'); });
+      a.classList.add('active');
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
