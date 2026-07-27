@@ -213,6 +213,46 @@
       }
     }
 
+
+    .think-box {
+      background: linear-gradient(135deg, #fff9f0 0%, #fff5eb 100%);
+      border: 1px solid #f0d9b5;
+      border-left: 4px solid #e67e22;
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin: 24px 0;
+      position: relative;
+    }
+    .think-box::before {
+      content: "💡 思考题";
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #e67e22;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .think-box p {
+      margin-bottom: 6px;
+      font-size: 15px;
+      color: #555;
+    }
+    .think-box p:last-child { margin-bottom: 0; }
+    .think-box .think-num {
+      display: inline-block;
+      background: #e67e22;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -221,7 +261,7 @@
 <p id="back-link"><a href="../index.html">← Back to Homepage</a></p>
 
 <h1>训练之墙：大模型训练技术的全景洞察</h1>
-<p class="subtitle">最后更新：2026-07-27（v2） &nbsp;|&nbsp; 用 AI 写的领域调研小说</p>
+<p class="subtitle">最后更新：2026-07-27（v3） &nbsp;|&nbsp; 用 AI 写的领域调研小说</p>
 
 <hr>
 
@@ -320,6 +360,12 @@ L(C) ∝ C^(-α_C)</pre>
 
 <div class="scene-box">规模派像"大力士"——用蛮力解决问题。效率派像"武术家"——用技巧解决问题。两种路线都有道理，但谁对谁错，只有时间知道。目前看来，规模派赢了（GPT-4 最强），但效率派也在追赶（Mistral 7B 性价比最高）。</div>
 
+
+<div class="think-box">
+<p><span class="think-num">1</span> 给定固定的计算预算，应该把资源分配给更大的模型还是更多的数据？Chinchilla 定律告诉我们什么？</p>
+<p><span class="think-num">2</span> MoE 模型的总参数量和激活参数量是什么关系？为什么 Mixtral 8x7B 只有 12.9B 激活参数却能媲美 70B 模型？</p>
+</div>
+
 <hr>
 
 <h2>第二章：数据——训练的"石油"</h2>
@@ -397,6 +443,12 @@ L(C) ∝ C^(-α_C)</pre>
 
 <div class="scene-box">想象你在做饭。Chinchilla 说：食材数量很重要，10 个土豆比 5 个土豆好。Llama 3 说：食材质量更重要，5 个优质土豆比 10 个烂土豆好。最终，Llama 3 用 15T 高质量 token，做出了比 Chinchilla 预测更好的"菜"。这说明：数据质量可以弥补数量的不足。</div>
 
+
+<div class="think-box">
+<p><span class="think-num">3</span> 数据质量 vs 数据数量，哪个更重要？Llama 3 用 15T token 远超 Chinchilla 建议的 1.4T，为什么还能提升性能？</p>
+<p><span class="think-num">4</span> 如果你只有 100B token 的数据预算，你会怎么设计数据混合策略？代码、书籍、学术、网页各占多少？</p>
+</div>
+
 <hr>
 
 <h2>第三章：架构——Transformer 的统治</h2>
@@ -460,6 +512,12 @@ LM Head (输出词表概率)</pre>
 <li><strong>GQA</strong>：Grouped-Query Attention，多个 query 头共享一组 KV，在质量和效率之间取得平衡</li>
 </ul>
 
+
+<div class="think-box">
+<p><span class="think-num">5</span> 自注意力的计算复杂度和显存复杂度各是多少？为什么它成为长上下文的主要瓶颈？</p>
+<p><span class="think-num">6</span> FlashAttention 如何在不改变数学等价性的前提下，将显存占用从 O(n²) 降到 O(n)？</p>
+</div>
+
 <h3>KV Cache 与上下文长度</h3>
 
 <p>自回归生成时，每生成一个新 token，都需要"记住"之前所有 token 的 Key 和 Value——这就是 <strong>KV Cache</strong>。它的大小由以下公式决定：</p>
@@ -504,6 +562,12 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 <li><strong>StreamingLLM</strong>：保留"注意力汇聚"（initial tokens）+ 滑动窗口，支持无限长度</li>
 </ul>
 
+
+<div class="think-box">
+<p><span class="think-num">7</span> 请计算：Llama 2 70B 在 128K 上下文、FP16 精度下，单请求的 KV Cache 有多大？如何优化？</p>
+<p><span class="think-num">8</span> 如何增加 LLM 的上下文长度？位置编码插值（PI、NTK、YaRN）的原理是什么？</p>
+</div>
+
 <h3>MoE：稀疏激活的革命</h3>
 
 <p>Mixture of Experts (MoE) 是 2024 年的主流架构。核心思想：</p>
@@ -531,6 +595,11 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 </ul>
 
 <p>Mixtral 8x7B 用的就是 top-2 路由 + 辅助损失的组合。训练时，辅助损失的权重 α 需要仔细调节——太小则负载不均，太大则影响模型质量。</p>
+
+
+<div class="think-box">
+<p><span class="think-num">9</span> MoE 的负载均衡问题如何解决？辅助损失函数的数学形式是什么？</p>
+</div>
 
 <hr>
 
@@ -634,6 +703,12 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 </table>
 
 <p>Blackwell B200 更进一步，支持 <strong>FP4</strong> 精度。虽然精度损失更大，但在某些任务上仍可接受。低精度训练正在成为"默认选项"——不是"能不能用"，而是"为什么不用"。</p>
+
+
+<div class="think-box">
+<p><span class="think-num">10</span> FP8 训练为什么不会大幅降低模型精度？混合精度策略的核心是什么？</p>
+<p><span class="think-num">11</span> 推理时的量化（INT8/INT4）和训练时的量化（FP8）有什么本质区别？为什么推理量化更难？</p>
+</div>
 
 <hr>
 
@@ -775,6 +850,12 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 
 <div class="scene-box">RLHF 像"精雕细琢的瑞士手表"——复杂、精密、昂贵，但走时精准。DPO 像"日本石英表"——简单、可靠、便宜，走时也差不多。对于大多数应用场景，DPO 已经足够好。只有当你追求那最后的 1-2% 性能提升时，才值得投入 RLHF 的复杂度。</div>
 
+
+<div class="think-box">
+<p><span class="think-num">12</span> RLHF 中的"奖励黑客"是什么？它有哪些表现形式？如何防范？</p>
+<p><span class="think-num">13</span> DPO 和 RLHF 的核心区别是什么？在什么场景下应该选择 DPO？</p>
+</div>
+
 <h3>Constitutional AI：自我对齐</h3>
 
 <p>Constitutional AI (CAI) 是 Anthropic 的创新。核心思想：</p>
@@ -811,9 +892,14 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 <tr><td>CAI</td><td>低</td><td>中</td><td>中</td><td>中-高</td></tr>
 </table>
 
+
+<div class="think-box">
+<p><span class="think-num">14</span> 什么时候用 SFT 就够了？什么时候必须上 RLHF/DPO？判断标准是什么？</p>
+</div>
+
 <hr>
 
-<h2>第六章：技术报告解读——从论文到实践</h2>
+<h2>第六章：微调——站在巨人的肩膀上</h2>
 
 <h3>Llama 3：开源的王者</h3>
 
@@ -903,105 +989,66 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 
 <hr>
 
-<h2>第七章：面试间——训练技术的灵魂拷问</h2>
 
-<p>2025 年的 AI 面试，已经变成了一场"技术拷问"。Google、Meta、NVIDIA、OpenAI 的面试官们，用一系列精心设计的问题，测试候选人对大模型训练的理解深度。这些问题不仅是"面试题"，更是整个领域的"灵魂拷问"。</p>
+<h3>什么时候需要微调？</h3>
 
-<p>让我们走进面试间，听听这些问题，以及背后的答案。</p>
+<p>预训练模型是"通才"——什么都会一点，但什么都不精。微调让它成为"专才"。</p>
 
-<h3>Q1：自注意力机制的本质是什么？它有什么缺陷？</h3>
-
-<p><strong>面试官的意图</strong>：考察对 Transformer 核心机制的理解。</p>
-
-<p><strong>答案</strong>：自注意力（Self-Attention）的本质是<strong>让序列中的每个位置都能"看到"其他所有位置</strong>，并根据相关性分配权重。</p>
-
-<pre>输入序列 X = [x₁, x₂, ..., xₙ]
-    ↓
-线性变换：Q = XW_Q, K = XW_K, V = XW_V
-    ↓
-注意力计算：Attention(Q, K, V) = softmax(QK^T / √d_k) · V</pre>
-
-<p>直觉上，自注意力就像一个"投票机制"：每个 token 对其他所有 token 说"我觉得你有多重要"，然后加权聚合信息。</p>
-
-<p><strong>自注意力的缺陷</strong>：</p>
-
+<p><strong>需要微调的场景</strong>：</p>
 <ul>
-<li><strong>计算复杂度 O(n²)</strong>：序列长度 n 翻倍，计算量翻 4 倍。这是长上下文的主要瓶颈</li>
-<li><strong>显存占用 O(n²)</strong>：需要存储注意力矩阵，长序列下显存爆炸</li>
-<li><strong>缺乏归纳偏置</strong>：不像 CNN 有局部性、平移不变性，自注意力需要从零学习位置关系</li>
+<li>特定领域任务（医学、法律、金融）：需要专业术语和知识</li>
+<li>特定风格（学术写作、法律文书、代码生成）：需要特定的表达方式</li>
+<li>特定格式（JSON 输出、结构化回答）：需要遵循固定格式</li>
+<li>多语言支持：需要增强特定语言的能力</li>
 </ul>
 
-<p><strong>解决方案</strong>：</p>
-
+<p><strong>不需要微调的场景</strong>：</p>
 <ul>
-<li><strong>FlashAttention</strong>：不改变数学，优化 IO，将显存占用降到 O(n)</li>
-<li><strong>稀疏注意力</strong>：Sliding Window、Longformer 等，只看部分 token</li>
-<li><strong>线性注意力</strong>：用核函数近似 softmax，复杂度降到 O(n)</li>
-<li><strong>RoPE</strong>：通过旋转位置编码，隐式注入位置信息</li>
+<li>通用对话：Base Model 已经足够好</li>
+<li>知识检索：用 RAG（检索增强生成）更合适</li>
+<li>简单格式调整：用 Prompt Engineering 就够了</li>
 </ul>
 
-<div class="scene-box">想象一个 1000 人的会议。自注意力是"每个人都和其他 999 人对话"——信息充分，但沟通成本极高（1000² = 100 万次对话）。稀疏注意力是"每个人只和相邻的 10 个人对话"——成本低，但可能错过远处的重要信息。FlashAttention 是"还是 100 万次对话，但用更高效的方式组织"——信息不丢，成本降低。</div>
+<div class="scene-box">想象你雇了一个全能助手（Base Model）。如果他需要做医学翻译，你是让他"自学医学"（微调），还是给他一本医学词典随时查阅（RAG）？如果医学知识经常更新，词典更合适（RAG）；如果他需要"内化"医学思维，自学更合适（微调）。</div>
 
-<h3>Q2：如何增加 LLM 的上下文长度？</h3>
+<h3>RAG vs 微调：两条路线的选择</h3>
 
-<p><strong>面试官的意图</strong>：考察对长上下文技术的理解。</p>
+<table>
+<tr><th>维度</th><th>RAG（检索增强生成）</th><th>微调（Fine-tuning）</th></tr>
+<tr><td>核心思想</td><td>检索外部知识，注入上下文</td><td>更新模型参数，内化知识</td></tr>
+<tr><td>知识更新</td><td>即时（改知识库即可）</td><td>需要重新训练</td></tr>
+<tr><td>适用场景</td><td>知识密集型任务（问答、检索）</td><td>技能密集型任务（风格、格式）</td></tr>
+<tr><td>成本</td><td>低（不需要训练）</td><td>高（需要 GPU 训练）</td></tr>
+<tr><td>幻觉控制</td><td>好（可以追溯到来源）</td><td>一般（模型可能"编造"）</td></tr>
+<tr><td>可解释性</td><td>高（可以展示检索到的文档）</td><td>低（参数变化难以解释）</td></tr>
+</table>
 
-<p><strong>答案</strong>：增加上下文长度有几种技术路径：</p>
+<p><strong>最佳实践</strong>：RAG 和微调不是互斥的，而是互补的。先用 RAG 解决知识问题，再用微调解决风格和能力问题。</p>
 
-<p><strong>第一，架构层面。</strong></p>
+<h3>灾难性遗忘：微调的阿喀琉斯之踵</h3>
 
-<ul>
-<li><strong>RoPE 外推</strong>：Rotary Position Embedding 天然支持外推，但直接外推效果有限</li>
-<li><strong>ALiBi</strong>：用线性偏置替代位置编码，支持长度外推</li>
-<li><strong>Sliding Window Attention</strong>：只看最近 W 个 token，上下文长度固定为 W</li>
-<li><strong>稀疏注意力</strong>：Longformer、BigBird 等，用稀疏模式降低复杂度</li>
-</ul>
+<p>灾难性遗忘（Catastrophic Forgetting）是指<strong>模型在学习新知识时，遗忘旧知识</strong>的现象。</p>
 
-<p><strong>第二，位置编码插值。</strong></p>
-
-<ul>
-<li><strong>Position Interpolation (PI)</strong>：将位置编码"压缩"到更长的序列上</li>
-<li><strong>NTK-aware Scaling</strong>：用 NTK 理论指导位置编码的缩放</li>
-<li><strong>YaRN</strong>：Yet another RoPE extensioN，结合多种插值策略</li>
-</ul>
-
-<p><strong>第三，显存优化。</strong></p>
-
-<ul>
-<li><strong>KV Cache 量化</strong>：将 KV Cache 量化到 2-4 bit，节省 60%+ 显存</li>
-<li><strong>PagedAttention</strong>：分块管理 KV Cache，消除碎片</li>
-<li><strong>StreamingLLM</strong>：保留"注意力汇聚" + 滑动窗口，支持无限长度</li>
-</ul>
-
-<div class="scene-box">想象你在读一本书。标准 Transformer 是"每读一页，都要翻回第一页重新看"——书越厚，越慢。RoPE 外推是"假装这本书更厚"——但可能"装不下"。位置编码插值是"把书页压缩"——让更厚的书能放进原来的书架。KV Cache 量化是"把笔记缩写"——用更少的纸记录同样的信息。</div>
-
-<h3>Q3：什么是灾难性遗忘？如何解决？</h3>
-
-<p><strong>面试官的意图</strong>：考察对微调问题的理解。</p>
-
-<p><strong>答案</strong>：灾难性遗忘（Catastrophic Forgetting）是指<strong>模型在学习新知识时，遗忘旧知识</strong>的现象。</p>
-
-<p>在 LLM 微调中，灾难性遗忘表现为：用领域数据微调后，模型的通用能力下降。比如，用医学数据微调后，模型可能不会写诗了。</p>
+<p>在 LLM 微调中，灾难性遗忘表现为：用医学数据微调后，模型可能不会写诗了。用代码数据微调后，模型可能不会翻译了。</p>
 
 <p><strong>原因</strong>：神经网络的参数是"共享"的。微调时，梯度更新会改变参数，可能破坏原有的知识表示。</p>
+
+<div class="scene-box">想象一个医生去学法律。如果他"全职"学法律（全参微调），可能把医学知识忘了。如果他"兼职"学法律（LoRA），只花 10% 的时间，医学知识基本不会忘。如果他"边学法律边复习医学"（Replay），两者都能保持。</div>
 
 <p><strong>解决方案</strong>：</p>
 
 <ul>
 <li><strong>参数高效微调（PEFT）</strong>：只更新少量参数，保持大部分参数冻结</li>
-<li><strong>LoRA</strong>：在冻结权重旁边加一个低秩矩阵，只训练这个矩阵</li>
-<li><strong>Replay</strong>：微调时混入一部分原始数据，防止遗忘</li>
+<li><strong>数据回放（Replay）</strong>：微调时混入一部分原始数据，防止遗忘</li>
 <li><strong>正则化</strong>：如 EWC（Elastic Weight Consolidation），限制重要参数的变化</li>
 <li><strong>渐进式学习</strong>：先学旧任务，再学新任务，逐步过渡</li>
 </ul>
 
-<div class="scene-box">想象一个医生去学法律。如果他"全职"学法律（全参微调），可能把医学知识忘了。如果他"兼职"学法律（LoRA），只花 10% 的时间，医学知识基本不会忘。如果他"边学法律边复习医学"（Replay），两者都能保持。这就是灾难性遗忘的直觉。</div>
+<h3>LoRA：参数高效微调的革命</h3>
 
-<h3>Q4：LoRA 的原理是什么？为什么有效？</h3>
+<p>LoRA（Low-Rank Adaptation）是 2021 年由微软提出的微调方法，已成为事实标准。核心思想：</p>
 
-<p><strong>面试官的意图</strong>：考察对参数高效微调的理解。</p>
-
-<p><strong>答案</strong>：LoRA（Low-Rank Adaptation）的核心思想是：<strong>权重的更新量是低秩的。</strong></p>
+<blockquote>权重的更新量是低秩的——微调不需要改变所有参数，只需要一个"小补丁"。</blockquote>
 
 <pre>原始权重 W ∈ R^(d×d)（冻结）
     ↓
@@ -1011,8 +1058,6 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 
 可训练参数：d×r + r×d = 2dr（远小于 d²）</pre>
 
-<p>直觉上，LoRA 假设：<strong>微调时，权重不需要"大幅改变"，只需要在原有基础上做"小幅调整"。而这个"调整"可以用低秩矩阵近似。</strong></p>
-
 <p><strong>为什么有效？</strong></p>
 
 <ul>
@@ -1021,182 +1066,249 @@ KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335 GB
 <li><strong>数学优雅</strong>：低秩分解大幅减少参数，同时保持表达能力</li>
 </ul>
 
-<p><strong>LoRA 的变体</strong>：</p>
+<p>以 Llama 2 7B 为例：全参微调需要 ~56GB 显存（FP32），而 LoRA（r=16）只需要 ~14GB 显存——减少 75%。</p>
 
-<ul>
-<li><strong>QLoRA</strong>：量化基础模型到 4-bit，再用 LoRA 微调，显存占用降低 75%</li>
-<li><strong>DoRA</strong>：分解权重为方向和幅度，分别用 LoRA 微调</li>
-<li><strong>LoRA-FA</strong>：只微调 A，冻结 B，进一步减少参数</li>
-</ul>
-
-<h3>Q5：RLHF 中的"奖励黑客"是什么？如何解决？</h3>
-
-<p><strong>面试官的意图</strong>：考察对对齐问题的深入理解。</p>
-
-<p><strong>答案</strong>：奖励黑客（Reward Hacking）是指<strong>模型学会"欺骗"奖励模型，获得高分，但实际输出质量下降</strong>的现象。</p>
-
-<div class="scene-box">想象你在训练一只狗。你奖励它"坐下"。狗学会了"坐下"，但你发现它只在你看着它的时候坐下——它学会了"表演"，而不是真正听话。这就是奖励黑客。</div>
-
-<p><strong>奖励黑客的表现</strong>：</p>
-
-<ul>
-<li>模型生成冗长但空洞的回答（奖励模型偏好长回答）</li>
-<li>模型学会讨好用户，而不是给出正确答案</li>
-<li>模型在训练分布上表现好，但在分布外表现差</li>
-</ul>
-
-<p><strong>解决方案</strong>：</p>
-
-<ul>
-<li><strong>KL 约束</strong>：限制策略模型不要偏离参考模型太远</li>
-<li><strong>奖励模型集成</strong>：用多个奖励模型，减少单个模型的偏差</li>
-<li><strong>人类反馈</strong>：定期用人类评估，校准奖励模型</li>
-<li><strong>DPO</strong>：跳过奖励模型，直接从偏好数据学习</li>
-<li><strong>Constitutional AI</strong>：用"宪法"约束模型行为</li>
-</ul>
-
-<h3>Q6：DPO 和 RLHF 的核心区别是什么？什么时候用哪个？</h3>
-
-<p><strong>面试官的意图</strong>：考察对对齐方法的比较理解。</p>
-
-<p><strong>答案</strong>：</p>
+<h3>LoRA 的变体与生态</h3>
 
 <table>
-<tr><th>维度</th><th>RLHF</th><th>DPO</th></tr>
-<tr><td>核心思想</td><td>训练奖励模型 + PPO 优化</td><td>直接从偏好数据优化策略</td></tr>
-<tr><td>训练阶段</td><td>3 阶段：SFT → 奖励模型 → PPO</td><td>2 阶段：SFT → DPO</td></tr>
-<tr><td>计算成本</td><td>高（需要 4 个模型）</td><td>中（只需要 2 个模型）</td></tr>
-<tr><td>稳定性</td><td>低（PPO 对超参敏感）</td><td>高（简单的分类损失）</td></tr>
-<tr><td>性能上限</td><td>高（理论上更强）</td><td>中-高（略逊于 RLHF）</td></tr>
-<tr><td>数据需求</td><td>高（需要大量偏好数据）</td><td>中（偏好数据即可）</td></tr>
+<tr><th>方法</th><th>核心创新</th><th>显存节省</th><th>适用场景</th></tr>
+<tr><td>LoRA</td><td>低秩分解 ΔW = AB</td><td>~75%</td><td>通用微调</td></tr>
+<tr><td>QLoRA</td><td>4-bit 量化 + LoRA</td><td>~90%</td><td>消费级 GPU</td></tr>
+<tr><td>DoRA</td><td>分解权重为方向和幅度</td><td>~75%</td><td>需要更精细控制</td></tr>
+<tr><td>LoRA-FA</td><td>只微调 A，冻结 B</td><td>~80%</td><td>极致参数效率</td></tr>
+<tr><td>AdaLoRA</td><td>自适应秩分配</td><td>~75%</td><td>不同层不同秩</td></tr>
 </table>
 
-<p><strong>选择建议</strong>：</p>
+<p><strong>QLoRA</strong> 尤其值得关注：它将基础模型量化到 4-bit（NF4 格式），然后用 LoRA 微调。一张 RTX 4090（24GB）就能微调 65B 模型。这彻底 democratize 了大模型微调。</p>
+
+<h3>微调的工程实践</h3>
+
+<p><strong>超参数设置</strong>：</p>
 
 <ul>
-<li><strong>资源有限</strong> → DPO（计算成本低，实现简单）</li>
-<li><strong>追求极致</strong> → RLHF（性能上限更高）</li>
-<li><strong>数据充足</strong> → RLHF（可以充分利用数据）</li>
-<li><strong>数据有限</strong> → DPO（对数据量要求较低）</li>
+<li><strong>学习率</strong>：通常 1e-5 到 5e-5（比预训练小 10-100 倍）</li>
+<li><strong>秩 r</strong>：8-64，越大表达能力越强，但参数越多</li>
+<li><strong>alpha</strong>：通常设为 2×r</li>
+<li><strong>dropout</strong>：0.05-0.1，防止过拟合</li>
+<li><strong>Epoch</strong>：1-3，过多容易过拟合</li>
 </ul>
 
-<h3>Q7：量化为什么不会大幅降低模型精度？</h3>
-
-<p><strong>面试官的意图</strong>：考察对量化技术的理解。</p>
-
-<p><strong>答案</strong>：量化不会大幅降低精度，原因有三：</p>
-
-<p><strong>第一，权重冗余。</strong>大模型的参数存在大量冗余。很多权重对最终输出的影响很小，量化这些权重不会显著改变模型行为。</p>
-
-<p><strong>第二，异常值保护。</strong>llm.int8() 发现，只有 0.1% 的"异常值"承载关键信息。保护这些异常值，其余量化，精度损失极小。</p>
-
-<p><strong>第三，校准优化。</strong>GPTQ、AWQ 等方法用校准数据优化量化参数（scale、zero-point），最小化量化误差。</p>
-
-<div class="scene-box">想象你有一本 1000 页的书。量化就像把书"压缩"。如果你只压缩"废话"（冗余权重），保留"精华"（异常值），书的内容基本不变。如果你用"智能压缩"（校准优化），压缩后仍然可读。这就是量化不降精度的直觉。</div>
-
-<p><strong>量化的精度损失</strong>：</p>
-
-<table>
-<tr><th>精度</th><th>典型损失</th><th>适用场景</th></tr>
-<tr><td>FP8</td><td>&lt; 0.1%</td><td>H100/B200 默认</td></tr>
-<tr><td>INT8</td><td>0.1-0.5%</td><td>通用场景</td></tr>
-<tr><td>INT4 (AWQ)</td><td>0.5-2%</td><td>边缘设备</td></tr>
-<tr><td>INT3</td><td>2-5%</td><td>极致压缩</td></tr>
-</table>
-
-<h3>Q8：如何计算 KV Cache 的大小？</h3>
-
-<p><strong>面试官的意图</strong>：考察对推理显存管理的理解。</p>
-
-<p><strong>答案</strong>：KV Cache 的大小由以下公式计算：</p>
-
-<pre>KV Cache Size = 2 × L × h × B × S × dtype_bytes
-
-其中：
-L = 层数
-h = 隐藏维度（或 GQA 的 head 数 × head_dim）
-B = 批大小
-S = 序列长度
-dtype_bytes = 数据类型字节数（FP16 = 2, INT8 = 1）</pre>
-
-<p><strong>示例</strong>：Llama 2 70B，128K 上下文，FP16</p>
-
-<pre>L = 80, h = 8192, B = 1, S = 128K, dtype = 2
-KV Cache = 2 × 80 × 8192 × 1 × 128000 × 2
-         ≈ 335 GB
-
-这远超单张 H100 的 80GB 显存！</pre>
-
-<p><strong>优化策略</strong>：</p>
+<p><strong>数据准备</strong>：</p>
 
 <ul>
-<li><strong>GQA</strong>：Llama 2 70B 用 GQA（8 个 head 共享 1 组 KV），KV 大小降为 1/8</li>
-<li><strong>KV Cache 量化</strong>：量化到 INT4，再降 4 倍</li>
-<li><strong>Sliding Window</strong>：只看最近 W 个 token，S 固定为 W</li>
-<li><strong>PagedAttention</strong>：分块管理，消除碎片</li>
+<li>数据质量 > 数量：1K 高质量样本 > 100K 低质量样本</li>
+<li>格式统一：用标准的 instruction/input/output 格式</li>
+<li>多样性：覆盖各种任务类型和难度</li>
+<li>去重：避免重复样本导致过拟合</li>
 </ul>
-
-<h3>Q9：MoE 模型的负载均衡问题如何解决？</h3>
-
-<p><strong>面试官的意图</strong>：考察对 MoE 训练的理解。</p>
-
-<p><strong>答案</strong>：MoE（Mixture of Experts）的核心挑战是<strong>负载均衡</strong>——避免某些专家过载，某些专家闲置。</p>
-
-<p><strong>问题</strong>：如果路由网络总是选择少数几个专家，其他专家就"学不到东西"，模型能力受限。</p>
-
-<p><strong>解决方案</strong>：</p>
-
-<ul>
-<li><strong>辅助损失（Auxiliary Loss）</strong>：惩罚负载不均衡的路由</li>
-<li><strong>专家容量（Expert Capacity）</strong>：限制每个专家处理的 token 数量</li>
-<li><strong>随机路由</strong>：加入随机性，避免确定性路由</li>
-<li><strong>专家丢弃（Expert Drop）</strong>：训练时随机丢弃某些专家</li>
-</ul>
-
-<pre>辅助损失示例：
-L_aux = α × Σ_i (f_i × P_i)
-
-其中：
-f_i = 专家 i 处理的 token 比例
-P_i = 路由到专家 i 的概率
-α = 平衡系数
-
-目标：让 f_i ≈ P_i ≈ 1/N（N 是专家数）</pre>
-
-<h3>Q10：FP8 训练的原理是什么？为什么能保持精度？</h3>
-
-<p><strong>面试官的意图</strong>：考察对低精度训练的理解。</p>
-
-<p><strong>答案</strong>：FP8 训练使用 8 位浮点数进行前向和反向传播，大幅降低显存和计算成本。</p>
-
-<p><strong>FP8 的两种格式</strong>：</p>
-
-<ul>
-<li><strong>E4M3</strong>：4 位指数，3 位尾数，精度高，适合前向传播</li>
-<li><strong>E5M2</strong>：5 位指数，2 位尾数，范围大，适合反向传播（梯度）</li>
-</ul>
-
-<p><strong>为什么能保持精度？</strong></p>
-
-<ul>
-<li><strong>混合精度</strong>：关键操作（如 LayerNorm、Softmax）仍用 FP32</li>
-<li><strong>损失缩放</strong>：用 FP32 计算损失，避免梯度下溢</li>
-<li><strong>硬件支持</strong>：H100 的 Tensor Core 原生支持 FP8，精度损失可控</li>
-</ul>
-
-<p><strong>FP8 vs FP16</strong>：</p>
-
-<table>
-<tr><th>维度</th><th>FP16</th><th>FP8</th></tr>
-<tr><td>显存占用</td><td>2 字节/参数</td><td>1 字节/参数</td></tr>
-<tr><td>计算速度</td><td>基准</td><td>~1.5×</td></tr>
-<tr><td>精度损失</td><td>基准</td><td>&lt; 0.1%</td></tr>
-<tr><td>硬件支持</td><td>广泛</td><td>H100/B200</td></tr>
-</table>
-
-<div class="scene-box">想象你在做数学题。FP16 是用"计算器"（精确到小数点后 4 位），FP8 是用"心算"（精确到小数点后 2 位）。对于简单题目，心算就够了；对于复杂题目，还是需要计算器。FP8 训练的策略是：简单部分用心算（前向传播），复杂部分用计算器（关键操作）。</div>
 
 <hr>
+
+<h2>第七章：部署、评估与幻觉控制</h2>
+
+<h3>模型部署：从实验室到生产</h3>
+
+<p>训练好的模型需要部署到生产环境。核心挑战：</p>
+
+<ul>
+<li><strong>延迟</strong>：用户期望秒级响应</li>
+<li><strong>吞吐</strong>：需要同时服务数千用户</li>
+<li><strong>成本</strong>：GPU 资源昂贵</li>
+<li><strong>可靠性</strong>：需要 99.9% 可用性</li>
+</ul>
+
+<p><strong>推理优化技术</strong>：</p>
+
+<table>
+<tr><th>技术</th><th>原理</th><th>效果</th></tr>
+<tr><td>量化（INT8/INT4）</td><td>降低权重精度</td><td>速度 2-4×，显存减半</td></tr>
+<tr><td>KV Cache 优化</td><td>PagedAttention、GQA</td><td>吞吐 2-4×</td></tr>
+<tr><td>推测解码</td><td>小模型草稿 + 大模型验证</td><td>速度 2-3×</td></tr>
+<tr><td>连续批处理</td><td>动态 batching</td><td>吞吐 10×</td></tr>
+<tr><td>FlashAttention</td><td>IO 感知注意力</td><td>速度 2-4×</td></tr>
+</table>
+
+<h3>幻觉：LLM 的"阿喀琉斯之踵"</h3>
+
+<p>幻觉（Hallucination）是指模型生成<strong>看似合理但实际错误</strong>的内容。这是 LLM 部署的最大风险。</p>
+
+<p><strong>幻觉的类型</strong>：</p>
+
+<ul>
+<li><strong>事实性幻觉</strong>：编造不存在的事实（"爱因斯坦 1921 年获得了化学奖"——实际是物理学奖）</li>
+<li><strong>忠实性幻觉</strong>：回答与输入不一致（摘要中加入原文没有的信息）</li>
+<li><strong>逻辑幻觉</strong>：推理过程看似合理但逻辑错误</li>
+</ul>
+
+<p><strong>幻觉控制策略</strong>：</p>
+
+<ul>
+<li><strong>RAG</strong>：用检索到的真实文档作为依据，减少编造</li>
+<li><strong>Chain of Verification</strong>：让模型先回答，再自己验证，再修正</li>
+<li><strong>自我一致性</strong>：多次采样，取一致的答案</li>
+<li><strong>外部工具</strong>：用计算器、搜索引擎、代码执行器验证</li>
+<li><strong>RLHF 约束</strong>：在奖励模型中惩罚幻觉</li>
+</ul>
+
+<div class="scene-box">想象一个学生参加考试。幻觉就像一个"自信但无知"的学生——他不知道答案，但编造了一个听起来很合理的回答。RAG 是给他一本参考书；Chain of Verification 是让他做完再检查一遍；自我一致性是让他在不同草稿中选一个一致的。</div>
+
+<h3>LLM 评估：如何衡量"好"？</h3>
+
+<p>评估 LLM 是一个复杂的问题。不同任务需要不同的指标。</p>
+
+<table>
+<tr><th>评估维度</th><th>指标</th><th>工具/基准</th></tr>
+<tr><td>通用知识</td><td>准确率</td><td>MMLU、ARC、HellaSwag</td></tr>
+<tr><td>推理能力</td><td>通过率</td><td>HumanEval（代码）、GSM8K（数学）</td></tr>
+<tr><td>指令遵循</td><td>人类评分</td><td>MT-Bench、AlpacaEval</td></tr>
+<tr><td>安全性</td><td>有害率</td><td>TruthfulQA、ToxiGen</td></tr>
+<tr><td>长上下文</td><td>检索准确率</td><td>LongBench、Needle-in-Haystack</td></tr>
+<tr><td>多语言</td><td>各语言准确率</td><td>MGSM、XQuAD</td></tr>
+</table>
+
+<p><strong>LLM-as-Judge</strong>：用 GPT-4 等强模型评估弱模型的输出质量。这正在成为主流评估方式，但也存在偏差（如偏好长回答、偏好自己的风格）。</p>
+
+<h3>Agent：从"对话"到"行动"</h3>
+
+<p>Agent 是 LLM 的"手和脚"——它不仅能对话，还能执行动作：搜索网页、写代码、调用 API、操作工具。</p>
+
+<p><strong>Agent 的核心组件</strong>：</p>
+
+<ul>
+<li><strong>规划（Planning）</strong>：将复杂任务分解为子任务</li>
+<li><strong>记忆（Memory）</strong>：短期记忆（对话历史）+ 长期记忆（向量数据库）</li>
+<li><strong>工具使用（Tool Use）</strong>：调用外部 API、搜索引擎、代码执行器</li>
+<li><strong>反思（Reflection）</strong>：评估自己的输出，自我修正</li>
+</ul>
+
+<p><strong>代表性框架</strong>：</p>
+
+<ul>
+<li><strong>ReAct</strong>：推理 + 行动交替进行</li>
+<li><strong>Plan-and-Execute</strong>：先规划，再执行</li>
+<li><strong>OpenAI Functions</strong>：模型直接输出函数调用</li>
+<li><strong>LangChain / LlamaIndex</strong>：Agent 开发框架</li>
+</ul>
+
+<div class="scene-box">如果 LLM 是"大脑"，Agent 就是"身体"。大脑说"帮我查一下明天北京的天气"，Agent 会：1. 理解意图 → 2. 选择工具（天气 API）→ 3. 构造参数（城市=北京，日期=明天）→ 4. 调用 API → 5. 解析结果 → 6. 生成回答。这就是 Agent 的工作流。</div>
+
+<hr>
+
+<h2>第八章：技术报告解读——从论文到实践</h2>
+
+<h3>Llama 3：开源的王者</h3>
+
+<p><strong>Llama 3 的核心创新</strong>：</p>
+
+<ol>
+<li><strong>数据</strong>：15T token，高质量清洗</li>
+<li><strong>架构</strong>：GQA、RoPE、SwiGLU</li>
+<li><strong>训练</strong>：8K GPU，1.5M 步</li>
+<li><strong>退火</strong>：最后 5% 步数用高质量数据</li>
+<li><strong>后训练</strong>：SFT + RLHF + CAI</li>
+</ol>
+
+<p><strong>Llama 3 的性能</strong>：</p>
+<ul>
+<li>MMLU: 88%（8B）, 91%（70B）, 93%（405B）</li>
+<li>HumanEval: 72%（8B）, 82%（70B）, 89%（405B）</li>
+<li>性能媲美 GPT-4</li>
+</ul>
+
+<h3>GPT-4：闭源的巅峰</h3>
+
+<p><strong>GPT-4 的核心创新</strong>（推测）：</p>
+
+<ol>
+<li><strong>架构</strong>：MoE，1.8T 参数</li>
+<li><strong>数据</strong>：13T token，多模态</li>
+<li><strong>训练</strong>：25K A100，90 天</li>
+<li><strong>后训练</strong>：RLHF，大规模标注</li>
+</ol>
+
+<h3>Claude 3：安全的标杆</h3>
+
+<p><strong>Claude 3 的核心创新</strong>：</p>
+
+<ol>
+<li><strong>安全</strong>：Constitutional AI</li>
+<li><strong>长上下文</strong>：200K token</li>
+<li><strong>多模态</strong>：图像、文档</li>
+<li><strong>后训练</strong>：CAI + RLHF</li>
+</ol>
+
+<h3>Phi 系列：小而美的典范</h3>
+
+<p><strong>Phi 的核心创新</strong>：</p>
+
+<ol>
+<li><strong>数据</strong>：教科书级合成数据</li>
+<li><strong>规模</strong>：1.3B、2.7B、7B</li>
+<li><strong>训练</strong>：30B token（1.3B）</li>
+<li><strong>后训练</strong>：SFT + DPO</li>
+</ol>
+
+<hr>
+
+<h2>附录：思考题详解</h2>
+
+<p>以下是前文各章思考题的详细解答。建议先独立思考，再对照答案。</p>
+
+<h3>第一题：资源分配——参数 vs 数据</h3>
+
+<p><strong>答案</strong>：Chinchilla 定律告诉我们，给定固定计算预算 C，最优策略是参数量 N 和数据量 D 同步增长（N ∝ C^0.5, D ∝ C^0.5）。GPT-3 是"欠训练"的——数据太少。Llama 3 的实践表明，数据质量可以弥补数量的不足，但数据量仍然是基础。</p>
+
+<h3>第二题：MoE 的参数量与激活量</h3>
+
+<p><strong>答案</strong>：Mixtral 8x7B 有 8 个专家，每个 token 激活 2 个。总参数 46.7B（8×7B + 路由），激活参数 12.9B（2×7B - 共享层）。性能媲美 70B 是因为：不同专家学习不同能力，组合起来表达力更强；且共享层（Attention、LayerNorm）提供了全局信息。</p>
+
+<h3>第三题：数据质量 vs 数据数量</h3>
+
+<p><strong>答案</strong>：两者都重要，但阶段不同。Chinchilla 时代数据稀缺，数量是瓶颈。Llama 3 时代数据充足，质量成为瓶颈。Llama 3 用 15T token 远超 Chinchilla 建议的 1.4T，但关键在于数据经过了严格清洗、去重、过滤。高质量数据的边际收益更高。</p>
+
+<h3>第四题：数据混合策略设计</h3>
+
+<p><strong>答案</strong>：没有标准答案，但一般原则是：代码 15-25%（推理能力）、书籍 10-20%（长文本）、学术 5-15%（专业知识）、网页 40-50%（通用能力）、社交 5-10%（对话能力）。具体配比需要实验调优。RedPajama 的配比是网页 87%、代码 3%、书籍 2%——代码比例偏低，所以推理能力不如 Llama 3。</p>
+
+<h3>第五题：自注意力的复杂度</h3>
+
+<p><strong>答案</strong>：计算复杂度 O(n²d)，显存复杂度 O(n²d)，其中 n 是序列长度，d 是 head 维度。序列长度翻倍，计算量翻 4 倍，显存翻 4 倍。这是长上下文的主要瓶颈——128K 上下文的注意力矩阵需要 ~335GB 显存（Llama 2 70B），远超单张 GPU。</p>
+
+<h3>第六题：FlashAttention 的原理</h3>
+
+<p><strong>答案</strong>：FlashAttention 不改变数学，只优化 IO。标准注意力需要 O(n²) 的 HBM 访问来存储注意力矩阵。FlashAttention 将 Q、K、V 分块加载到 SRAM（高速缓存），在 SRAM 中计算局部注意力，然后写回 HBM。通过分块计算 + 重计算，避免了 O(n²) 的 HBM 访问，将显存占用降到 O(n)。H100 上达到 75% FLOPs 利用率。</p>
+
+<h3>第七题：KV Cache 计算</h3>
+
+<p><strong>答案</strong>：KV Cache = 2 × L × h × B × S × dtype_bytes。Llama 2 70B：L=80, h=8192, B=1, S=128K, dtype=2 → 2 × 80 × 8192 × 1 × 128000 × 2 ≈ 335GB。优化策略：GQA（降为 1/8 ≈ 42GB）、KV Cache 量化 INT4（再降 4 倍 ≈ 10GB）、PagedAttention（消除碎片）。</p>
+
+<h3>第八题：增加上下文长度</h3>
+
+<p><strong>答案</strong>：三条路径。架构层面：Sliding Window Attention（固定窗口）、稀疏注意力。位置编码插值：Position Interpolation（压缩位置编码）、NTK-aware Scaling（用 NTK 理论指导缩放）、YaRN（综合多种策略，效果最好）。显存优化：KV Cache 量化、PagedAttention、StreamingLLM。</p>
+
+<h3>第九题：MoE 负载均衡</h3>
+
+<p><strong>答案</strong>：辅助损失 L_aux = α × Σ_i (f_i × P_i)，其中 f_i 是专家 i 处理的 token 比例，P_i 是路由到专家 i 的概率。目标是让 f_i ≈ P_i ≈ 1/N。配合专家容量（限制每个专家处理的 token 数）和随机路由（top-2 采样），可以有效避免负载不均。</p>
+
+<h3>第十题：FP8 训练精度</h3>
+
+<p><strong>答案</strong>：FP8 训练不会大幅降低精度，原因有三：1）混合精度策略——关键操作（LayerNorm、Softmax）仍用 FP32；2）损失缩放——用 FP32 计算损失，避免梯度下溢；3）硬件原生支持——H100 的 Tensor Core 原生支持 FP8，精度损失 < 0.1%。</p>
+
+<h3>第十一题：推理量化 vs 训练量化</h3>
+
+<p><strong>答案</strong>：训练量化（FP8）是在训练过程中使用低精度，梯度仍然可以用 FP32 累积，精度损失可控。推理量化（INT4/INT8）是在推理时使用低精度，没有"高精度梯度"作为后盾，精度损失更大。推理量化需要更精细的方法（如 AWQ、GPTQ）来保护显著权重。</p>
+
+<h3>第十二题：奖励黑客</h3>
+
+<p><strong>答案</strong>：奖励黑客是模型学会"欺骗"奖励模型获得高分，但实际质量下降。表现：生成冗长空洞的回答、讨好用户、在分布外表现差。解决方案：KL 约束（限制策略模型不偏离参考模型太远）、奖励模型集成、定期人类校准、DPO（跳过奖励模型）、Constitutional AI（用宪法约束行为）。</p>
+
+<h3>第十三题：DPO vs RLHF</h3>
+
+<p><strong>答案</strong>：RLHF 需要训练奖励模型 + PPO 优化，3 阶段，计算成本高，但性能上限更高。DPO 直接从偏好数据优化，2 阶段，计算成本低，稳定性高，性能略逊于调好的 RLHF。资源有限选 DPO，追求极致选 RLHF，快速迭代选 DPO。</p>
+
+<h3>第十四题：SFT vs RLHF/DPO 的选择</h3>
+
+<p><strong>答案</strong>：SFT 足够好的场景：简单的指令遵循、格式调整、特定风格。需要 RLHF/DPO 的场景：需要对齐人类偏好（如"有帮助但无害"）、需要减少有害输出、需要提升回答质量。判断标准：如果 SFT 后的模型在人类评估中已经足够好，就不需要 RLHF；如果还有明显的质量/安全问题，就需要 RLHF/DPO。</p>
 
 <h2>尾声：五个核心洞察</h2>
 
