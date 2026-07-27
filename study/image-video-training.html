@@ -532,52 +532,281 @@ Transformer 处理</pre>
 
 <div class="scene-box">Sora 的演示视频震惊了全世界。一段"纽约街头行走"的视频，光影、反射、行人动作都如此真实；一段"猛犸象在雪地行走"的视频，毛发、雪花、光影都如此细腻。人们开始相信：AGI 可能真的不远了。</div>
 
-<h3>Gen-3 & Veo：工业界的竞争</h3>
+<h3>中国军团的崛起：可灵、Seedance、万相、混元</h3>
 
-<p>2024 年，多家公司的视频生成模型相继发布：</p>
+<p>Sora 发布后不到三个月，中国科技公司集体发力，一批视频生成模型密集亮相。这场"中国军团"的反击，速度之快、质量之高，令全球侧目。</p>
 
-<p><strong>Runway Gen-3</strong>：支持相机控制、角色控制、风格控制。核心创新是"场景转换"——可以在一个镜头内实现场景的平滑切换。</p>
+<h4>快手可灵（Kling）：从短视频到长视频</h4>
 
-<p><strong>Google Veo 2</strong>：支持 4K 分辨率、60fps 帧率。核心创新是"物理引擎集成"——用物理引擎约束生成，保证运动合理。</p>
+<p>2024 年 6 月，快手发布<strong>可灵 1.0</strong>。这是中国首个达到 Sora 级别的视频生成模型。</p>
 
-<p><strong>Pika 2.0</strong>：专注短视频特效和转场。核心创新是"场景转换"——可以在一个镜头内实现场景的平滑切换。</p>
+<p>可灵的核心技术选择：</p>
+
+<ul>
+<li><strong>架构</strong>：3D VAE + DiT，潜空间扩散</li>
+<li><strong>VAE</strong>：自研 3D VAE，时间压缩比 4×，空间压缩比 8×（即 (8, 8, 4)）</li>
+<li><strong>训练数据</strong>：利用快手平台海量短视频数据，自建高质量标注管线</li>
+<li><strong>分辨率</strong>：最高 1080p，帧率 30fps</li>
+<li><strong>时长</strong>：从 5 秒逐步扩展到 3 分钟（2.0 版本）</li>
+</ul>
+
+<div class="scene-box">可灵的独特优势在于"数据飞轮"。快手每天产生数亿条短视频，这是一个天然的、多样化的视频数据池。当其他公司还在为训练数据发愁时，快手已经坐拥全球最大的短视频语料库。这就像一家餐厅，别人还在买菜，它自家就有农场。</div>
+
+<p>2025 年初，可灵 1.5 发布，引入了<strong>运动笔刷</strong>——用户可以在画面上"涂抹"，指定哪些区域应该怎样运动。2025 年中，可灵 2.0 发布，支持 3 分钟长视频、1080p、多镜头叙事。</p>
+
+<h4>字节 Seedance：从 Dance 到 Universe</h4>
+
+<p>2025 年初，字节跳动发布 <strong>Seedance 1.0</strong>。这是字节 AI 实验室（Seed）的旗舰视频模型。</p>
+
+<p>Seedance 的技术亮点：</p>
+
+<ul>
+<li><strong>架构</strong>：基于 Flow Matching 的 DiT，配合 3D VAE</li>
+<li><strong>核心创新</strong>：<strong>人体运动先验</strong>——利用字节在舞蹈、健身等垂类视频的数据优势，模型对人体运动的理解远超竞品</li>
+<li><strong>分辨率</strong>：720p → 1080p</li>
+<li><strong>时长</strong>：10 秒</li>
+<li><strong>特色能力</strong>：人物一致性极强，同一角色在不同镜头中保持高度一致</li>
+</ul>
+
+<p>2025 年中，字节又发布了 <strong>Seedance 1.5 Pro</strong>，支持多镜头叙事、镜头语言控制（推拉摇移跟），以及"参考视频"功能——上传一段参考视频，模型学习其镜头风格并应用到新内容上。</p>
+
+<div class="scene-box">Seedance 的"杀手锏"是人体运动。当你让它生成"一个人跳芭蕾"，其他模型的舞者可能四肢僵硬、动作诡异，但 Seedance 的舞者动作流畅、姿态优雅。因为字节见过太多舞蹈视频了——它"看过"的舞蹈，可能比任何人类编舞师都多。</div>
+
+<h4>阿里万相（Wan）：开源的力量</h4>
+
+<p>2025 年初，阿里通义团队发布了 <strong>Wan 2.1</strong>（万相），这是首个<strong>真正开源</strong>的高质量视频生成模型。</p>
+
+<p>Wan 的技术架构：</p>
+
+<ul>
+<li><strong>VAE</strong>：Causal 3D VAE，时间压缩比 4×，空间压缩比 8×</li>
+<li><strong>骨干</strong>：DiT with 3D full attention，支持 480p / 720p</li>
+<li><strong>参数规模</strong>：1.3B（轻量版）和 14B（旗舰版）</li>
+<li><strong>训练数据</strong>：约 12M 高质量视频-文本对</li>
+<li><strong>特色</strong>：同时支持文生视频（T2V）和图生视频（I2V）</li>
+</ul>
+
+<p>Wan 的开源策略产生了巨大影响。它在 Hugging Face 上发布后，社区迅速跟进：</p>
+
+<ul>
+<li>ComfyUI 插件 48 小时内上线</li>
+<li>llama.cpp 团队移植了推理优化版本</li>
+<li>多个团队基于 Wan 微调出垂直领域模型（动漫、医学、建筑）</li>
+</ul>
+
+<div class="scene-box">Wan 之于视频生成，就像 Llama 之于语言模型——它证明了开源模型可以达到闭源水平。更重要的是，开源释放了社区的创造力。当数千名开发者同时在一个模型上工作时，创新的速度远超任何一家公司。</div>
+
+<h4>腾讯混元（HunyuanVideo）：长视频的突破</h4>
+
+<p>2024 年末，腾讯发布 <strong>HunyuanVideo</strong>（混元视频），参数规模达 13B。</p>
+
+<p>混元视频的技术亮点：</p>
+
+<ul>
+<li><strong>架构</strong>：Dual-stream DiT（双流 Transformer），文本和视频特征在独立流中处理，通过交叉注意力交互</li>
+<li><strong>VAE</strong>：3D VAE，压缩比 (8, 8, 4)</li>
+<li><strong>时长</strong>：最高 10 秒，但通过"分段拼接"可扩展至 30 秒+</li>
+<li><strong>特色</strong>：文本理解能力极强，能准确处理复杂的空间关系描述（如"左边的猫看着右边的狗"）</li>
+</ul>
+
+<p>混元视频的另一个贡献是开源了<strong>评估基准</strong>——HunyuanVideo-Bench，包含 1000+ 精心设计的 prompt，覆盖物理规律、时空关系、人物交互等维度。这填补了视频生成领域"评估标准缺失"的空白。</p>
+
+<h4>中国军团的横向对比</h4>
+
+<table>
+<tr><th>模型</th><th>公司</th><th>参数</th><th>VAE</th><th>分辨率</th><th>时长</th><th>开源</th><th>核心优势</th></tr>
+<tr><td>可灵 2.0</td><td>快手</td><td>未公开</td><td>3D VAE (8,8,4)</td><td>1080p</td><td>3 分钟</td><td>否</td><td>数据飞轮、长视频</td></tr>
+<tr><td>Seedance 1.5</td><td>字节</td><td>未公开</td><td>3D VAE</td><td>1080p</td><td>10 秒</td><td>否</td><td>人体运动、人物一致性</td></tr>
+<tr><td>Wan 2.1</td><td>阿里</td><td>1.3B / 14B</td><td>Causal 3D VAE (8,8,4)</td><td>720p</td><td>5 秒</td><td>是</td><td>开源、社区生态</td></tr>
+<tr><td>混元视频</td><td>腾讯</td><td>13B</td><td>3D VAE (8,8,4)</td><td>720p</td><td>10 秒</td><td>部分</td><td>文本理解、评估基准</td></tr>
+<tr><td>CogVideoX</td><td>智谱</td><td>5B</td><td>3D VAE (8,8,4)</td><td>720p</td><td>6 秒</td><td>是</td><td>学术友好、轻量</td></tr>
+</table>
+
+<h3>Gen-3、Veo、Pika：海外阵营</h3>
+
+<p>海外方面，视频生成同样竞争激烈：</p>
+
+<p><strong>Runway Gen-3 Alpha</strong>（2024）→ <strong>Gen-4</strong>（2025）：Runway 是视频生成赛道的先驱。Gen-3 首次实现了精确的相机控制（推进、旋转、环绕），Gen-4 引入了"角色锁定"——同一角色在不同镜头中保持一致。</p>
+
+<p><strong>Google Veo 2</strong>（2024）→ <strong>Veo 3</strong>（2025）：Veo 2 支持 4K/60fps，Veo 3 进一步加入了<strong>原生音频生成</strong>——不仅生成画面，还同步生成对话、音乐、音效。</p>
+
+<p><strong>Pika 2.0</strong>（2024）→ <strong>Pika 2.2</strong>（2025）：专注"特效"赛道。独创"场景溶解"、"爆炸特效"等视觉特效，以及"导演模式"——用自然语言控制镜头语言。</p>
 
 <table>
 <tr><th>模型</th><th>公司</th><th>分辨率</th><th>时长</th><th>核心创新</th></tr>
 <tr><td>Sora</td><td>OpenAI</td><td>1080p</td><td>~1 分钟</td><td>ViT + DiT + 世界模拟</td></tr>
-<tr><td>Gen-3</td><td>Runway</td><td>1080p</td><td>~10 秒</td><td>相机控制 + 场景转换</td></tr>
-<tr><td>Veo 2</td><td>Google</td><td>4K</td><td>~1 分钟</td><td>物理引擎集成</td></tr>
-<tr><td>Pika 2.0</td><td>Pika Labs</td><td>1080p</td><td>~5 秒</td><td>特效 + 转场</td></tr>
-<tr><td>Kling</td><td>快手</td><td>1080p</td><td>~10 秒</td><td>中文优化</td></tr>
+<tr><td>Gen-4</td><td>Runway</td><td>4K</td><td>~16 秒</td><td>角色锁定 + 相机控制</td></tr>
+<tr><td>Veo 3</td><td>Google</td><td>4K/60fps</td><td>~1 分钟</td><td>原生音频生成</td></tr>
+<tr><td>Pika 2.2</td><td>Pika Labs</td><td>1080p</td><td>~10 秒</td><td>视觉特效 + 导演模式</td></tr>
 </table>
 
-<h3>视频生成的训练细节</h3>
+<hr>
 
-<p>视频扩散模型的训练，有几个关键技术点。</p>
+<h3>视频 VAE：被忽视的关键组件</h3>
 
-<p><strong>第一，时空建模。</strong>如何在扩散模型中建模时间关系？主流方法包括：</p>
+<p>在视频生成的技术叙事中，VAE（Variational Autoencoder）往往被忽略。但它其实是整个系统的<strong>地基</strong>。</p>
+
+<h4>为什么需要 VAE？</h4>
+
+<p>直接在像素空间做扩散，计算成本高到不可接受。一段 10 秒 720p/30fps 的视频，像素空间维度是 1280×720×300×3 ≈ 8.3 × 10<sup>8</sup>。这比一张图像大了 300 倍。</p>
+
+<p>VAE 的作用：<strong>将视频压缩到低维潜空间，在潜空间做扩散，最后解码回像素空间。</strong></p>
+
+<pre>像素空间视频 (H, W, T, 3)
+    ↓ 编码器 E
+潜空间表征 (H/r, W/r, T/c, d)
+    ↓ 扩散模型在潜空间训练/推理
+潜空间去噪
+    ↓ 解码器 D
+重建视频 (H, W, T, 3)</pre>
+
+<h4>2D VAE vs 3D VAE</h4>
+
+<p><strong>2D VAE（如 SD 的 VAE）</strong>：逐帧压缩，不考虑时间关系。</p>
 
 <ul>
-<li><strong>3D 注意力</strong>：在空间注意力基础上加入时间维度</li>
-<li><strong>时间层</strong>：在 UNet 中加入独立的"时间层"</li>
-<li><strong>因式分解</strong>：将时空卷积分解为空间卷积 + 时间卷积</li>
+<li>优点：训练简单，复用图像 VAE</li>
+<li>缺点：帧间不连贯，生成视频"闪烁"</li>
 </ul>
 
-<p><strong>第二，长序列处理。</strong>视频通常有数百帧，如何高效处理？主流方法包括：</p>
+<p><strong>3D VAE</strong>：同时在空间和时间维度压缩。</p>
 
 <ul>
-<li><strong>分段训练</strong>：将视频分成多个片段，分段训练</li>
-<li><strong>循环生成</strong>：逐段生成，前一段作为后一段的条件</li>
-<li><strong>层次化生成</strong>：先生成关键帧，再填充中间帧</li>
+<li>优点：帧间连贯，压缩率更高</li>
+<li>缺点：训练困难，需要大量视频数据</li>
 </ul>
 
-<p><strong>第三，物理约束。</strong>如何让视频符合物理规律？主流方法包括：</p>
+<p>主流 3D VAE 的压缩比通常是 <code>(8, 8, 4)</code>——空间 8 倍、时间 4 倍。这意味着 720p/30fps 的视频，在潜空间变成 90×120×7.5fps。序列长度从 8.3 亿降到约 2400 万——减少了 35 倍。</p>
+
+<h4>Causal VAE：实时生成的关键</h4>
+
+<p>标准 3D VAE 有一个问题：<strong>非因果性</strong>。编码一帧时，它需要看"未来"的帧。这意味着你无法"流式"解码——必须等整个潜空间都生成完，才能一次性解码。</p>
+
+<p><strong>Causal 3D VAE</strong> 解决了这个问题。它的时间维度是因果的——编码/解码当前帧时，只看"过去"的帧。</p>
+
+<pre>标准 3D VAE：
+帧 t 的编码 = f(帧 t-2, 帧 t-1, 帧 t, 帧 t+1, 帧 t+2)  ← 需要未来帧
+
+Causal 3D VAE：
+帧 t 的编码 = f(帧 t-2, 帧 t-1, 帧 t)  ← 只看过去帧</pre>
+
+<p>这使得<strong>流式生成</strong>成为可能：扩散模型一边生成潜空间，VAE 解码器一边解码——就像水管一样，一边进水一边出水。</p>
+
+<p>Wan 2.1、HunyuanVideo 等都采用了 Causal 3D VAE。</p>
+
+<hr>
+
+<h3>实时推理与流式生成：速度的革命</h3>
+
+<p>视频生成的推理速度一直是痛点。生成一段 5 秒 720p 视频，在 A100 上可能需要几分钟甚至十几分钟。这离"实时"差了几个数量级。</p>
+
+<h4>推理加速的技术栈</h4>
+
+<p><strong>第一层：步数蒸馏。</strong>将扩散步数从 50 步压缩到 4-8 步。LCM、SDXL-Turbo 等技术在图像领域已经成熟，视频领域正在跟进。代表工作：LCM-Video（2024）、PCG（Progressive Consistency Generation, 2025）。</p>
+
+<p><strong>第二层：模型量化。</strong>将模型权重从 FP16 量化到 INT8/INT4。视频模型由于时序一致性要求，量化比图像更敏感，但 AWQ、GPTQ 等技术在视频模型上也能达到接近无损的效果。</p>
+
+<p><strong>第三层：算子融合与编译优化。</strong>torch.compile、TensorRT 等工具将多个算子融合为单个 kernel，减少 kernel launch 开销。</p>
+
+<p><strong>第四层：注意力优化。</strong>FlashAttention、Split-k Attention 等技术将注意力计算的显存占用从 O(n²) 降到 O(n)，使得长视频生成成为可能。</p>
+
+<h4>流式生成（Streaming Generation）</h4>
+
+<p>流式生成是 2025 年最重要的技术突破之一。核心思想：<strong>不等整个视频生成完，边生成边显示。</strong></p>
+
+<pre>传统生成：
+[等待 3 分钟] → 完整视频一次性输出
+
+流式生成：
+0 秒 → 显示第 1 帧
+0.1 秒 → 显示第 2 帧
+0.2 秒 → 显示第 3 帧
+...
+持续输出，用户无需等待</pre>
+
+<p>流式生成的技术前提：</p>
 
 <ul>
-<li><strong>数据驱动</strong>：用大量真实视频训练，让模型"学会"物理</li>
-<li><strong>显式约束</strong>：加入物理损失（如光流一致性）</li>
-<li><strong>世界模型</strong>：用世界模型指导生成</li>
+<li><strong>Causal VAE</strong>：解码器可以逐帧解码</li>
+<li><strong>Causal DiT</strong>：Transformer 的注意力是因果的，生成当前帧时不依赖未来帧</li>
+<li><strong>推测解码</strong>：用小模型快速"猜"多帧，大模型一次验证</li>
 </ul>
+
+<p><strong>StreamDiffusion</strong>（2024）是首个实现实时图像生成的框架，FPS 达到 30+。<strong>StreamVideo</strong>（2025）将其扩展到视频领域，实现了 720p@15fps 的流式视频生成。</p>
+
+<div class="scene-box">想象你在看直播。传统视频生成是"录播"——等整段视频生成完才能看。流式生成是"直播"——一边生成一边播放，用户几乎感受不到延迟。这不仅是技术突破，更是产品形态的变革——它让"AI 实时生成视频"成为可能。</div>
+
+<h4>实时推理的工程挑战</h4>
+
+<table>
+<tr><th>挑战</th><th>问题</th><th>解决方案</th></tr>
+<tr><td>显存</td><td>长视频 KV Cache 爆炸</td><td>PagedAttention、滑动窗口</td></tr>
+<tr><td>延迟</td><td>单帧推理 > 100ms</td><td>步数蒸馏、推测解码</td></tr>
+<tr><td>吞吐</td><td>单 GPU 只能服务一个用户</td><td>批处理、模型分片</td></tr>
+<tr><td>一致性</td><td>流式生成帧间闪烁</td><td>Causal VAE、重叠窗口</td></tr>
+</table>
+
+<hr>
+
+<h3>世界模型：从"生成像素"到"理解物理"</h3>
+
+<p>Sora 的技术报告中有一个引人注目的说法：</p>
+
+<blockquote>"视频生成模型在某种程度上是世界模拟器（World Simulators）。"</blockquote>
+
+<p>这个说法引发了巨大争议。支持者认为，视频模型确实在"学习"物理规律；反对者认为，这只是"像素级别的模仿"，不是真正的"理解"。</p>
+
+<h4>世界模型的定义</h4>
+
+<p>世界模型（World Model）的核心能力是：<strong>给定当前状态和一个动作，预测未来的状态。</strong></p>
+
+<pre>世界模型：
+当前状态 s_t + 动作 a_t → 预测未来状态 s_{t+1}
+
+视频生成模型：
+当前帧 + 文本描述 → 预测未来帧
+
+两者的区别：
+世界模型理解"动作"（因果关系）
+视频模型只理解"像素"（统计关系）</pre>
+
+<h4>从视频生成到世界模型</h4>
+
+<p>2024-2025 年，多个团队尝试将视频生成模型改造为世界模型：</p>
+
+<p><strong>Genie 2（DeepMind, 2024）</strong>：从互联网视频中学习，用户可以"操控"生成的虚拟环境——按左键，场景向左移动；按跳跃键，视角上升。虽然画面粗糙，但物理规律基本正确。</p>
+
+<p><strong>UniSim（DeepMind, 2024）</strong>：专门为机器人设计的通用模拟器。给定当前场景和动作序列，预测整段操作视频。用于机器人训练数据增强。</p>
+
+<p><strong>DIAMOND（2025）</strong>：用扩散模型作为世界模型，在 Atari 游戏上达到超越人类水平的表现。核心创新：用"想象"代替"试错"——在脑海中模拟多种可能的未来，选择最优的行动。</p>
+
+<p><strong>Cosmos（NVIDIA, 2025）</strong>：NVIDIA 发布的"世界基础模型"。核心创新是<strong>多模态世界模型</strong>——不仅理解视觉，还理解语言、物理、因果。用于自动驾驶仿真、机器人训练。</p>
+
+<h4>世界模型的应用场景</h4>
+
+<table>
+<tr><th>应用场景</th><th>描述</th><th>代表工作</th></tr>
+<tr><td>自动驾驶</td><td>模拟各种驾驶场景，训练自动驾驶策略</td><td>Cosmos, GAIA-1</td></tr>
+<tr><td>机器人</td><td>生成操作视频，增强训练数据</td><td>UniSim, RoboGen</td></tr>
+<tr><td>游戏</td><td>生成虚拟环境，玩家实时交互</td><td>Genie 2, DIAMOND</td></tr>
+<tr><td>视频生成</td><td>用物理理解指导生成，提高合理性</td><td>Sora, WorldDirector</td></tr>
+<tr><td>科学模拟</td><td>替代传统物理仿真，加速科学发现</td><td>FourCastNet, GraphCast</td></tr>
+</table>
+
+<div class="scene-box">想象一个自动驾驶公司。传统方法是：在真实道路上采集数据，标注，训练。但真实世界的"极端场景"（如突然冲出的行人、罕见的天气）太少了。世界模型可以"想象"这些极端场景——生成无数种可能的未来，让自动驾驶策略在"想象"中学习。这就像让一个新手司机在脑海中模拟一万次危险情况，再上路。</div>
+
+<h4>世界模型的局限</h4>
+
+<p>当前的世界模型还远不完美：</p>
+
+<ul>
+<li><strong>物理违规</strong>：物体可能"穿模"、悬浮、突然消失</li>
+<li><strong>长程漂移</strong>：预测越远，误差越大</li>
+<li><strong>缺乏因果推理</strong>：模型学到的是"相关性"，不是"因果性"</li>
+<li><strong>计算成本</strong>：生成"想象"需要大量计算</li>
+</ul>
+
+<p>但趋势是清晰的：<strong>视频生成正在从"生成好看的像素"走向"理解物理世界"。</strong>这可能是通向 AGI 的一条重要路径。</p>
 
 <hr>
 
@@ -591,31 +820,47 @@ Transformer 处理</pre>
 
 <p><strong>视频数据</strong>：视频数据更加稀缺。WebVid-10M 包含 1000 万视频-文本对，但质量有限。高质量的视频数据（如电影、纪录片）受版权保护，难以获取。</p>
 
-<div class="scene-box">想象你在做饭。数据就是"食材"。LAION-5B 是一个巨大的"食材仓库"，里面有好的食材（高质量图像），也有烂的食材（低质量图像）。你需要"清洗"——去掉烂的，保留好的。这就是数据清洗的工作。</div>
+<div class="scene-box">想象你在做饭。数据就是"食材"。LAION-5B 是一个巨大的"食材仓库"，里面有好的食材（高质量图像），也有烂的食材（低质量图像）。你需要"清洗"——去掉烂的，保留好的。这就是数据清洗的工作。而视频数据？那更像是一个"稀缺食材市场"——好的食材（高质量视频）太少了，大家都在抢。</div>
+
+<p><strong>视频数据清洗的挑战</strong>：</p>
+
+<ul>
+<li><strong>去重更难</strong>：视频去重需要比较时空特征，计算量远大于图像</li>
+<li><strong>质量评估更难</strong>：什么是"好"视频？清晰度？美学？内容多样性？</li>
+<li><strong>标注更贵</strong>：视频-文本对的标注成本是图像的 10-100 倍</li>
+<li><strong>版权更复杂</strong>：视频涉及多方版权（演员、导演、音乐）</li>
+</ul>
 
 <h3>算力：炉灶</h3>
 
 <p>训练大模型需要大量算力。</p>
 
-<p><strong>Stable Diffusion</strong>：在 256 张 A100 上训练了约 15 万 GPU 小时。</p>
+<table>
+<tr><th>模型</th><th>训练算力</th><th>训练时间</th><th>估算成本</th></tr>
+<tr><td>Stable Diffusion 1.5</td><td>256 × A100</td><td>~15 万 GPU 小时</td><td>~200 万美元</td></tr>
+<tr><td>SDXL</td><td>1024 × A100</td><td>~50 万 GPU 小时</td><td>~500 万美元</td></tr>
+<tr><td>Sora（推测）</td><td>数万 × H100</td><td>数月</td><td>~1 亿美元</td></tr>
+<tr><td>可灵 1.0（推测）</td><td>数千 × A100</td><td>数月</td><td>~5000 万美元</td></tr>
+<tr><td>Wan 2.1 14B</td><td>~1000 × A100</td><td>~2 个月</td><td>~2000 万美元</td></tr>
+</table>
 
-<p><strong>SDXL</strong>：在 1024 张 A100 上训练了约 50 万 GPU 小时。</p>
-
-<p><strong>Sora</strong>（推测）：可能在数万张 H100 上训练了数月。</p>
-
-<p>算力成本是巨大的。训练 SDXL 的电费就可能超过 100 万美元。</p>
+<p>算力成本是巨大的。训练 SDXL 的电费就可能超过 100 万美元。而 Sora 级别的模型，训练成本可能达到 1 亿美元。</p>
 
 <h3>分布式训练：协作</h3>
 
 <p>大模型训练通常需要分布式训练。主流策略包括：</p>
 
 <ul>
-<li><strong>数据并行</strong>：每个 GPU 处理不同的数据，同步梯度</li>
-<li><strong>模型并行</strong>：模型分布在不同 GPU 上</li>
-<li><strong>流水线并行</strong>：模型按层分布，形成"流水线"</li>
+<li><strong>数据并行</strong>：每个 GPU 处理不同的数据，同步梯度。最常用，但通信开销大</li>
+<li><strong>模型并行（张量并行）</strong>：模型分布在不同 GPU 上，每层拆分。适合超大模型</li>
+<li><strong>流水线并行</strong>：模型按层分布，形成"流水线"。减少显存占用</li>
+<li><strong>序列并行</strong>：将序列维度拆分到多个 GPU。视频生成特有，因为视频序列极长</li>
+<li><strong>上下文并行</strong>：将长序列分成多段，分布到多个 GPU，用 Ring Attention 通信</li>
 </ul>
 
-<p>分布式训练的挑战包括：通信开销、梯度同步、故障恢复。</p>
+<p>视频生成的分布式训练有一个独特挑战：<strong>序列极长</strong>。一段 10 秒 720p 视频，在潜空间中可能有数百万个 token。单张 GPU 根本放不下。必须用序列并行 + 上下文并行，将序列拆分到数十张 GPU 上。</p>
+
+<div class="scene-box">想象你在搬一块巨大的石头。一个人搬不动（单 GPU 放不下），你需要叫很多人来帮忙。数据并行是"每个人搬一小堆"；模型并行是"把石头切成几块，每人搬一块"；序列并行是"把石头排成一条线，每人搬一段"。关键是：大家必须协调好，不能有人快有人慢。</div>
 
 <hr>
 
@@ -629,21 +874,23 @@ Transformer 处理</pre>
 <li>GAN 的崛起与衰落</li>
 <li>扩散模型的复兴与统治</li>
 <li>文本到图像的爆发</li>
-<li>视频生成的突破</li>
+<li>视频生成的"百模大战"</li>
+<li>中国军团的集体崛起</li>
+<li>从"生成像素"到"理解物理"的范式转变</li>
 </ul>
 
-<p>但这场战争还远未结束。</p>
-
-<p>未来的方向包括：</p>
+<p>但这场战争还远未结束。未来的方向：</p>
 
 <ul>
-<li><strong>更长的视频</strong>：从几秒到几分钟，甚至几小时</li>
-<li><strong>交互式生成</strong>：用户可以实时控制视频内容</li>
-<li><strong>多模态统一</strong>：文本、图像、视频、音频统一生成</li>
-<li><strong>世界模型</strong>：让 AI 理解物理世界的规律</li>
+<li><strong>更长的视频</strong>：从几秒到几分钟，甚至几小时。可灵已经做到 3 分钟，下一步是 10 分钟、30 分钟</li>
+<li><strong>实时生成</strong>：流式生成技术日趋成熟，"AI 直播"将成为现实</li>
+<li><strong>交互式生成</strong>：用户可以实时控制视频内容——改变镜头、调整光照、替换角色</li>
+<li><strong>多模态统一</strong>：文本、图像、视频、音频、3D 统一生成</li>
+<li><strong>世界模型</strong>：从"生成好看的像素"走向"理解物理世界的规律"</li>
+<li><strong>端到端 AI 导演</strong>：输入一个故事，直接输出完整的视频——包括内容、镜头、剪辑、配乐</li>
 </ul>
 
-<div class="scene-box">也许有一天，AI 可以生成一部完整的电影——从剧本到画面，从配乐到剪辑。到那时，我们或许会说：机器学会了"创造"。</div>
+<div class="scene-box">也许有一天，AI 可以生成一部完整的电影——从剧本到画面，从配乐到剪辑。你只需要说"给我讲一个关于时间旅行的故事"，AI 就能生成一部 90 分钟的电影，画面精美，剧情跌宕，配乐动人。到那时，我们或许会说：机器学会了"创造"。</div>
 
 <p>但"创造"的本质是什么？是"无中生有"，还是"重组已有"？是"模仿人类"，还是"超越人类"？</p>
 
@@ -670,6 +917,15 @@ Transformer 处理</pre>
 <li>Brooks, T., et al. (2024). <em>Video Generation Models as World Simulators</em> (Sora). OpenAI Tech Report.</li>
 <li>Blattmann, A., et al. (2023). <em>Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets</em>. arXiv.</li>
 <li>Peebles, W., & Xie, S. (2023). <em>Scalable Diffusion Models with Transformers</em> (DiT). ICCV.</li>
+<li>Yang, Z., et al. (2024). <em>CogVideoX: Text-to-Video Diffusion Models with An Expert Transformer</em>. arXiv.</li>
+<li>Wan Team, Alibaba. (2025). <em>Wan 2.1: Open Source Video Generation Model</em>. Tech Report.</li>
+<li>Kuaishou. (2024-2025). <em>Kling: High-Quality Video Generation</em>. Tech Report.</li>
+<li>ByteDance Seed. (2025). <em>Seedance: Human Motion Prior for Video Generation</em>. Tech Report.</li>
+<li>Tencent. (2024). <em>HunyuanVideo: A Unified Framework for Text-to-Video Generation</em>. Tech Report.</li>
+<li>Katherine, K., et al. (2024). <em>StreamDiffusion: Pipeline-Level Acceleration for Real-Time Interactive Generation</em>. arXiv.</li>
+<li>Bruce, J., et al. (2024). <em>Genie: Generative Interactive Environments</em>. DeepMind.</li>
+<li>Agarwal, N., et al. (2025). <em>DIAMOND: Diffusion As a Model Of eNtion Dreams</em>. arXiv.</li>
+<li>NVIDIA. (2025). <em>Cosmos: A World Foundation Model for Physical AI</em>. Tech Report.</li>
 </ol>
 
 <p style="text-align:center; color:#aaa; font-size:13px; margin-top:60px;">
