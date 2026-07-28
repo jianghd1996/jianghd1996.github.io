@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>旋律的炼金术：音乐生成模型的百年演进</title>
+  <link rel="stylesheet" type="text/css" href="../files/stylesheet.css">
+  <style>
+    body {
+      background: #fff;
+      color: #333;
+    }
+    #article-container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 20px 60px;
+      font-family: 'Georgia', 'Noto Serif SC', serif;
+      line-height: 1.85;
+      font-size: 16px;
+    }
+    #article-container h1 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 5px;
+      color: #1a1a1a;
+      border-bottom: none;
+    }
+    #article-container .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+    #article-container h2 {
+      font-size: 22px;
+      color: #1a1a1a;
+      margin-top: 48px;
+      margin-bottom: 16px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+    #article-container h3 {
+      font-size: 18px;
+      color: #2a2a2a;
+      margin-top: 32px;
+      margin-bottom: 12px;
+    }
+    #article-container h4 {
+      font-size: 16px;
+      color: #444;
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    #article-container p {
+      margin-bottom: 16px;
+    }
+    #article-container strong {
+      color: #1a1a1a;
+    }
+    #article-container blockquote {
+      border-left: 3px solid #c0392b;
+      margin: 20px 0;
+      padding: 12px 20px;
+      background: #fdf6f0;
+      font-style: italic;
+      color: #555;
+    }
+    #article-container pre {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 14px 18px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 16px 0;
+    }
+    #article-container code {
+      font-family: 'Menlo', 'Consolas', monospace;
+      font-size: 14px;
+    }
+    #article-container p code {
+      background: #f0f0f0;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    #article-container hr {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 40px 0;
+    }
+    #article-container ul, #article-container ol {
+      margin: 12px 0;
+      padding-left: 24px;
+    }
+    #article-container li {
+      margin-bottom: 6px;
+    }
+    #article-container table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    #article-container th, #article-container td {
+      border: 1px solid #ddd;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    #article-container th {
+      background: #f5f5f5;
+      font-weight: bold;
+    }
+    #article-container a {
+      color: #c0392b;
+      text-decoration: none;
+    }
+    #article-container a:hover {
+      text-decoration: underline;
+    }
+    #back-link {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    #back-link a {
+      color: #888;
+      font-size: 14px;
+      font-family: sans-serif;
+    }
+    .scene-box {
+      background: #f9f9f9;
+      border-left: 3px solid #3498db;
+      padding: 12px 16px;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .scene-box::before {
+      content: "🎵 ";
+    }
+    @media (max-width: 600px) {
+      #article-container {
+        padding: 20px 16px 40px;
+        font-size: 15px;
+      }
+      #article-container h1 {
+        font-size: 22px;
+      }
+      #article-container h2 {
+        font-size: 19px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="article-container">
+
+<p id="back-link"><a href="../index.html">← Back to Homepage</a></p>
+
+<h1>旋律的炼金术：音乐生成模型的百年演进</h1>
+<p class="subtitle">最后更新：2026-07-28 &nbsp;|&nbsp; 用 AI 写的领域调研小说</p>
+
+<hr>
+
+<h2>序章：当机器学会作曲</h2>
+
+<p>2024 年 3 月，一段名为《Heart on My Sleeve》的歌曲在 TikTok 上爆红。这首歌听起来像是 Drake 和 The Weeknd 的合作——但实际上，它完全由 AI 生成。创作者只用了 Suno AI 的一个早期版本，输入了一段提示词，几分钟后就得到了这首"以假乱真"的歌曲。</p>
+
+<p>这不是第一次机器尝试作曲。1957 年，计算机科学家 Lejaren Hiller 用 IBM 701 计算机创作了《Illiac Suite》——人类历史上第一首由计算机生成的弦乐四重奏。但那段代码需要打孔卡片输入，运行一次需要几个小时，生成的音乐听起来像"随机的噪音"。</p>
+
+<p>从 1957 到 2024，从 Illiac Suite 到 Suno，音乐生成技术经历了怎样的演进？这篇文章将带你走过这段历程——从规则系统到深度学习，从 MIDI 到波形，从实验室到产品。</p>
+
+<hr>
+
+<h2>第一章：规则时代——从 Markov Chain 到专家系统（1950s-1990s）</h2>
+
+<h3>Markov Chain：最简单的音乐模型</h3>
+
+<p>1950s-1960s，研究者开始用 <strong>Markov Chain</strong>（马尔可夫链）生成音乐。核心思想极其简单：</p>
+
+<blockquote>统计音符之间的转移概率，然后按概率采样下一个音符。</blockquote>
+
+<pre>训练：统计 C 后面跟 D 的概率是 30%，跟 E 的概率是 20%...
+生成：从 C 开始，按概率采样下一个音符</pre>
+
+<p>这种方法生成的音乐听起来"像那么回事"，但缺乏长程结构——它不知道"这是一首奏鸣曲"或"这是副歌部分"。</p>
+
+<h3>专家系统：用规则编码音乐理论</h3>
+
+<p>1970s-1980s，研究者转向<strong>专家系统</strong>（Expert Systems）。核心思想：</p>
+
+<blockquote>将音乐理论（和声学、对位法、曲式）编码为规则，让计算机按规则生成。</blockquote>
+
+<p>代表系统：</p>
+<ul>
+<li><strong>HMEX</strong>（1979）：用规则生成巴赫风格的四部和声</li>
+<li><strong>Experiments in Musical Intelligence (EMI)</strong>（1980s）：David Cope 开发的系统，可以模仿特定作曲家的风格</li>
+</ul>
+
+<p>这些系统生成的音乐"技术上正确"，但缺乏创造力——它们只是在已有规则的框架内组合，无法产生真正的"新意"。</p>
+
+<hr>
+
+<h2>第二章：深度学习早期——RNN 与 GAN 的尝试（2015-2018）</h2>
+
+<h3>RNN/LSTM：序列建模的突破</h3>
+
+<p>2015 年，研究者开始用 <strong>RNN/LSTM</strong>（循环神经网络）生成音乐。核心思想：</p>
+
+<blockquote>将音乐视为序列，用 RNN 学习音符之间的依赖关系。</blockquote>
+
+<p>代表工作：</p>
+<ul>
+<li><strong>DeepBach</strong>（2016）：用 LSTM 生成巴赫风格的四部和声</li>
+<li><strong>DeepJ</strong>（2017）：用 LSTM 生成爵士乐</li>
+</ul>
+
+<p>RNN 的优势是能够建模<strong>长程依赖</strong>——它"记住"了之前的音符，知道"这是副歌"或"这是发展部"。但 RNN 的问题是<strong>训练不稳定</strong>（梯度消失/爆炸）和<strong>生成速度慢</strong>（必须逐音符生成）。</p>
+
+<h3>MIDI-VAE 与 MuseGAN：生成模型的引入</h3>
+
+<p>2017-2018 年，研究者引入了 <strong>VAE</strong>（变分自编码器）和 <strong>GAN</strong>（生成对抗网络）。</p>
+
+<p><strong>MIDI-VAE</strong>（2017）：</p>
+<ul>
+<li>将 MIDI 编码为潜向量，再从潜向量解码为 MIDI</li>
+<li>可以在潜空间中"插值"，生成风格介于两首曲子之间的新曲子</li>
+</ul>
+
+<p><strong>MuseGAN</strong>（2018）：</p>
+<ul>
+<li>用 GAN 生成多轨 MIDI（钢琴、鼓、贝斯等）</li>
+<li>生成器学习"什么是好的音乐"，判别器学习"什么是假的音乐"</li>
+<li>两者对抗训练，最终生成器能够生成"以假乱真"的多轨音乐</li>
+</ul>
+
+<p>这些方法的突破在于：它们不再依赖手工规则，而是<strong>从数据中学习音乐的分布</strong>。但问题也很明显：</p>
+<ul>
+<li>生成的音乐缺乏<strong>长程结构</strong>（不知道"这是副歌"）</li>
+<li><strong>音质差</strong>（MIDI 只是符号，需要额外的合成器）</li>
+<li><strong>可控性差</strong>（无法精确控制"生成一首悲伤的钢琴曲"）</li>
+</ul>
+
+<hr>
+
+<h2>第三章：Transformer 革命——语言模型范式的引入（2018-2022）</h2>
+
+<h3>Music Transformer：注意力的力量</h3>
+
+<p>2018 年，Google 的 Cheng-Zhi Anna Huang 等人提出了 <strong>Music Transformer</strong>。核心思想：</p>
+
+<blockquote>用 Transformer 的自注意力机制建模音乐的长程依赖。</blockquote>
+
+<pre>输入：音符序列 [C4, E4, G4, C5, ...]
+    ↓
+Transformer Encoder-Decoder
+    ↓
+输出：下一个音符的概率分布</pre>
+
+<p>Music Transformer 的优势：</p>
+<ul>
+<li><strong>并行训练</strong>：不像 RNN 必须顺序处理，Transformer 可以并行处理整个序列</li>
+<li><strong>长程依赖</strong>：自注意力机制可以"看到"整个序列，知道"这是副歌"</li>
+<li><strong>生成质量</strong>：生成的音乐更有结构，更像"真正的音乐"</li>
+</ul>
+
+<h3>LakhNES 与 Jukebox：规模的力量</h3>
+
+<p>2019 年，OpenAI 发布了 <strong>Jukebox</strong>。这是一个里程碑式的工作：</p>
+
+<blockquote>用 Transformer 直接在<strong>波形</strong>（waveform）层面生成音乐，而不是 MIDI。</blockquote>
+
+<p>Jukebox 的核心创新：</p>
+<ul>
+<li><strong>VQ-VAE</strong>（向量量化变分自编码器）：将波形压缩为离散的 token</li>
+<li><strong>多层 Transformer</strong>：在多个时间尺度上生成（从粗糙到精细）</li>
+<li><strong>条件生成</strong>：可以指定"生成一首披头士风格的摇滚歌曲"</li>
+</ul>
+
+<p>Jukebox 生成的音乐质量令人惊叹——它可以生成"听起来像披头士"的歌曲，甚至有"人声"。但问题也很明显：</p>
+<ul>
+<li><strong>生成速度极慢</strong>：生成 1 分钟的音乐需要几个小时</li>
+<li><strong>音质有限</strong>：采样率只有 44.1kHz，听起来"有点糊"</li>
+<li><strong>无法控制细节</strong>：无法精确控制"在第 30 秒加入鼓点"</li>
+</ul>
+
+<hr>
+
+<h2>第四章：神经编解码器——音频 Tokenization 的革命（2022）</h2>
+
+<h3>EnCodec：Meta 的音频 Tokenizer</h3>
+
+<p>2022 年，Meta 发布了 <strong>EnCodec</strong>——一个神经音频编解码器。核心思想：</p>
+
+<blockquote>将音频波形压缩为离散的 token，再从 token 解码为波形。</blockquote>
+
+<pre>音频波形 (44.1kHz, 16-bit)
+    ↓
+EnCodec Encoder
+    ↓
+离散 token 序列 (75 tokens/s)
+    ↓
+EnCodec Decoder
+    ↓
+重建的音频波形</pre>
+
+<p>EnCodec 的关键创新：</p>
+<ul>
+<li><strong>多尺度判别器</strong>：用多个判别器（不同时间尺度）训练，保证音质</li>
+<li><strong>残差向量量化</strong>：用多层 VQ 逐步细化，提高压缩率</li>
+<li><strong>低延迟</strong>：编码/解码延迟只有几毫秒</li>
+</ul>
+
+<p>EnCodec 的意义：它让音乐生成模型可以<strong>在 token 空间工作</strong>，而不是直接在波形空间。这带来了两个好处：</p>
+<ol>
+<li><strong>序列长度大幅缩短</strong>：1 分钟的音频 = 4500 个 token，而不是 264 万个采样点</li>
+<li><strong>可以复用 LLM 的技术</strong>：Transformer、自回归生成、推测解码等</li>
+</ol>
+
+<h3>DAC：Descript Audio Codec</h3>
+
+<p>2023 年，Descript 发布了 <strong>DAC</strong>（Descript Audio Codec）。核心改进：</p>
+
+<blockquote>在 EnCodec 的基础上，引入<strong>对抗训练</strong>和<strong>多分辨率 STFT 损失</strong>，进一步提高音质。</blockquote>
+
+<p>DAC 的优势：</p>
+<ul>
+<li><strong>更高的压缩率</strong>：可以用更少的 token 表示同样的音质</li>
+<li><strong>更好的高频</strong>：对抗训练让高频更清晰</li>
+<li><strong>开源</strong>：完全开源，社区可以快速迭代</li>
+</ul>
+
+<hr>
+
+<h2>第五章：大规模预训练——MusicLM 与 MusicGen（2023）</h2>
+
+<h3>MusicLM：Google 的文本到音乐模型</h3>
+
+<p>2023 年，Google 发布了 <strong>MusicLM</strong>。核心思想：</p>
+
+<blockquote>用<strong>层次化 Transformer</strong> 从文本描述生成高质量音乐。</blockquote>
+
+<pre>文本："一首悲伤的钢琴曲，带有雨声"
+    ↓
+MusicLM (层次化 Transformer)
+    ↓
+音频 token 序列 (EnCodec tokens)
+    ↓
+EnCodec Decoder
+    ↓
+音频波形</pre>
+
+<p>MusicLM 的关键创新：</p>
+<ul>
+<li><strong>层次化生成</strong>：先生成粗糙的语义 token，再生成精细的声学 token</li>
+<li><strong>文本-音频对齐</strong>：用 CLAP（Contrastive Language-Audio Pretraining）对齐文本和音频</li>
+<li><strong>高质量</strong>：生成的音乐质量接近专业制作</li>
+</ul>
+
+<p>MusicLM 的局限：</p>
+<ul>
+<li><strong>闭源</strong>：Google 没有开源模型和训练数据</li>
+<li><strong>生成速度慢</strong>：生成 1 分钟的音乐需要几十秒</li>
+<li><strong>无法控制细节</strong>：无法精确控制"在第 30 秒加入鼓点"</li>
+</ul>
+
+<h3>MusicGen：Meta 的开源方案</h3>
+
+<p>2023 年，Meta 发布了 <strong>MusicGen</strong>——一个开源的文本到音乐模型。核心思想：</p>
+
+<blockquote>用<strong>单一阶段的 Transformer</strong> 从文本描述生成音乐。</blockquote>
+
+<pre>文本："一首欢快的电子舞曲"
+    ↓
+MusicGen (单一阶段 Transformer)
+    ↓
+音频 token 序列 (EnCodec tokens)
+    ↓
+EnCodec Decoder
+    ↓
+音频波形</pre>
+
+<p>MusicGen 的关键创新：</p>
+<ul>
+<li><strong>代码本延迟模式</strong>（Codebook Delay Pattern）：解决多码本生成的顺序问题</li>
+<li><strong>单一阶段</strong>：不需要层次化生成，训练和推理更简单</li>
+<li><strong>完全开源</strong>：模型、代码、训练数据描述全部开源</li>
+</ul>
+
+<p>MusicGen 的优势：</p>
+<ul>
+<li><strong>生成速度快</strong>：生成 30 秒的音乐只需要几秒</li>
+<li><strong>可控性好</strong>：可以用文本、旋律、音频等多种条件</li>
+<li><strong>社区活跃</strong>：开源后迅速被社区改进和扩展</li>
+</ul>
+
+<hr>
+
+<h2>第六章：扩散模型的崛起——AudioLDM 与 Stable Audio（2023-2024）</h2>
+
+<h3>AudioLDM：扩散模型的引入</h3>
+
+<p>2023 年，研究者将<strong>扩散模型</strong>（Diffusion Model）引入音频生成。代表工作：<strong>AudioLDM</strong>。</p>
+
+<p>核心思想：</p>
+
+<blockquote>在<strong>梅尔频谱</strong>（Mel Spectrogram）空间用扩散模型生成，再用 vocoder 解码为波形。</blockquote>
+
+<pre>文本："海浪声"
+    ↓
+AudioLDM (扩散模型)
+    ↓
+梅尔频谱
+    ↓
+Vocoder (如 HiFi-GAN)
+    ↓
+音频波形</pre>
+
+<p>AudioLDM 的优势：</p>
+<ul>
+<li><strong>生成质量高</strong>：扩散模型在图像生成中已经证明了自己的实力</li>
+<li><strong>多样性好</strong>：可以生成多种不同的"海浪声"</li>
+<li><strong>可控性好</strong>：可以用文本、图像等多种条件</li>
+</ul>
+
+<h3>Stable Audio：Stability AI 的产品</h3>
+
+<p>2023 年，Stability AI 发布了 <strong>Stable Audio</strong>——一个基于扩散模型的音乐生成产品。核心特点：</p>
+
+<ul>
+<li><strong>基于 Stable Diffusion</strong>：用类似的架构，但在音频领域</li>
+<li><strong>文本到音乐</strong>：可以用文本描述生成音乐</li>
+<li><strong>音频到音频</strong>：可以用一段音频作为条件，生成风格相似的新音频</li>
+<li><strong>商用友好</strong>：提供 API，可以商用</li>
+</ul>
+
+<p>Stable Audio 的局限：</p>
+<ul>
+<li><strong>音质有限</strong>：采样率只有 44.1kHz，高频不够清晰</li>
+<li><strong>长时结构差</strong>：生成的音乐缺乏长程结构（不知道"这是副歌"）</li>
+<li><strong>可控性有限</strong>：无法精确控制"在第 30 秒加入鼓点"</li>
+</ul>
+
+<hr>
+
+<h2>第七章：业界产品大战——Suno、Udio 与音乐生成的"iPhone 时刻"（2024）</h2>
+
+<h3>Suno：从实验室到产品</h3>
+
+<p>2023 年底，一家名为 <strong>Suno</strong> 的初创公司发布了他们的音乐生成产品。核心特点：</p>
+
+<ul>
+<li><strong>文本到完整歌曲</strong>：输入"一首关于失恋的流行歌曲"，生成完整的歌曲（包括人声、伴奏、歌词）</li>
+<li><strong>生成速度快</strong>：生成一首 2 分钟的歌曲只需要 10-20 秒</li>
+<li><strong>质量惊人</strong>：生成的歌曲听起来像"真正的专业制作"</li>
+<li><strong>易于使用</strong>：网页界面，无需技术背景</li>
+</ul>
+
+<p>Suno 的技术栈（推测）：</p>
+<ul>
+<li><strong>音频 Tokenizer</strong>：可能基于 EnCodec 或 DAC</li>
+<li><strong>生成模型</strong>：可能是 Transformer 或扩散模型</li>
+<li><strong>人声合成</strong>：可能结合了 TTS（文本到语音）技术</li>
+<li><strong>后处理</strong>：可能有专门的后处理模块提高音质</li>
+</ul>
+
+<p>Suno 的成功在于：它将复杂的音乐生成技术<strong>包装成简单易用的产品</strong>。用户不需要懂技术，只需要输入一段文字，就能得到一首完整的歌曲。</p>
+
+<h3>Udio：Suno 的强劲对手</h3>
+
+<p>2024 年初，另一家初创公司 <strong>Udio</strong> 发布了他们的产品。核心特点：</p>
+
+<ul>
+<li><strong>更高的音质</strong>：采样率更高，高频更清晰</li>
+<li><strong>更好的长时结构</strong>：生成的歌曲更有"结构感"（有主歌、副歌、桥段）</li>
+<li><strong>更多的控制</strong>：可以指定风格、乐器、情绪等</li>
+<li><strong>生成速度快</strong>：与 Suno 相当</li>
+</ul>
+
+<p>Udio 的技术栈（推测）：</p>
+<ul>
+<li><strong>音频 Tokenizer</strong>：可能基于 DAC 或自研的 tokenizer</li>
+<li><strong>生成模型</strong>：可能是 Transformer 或扩散模型</li>
+<li><strong>长时建模</strong>：可能有专门的模块建模长程结构</li>
+</ul>
+
+<h3>产品对比</h3>
+
+<table>
+<tr><th>产品</th><th>公司</th><th>发布时间</th><th>核心技术</th><th>优势</th><th>局限</th></tr>
+<tr><td><strong>Suno</strong></td><td>Suno AI</td><td>2023</td><td>Transformer/扩散</td><td>易用、快速、完整歌曲</td><td>音质有限、可控性差</td></tr>
+<tr><td><strong>Udio</strong></td><td>Udio</td><td>2024</td><td>Transformer/扩散</td><td>音质高、结构好</td><td>生成速度慢、价格高</td></tr>
+<tr><td><strong>Stable Audio</strong></td><td>Stability AI</td><td>2023</td><td>扩散模型</td><td>开源、可商用</td><td>音质有限、长时结构差</td></tr>
+<tr><td><strong>MusicFX</strong></td><td>Google</td><td>2024</td><td>MusicLM</td><td>质量高、多模态</td><td>闭源、无法商用</td></tr>
+<tr><td><strong>MusicGen</strong></td><td>Meta</td><td>2023</td><td>Transformer</td><td>开源、可控性好</td><td>音质有限、无人声</td></tr>
+</table>
+
+<h3>技术深潜：这些产品是如何工作的？</h3>
+
+<p>虽然这些产品的具体技术细节没有公开，但我们可以推测它们的技术栈：</p>
+
+<p><strong>音频表示</strong>：</p>
+<ul>
+<li><strong>MIDI</strong>：符号表示，可控性好，但音质差</li>
+<li><strong>波形</strong>：直接表示，音质好，但序列太长</li>
+<li><strong>梅尔频谱</strong>：中间表示，平衡了音质和序列长度</li>
+<li><strong>音频 Token</strong>：离散表示，可以复用 LLM 技术</li>
+</ul>
+
+<p><strong>生成模型</strong>：</p>
+<ul>
+<li><strong>Transformer</strong>：自回归生成，长程依赖好，但生成速度慢</li>
+<li><strong>扩散模型</strong>：生成质量高，多样性好，但需要多步去噪</li>
+<li><strong>混合方法</strong>：先用 Transformer 生成粗糙结构，再用扩散模型细化</li>
+</ul>
+
+<p><strong>条件控制</strong>：</p>
+<ul>
+<li><strong>文本</strong>：最自然，但可控性差</li>
+<li><strong>音频</strong>：可以用一段音频作为条件，生成风格相似的新音频</li>
+<li><strong>MIDI</strong>：可以精确控制音符、节奏、和声</li>
+<li><strong>多模态</strong>：可以结合文本、图像、音频等多种条件</li>
+</ul>
+
+<hr>
+
+<h2>第八章：技术深潜——音频表示与编解码器</h2>
+
+<h3>音频表示的选择</h3>
+
+<p>音乐生成模型需要选择一种<strong>音频表示</strong>。不同的表示有不同的优缺点：</p>
+
+<table>
+<tr><th>表示</th><th>优点</th><th>缺点</th><th>适用场景</th></tr>
+<tr><td><strong>MIDI</strong></td><td>可控性好、序列短</td><td>音质差、需要合成器</td><td>符号级控制</td></tr>
+<tr><td><strong>波形</strong></td><td>音质好、直接</td><td>序列太长、难以建模</td><td>高质量生成</td></tr>
+<tr><td><strong>梅尔频谱</strong></td><td>平衡音质和长度</td><td>需要 vocoder</td><td>扩散模型</td></tr>
+<tr><td><strong>音频 Token</strong></td><td>序列短、可复用 LLM</td><td>需要 tokenizer</td><td>Transformer</td></tr>
+</table>
+
+<h3>音频编解码器的演进</h3>
+
+<p>音频编解码器（Audio Codec）是音乐生成的核心组件。它的任务是将音频压缩为紧凑的表示，再从表示解码为音频。</p>
+
+<p><strong>演进历程</strong>：</p>
+
+<ol>
+<li><strong>传统编解码器</strong>（MP3, AAC）：
+<ul>
+<li>基于信号处理，压缩率高，但不可微</li>
+<li>无法用于端到端训练</li>
+</ul>
+</li>
+
+<li><strong>Neural Codec</strong>（2019-2021）：
+<ul>
+<li><strong>WaveNet</strong>（2016）：用自回归模型直接建模波形</li>
+<li><strong>WaveRNN</strong>（2018）：改进的 vocoder</li>
+<li><strong>HiFi-GAN</strong>（2020）：用 GAN 训练 vocoder，音质大幅提升</li>
+</ul>
+</li>
+
+<li><strong>Neural Audio Tokenizer</strong>（2022-2024）：
+<ul>
+<li><strong>EnCodec</strong>（2022）：Meta 的神经编解码器，75 tokens/s</li>
+<li><strong>SoundStream</strong>（2021）：Google 的神经编解码器</li>
+<li><strong>DAC</strong>（2023）：Descript 的改进版，音质更高</li>
+<li><strong>SNAC</strong>（2024）：多尺度神经编解码器</li>
+</ul>
+</li>
+</ol>
+
+<p><strong>关键指标</strong>：</p>
+<ul>
+<li><strong>压缩率</strong>：每秒音频需要多少 token</li>
+<li><strong>重建质量</strong>：解码后的音频质量（PESQ, STFT 损失等）</li>
+<li><strong>延迟</strong>：编码/解码的延迟</li>
+<li><strong>可微性</strong>：是否可以端到端训练</li>
+</ul>
+
+<hr>
+
+<h2>第九章：挑战与未来</h2>
+
+<h3>当前的挑战</h3>
+
+<p><strong>长时结构</strong>：</p>
+<ul>
+<li>当前的模型生成的音乐缺乏长程结构</li>
+<li>不知道"这是主歌"或"这是副歌"</li>
+<li>生成的音乐听起来"随机"，缺乏"叙事感"</li>
+</ul>
+
+<p><strong>可控性</strong>：</p>
+<ul>
+<li>无法精确控制"在第 30 秒加入鼓点"</li>
+<li>无法精确控制"用 C 大调"</li>
+<li>无法精确控制"节奏是 120 BPM"</li>
+</ul>
+
+<p><strong>音质</strong>：</p>
+<ul>
+<li>生成的音频高频不够清晰</li>
+<li>人声合成不够自然</li>
+<li>多轨混音不够平衡</li>
+</ul>
+
+<p><strong>评估</strong>：</p>
+<ul>
+<li>缺乏统一的评估标准</li>
+<li>自动化指标（FAD, KLD）与人类感知不一致</li>
+<li>需要更好的评估方法</li>
+</ul>
+
+<h3>未来的方向</h3>
+
+<p><strong>长时建模</strong>：</p>
+<ul>
+<li>引入<strong>层次化结构</strong>：先生成曲式结构，再生成细节</li>
+<li>引入<strong>记忆机制</strong>：让模型"记住"之前的部分</li>
+<li>引入<strong>规划能力</strong>：让模型"规划"整首曲子</li>
+</ul>
+
+<p><strong>可控生成</strong>：</p>
+<ul>
+<li><strong>多模态条件</strong>：结合文本、图像、MIDI、音频等多种条件</li>
+<li><strong>细粒度控制</strong>：可以精确控制每个乐器、每个音符</li>
+<li><strong>交互式生成</strong>：用户可以实时调整生成结果</li>
+</ul>
+
+<p><strong>多轨生成</strong>：</p>
+<ul>
+<li>同时生成多个音轨（人声、钢琴、鼓、贝斯等）</li>
+<li>自动混音和母带处理</li>
+<li>支持不同风格和流派</li>
+</ul>
+
+<p><strong>个性化</strong>：</p>
+<ul>
+<li>学习用户的偏好</li>
+<li>生成符合用户口味的音乐</li>
+<li>支持用户自定义音色和风格</li>
+</ul>
+
+<p><strong>实时生成</strong>：</p>
+<ul>
+<li>生成速度达到实时</li>
+<li>支持现场表演和即兴创作</li>
+<li>支持交互式音乐游戏</li>
+</ul>
+
+<hr>
+
+<h2>尾声：音乐的未来</h2>
+
+<p>从 1957 年的 Illiac Suite 到 2024 年的 Suno，音乐生成技术经历了近 70 年的演进。从规则系统到深度学习，从 MIDI 到波形，从实验室到产品——每一步都在向"让机器学会作曲"这个目标迈进。</p>
+
+<p>但"作曲"真的是一个技术问题吗？</p>
+
+<p>当我们听一首歌时，我们不仅在听音符和节奏，我们还在听<strong>情感</strong>、<strong>故事</strong>、<strong>意义</strong>。一首歌之所以打动我们，不是因为它"技术上正确"，而是因为它"触动了我们"。</p>
+
+<p>机器可以学会生成"技术上完美"的音乐，但它能学会"触动人心"吗？</p>
+
+<p>也许，真正的挑战不是"让机器学会作曲"，而是"让机器学会理解音乐的意义"。</p>
+
+<p>但这是另一个故事了。</p>
+
+<hr>
+
+<h2>参考文献</h2>
+
+<ol>
+<li>Hiller, L. A. (1957). <em>The Computer as a Tool for the Composer</em>.</li>
+<li>Huang, C. Z. A., et al. (2018). <em>Music Transformer: Generating Music with Long-Term Structure</em>. ICLR.</li>
+<li>Dhariwal, P., et al. (2020). <em>Jukebox: A Generative Model for Music</em>. OpenAI.</li>
+<li>Défosez, A., et al. (2022). <em>High Fidelity Neural Audio Compression</em>. Meta AI.</li>
+<li>Agostinelli, A., et al. (2023). <em>MusicLM: Generating Music From Text</em>. Google.</li>
+<li>Copet, J., et al. (2023). <em>Simple and Controllable Music Generation</em>. Meta AI.</li>
+<li>Liu, H., et al. (2023). <em>AudioLDM: Text-to-Audio Generation with Latent Diffusion Models</em>.</li>
+<li>Stability AI. (2023). <em>Stable Audio: High-Quality Audio Generation</em>.</li>
+<li>Kumar, K., et al. (2023). <em>Descript Audio Codec: High-Quality Neural Audio Compression</em>.</li>
+<li>Wang, C., et al. (2024). <em>SNAC: Multi-Scale Neural Audio Codec</em>.</li>
+</ol>
+
+<p style="text-align:center; color:#aaa; font-size:13px; margin-top:60px;">
+  本文撰写于 2026 年 7 月，反映截至当时的技术状态。<br>
+  音乐生成领域进展迅速，建议结合最新论文和产品持续跟踪。
+</p>
+
+</div>
+</body>
+</html>
