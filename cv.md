@@ -40,7 +40,7 @@
 %----------------------------------------------------------------------------------------
 
 \begin{rSection}{Professional Summary}
-PhD in Computer Science with 5+ years of research and engineering experience in 3D vision, camera control, and deep learning. Proven track record of publishing at top-tier venues (SIGGRAPH, SIGGRAPH Asia, Eurographics) and translating research into production-ready systems. Currently focused on video generation and 3D reconstruction for digital human and object synthesis at Huawei. Seeking senior researcher / staff engineer roles in 3D vision, video generation, or character animation.
+PhD in Computer Science with 5+ years of research and engineering experience in 3D vision, camera control, and deep learning. Proven track record of publishing at top-tier venues (SIGGRAPH, SIGGRAPH Asia, Eurographics) and translating research into production-ready systems. Award-winning programmer with top placements in national/international informatics competitions. Currently focused on video generation and 3D reconstruction for digital human and object synthesis at Huawei. Seeking senior researcher / staff engineer roles in 3D vision, video generation, or character animation.
 \end{rSection}
 
 %----------------------------------------------------------------------------------------
