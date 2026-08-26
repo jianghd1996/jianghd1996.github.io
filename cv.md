@@ -53,13 +53,9 @@ PhD in Computer Science with 5+ years of research and engineering experience in 
 
 {\bf PhD in Computer Science, \emph{Peking University}} \hfill {\em 2019.7-2024.7} 
 \\ Supervisor: Prof. \href{https://baoquanchen.info/}{\LINK{Baoquan Chen}}
-\\ Major: Computer Application Technology
-\\ Thesis: \textit{Research on Intelligent Camera Movement Based on Multimodal Control}
 
 {\bf BS in Computer Science, \emph{Peking University}} \hfill {\em 2015.7-2019.7} 
 \\ Supervisor: Prof. \href{https://baoquanchen.info/}{\LINK{Baoquan Chen}}, Prof. \href{https://scholar.google.com/citations?user=-OcSne0AAAAJ&hl=zh-CN}{\LINK{Jiaying Liu}}
-\\ Major: Computer Science
-\\ Thesis: \textit{Research on Camera Trajectory Planning Based on Toric Space}
 
 \end{rSection}
 
