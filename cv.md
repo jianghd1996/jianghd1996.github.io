@@ -83,12 +83,6 @@ PhD in Computer Science with 5+ years of research and engineering experience in 
 \\ Topics: Learning-based virtual camera control
 \\ Content: Developed machine learning approaches for automatic virtual camera motion generation in 3D animation, collaborating with researchers from Peking University, IRISA, and Peking University.
 
-{\bf Teaching Assistant}  \hfill {\em 2019-2020} 
-\\ Course: Frontier Computing Practices (Fall 2019, Spring 2020)
-
-{\bf Teaching Assistant}  \hfill {\em 2018-2019} 
-\\ Course: \href{https://computergive.github.io/2018-fall/index.html}{\LINK{Computer Generated Imagery and Visual Effects}} (Fall 2018)
-
 \end{rSection}
 
 %----------------------------------------------------------------------------------------
