@@ -42,7 +42,7 @@ Location: Hangzhou, China
 \end{rSection}
 
 \begin{rSection}{Professional Summary}
-PhD in Computer Science with 5+ years of research and engineering experience in 3D vision, camera control, and deep learning. Proven track record of publishing at top-tier venues (SIGGRAPH, SIGGRAPH Asia, Eurographics) and translating research into production-ready systems. Currently focused on sparse-view 3D reconstruction and generative video models for digital human and object reconstruction at Huawei. Seeking senior researcher / staff engineer roles in 3D vision, neural rendering, or character animation.
+PhD in Computer Science with 5+ years of research and engineering experience in 3D vision, camera control, and deep learning. Proven track record of publishing at top-tier venues (SIGGRAPH, SIGGRAPH Asia, Eurographics) and translating research into production-ready systems. Currently focused on video generation and 3D reconstruction for digital human and object synthesis at Huawei. Seeking senior researcher / staff engineer roles in 3D vision, video generation, or character animation.
 \end{rSection}
 
 %----------------------------------------------------------------------------------------
