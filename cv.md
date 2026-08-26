@@ -89,14 +89,6 @@ PhD in Computer Science with 5+ years of research and engineering experience in 
 %----------------------------------------------------------------------------------------
 
 \begin{rSection}{Awards \& Honors}
-{\bf Research} \\
-Award for Contribution in Student Organizations, Peking University (Ubiquant Scholarship) 2023 \\
-Award for Scientific Research, Peking University (Schlumberger Limited Scholarship) 2022 \\
-Award for Scientific Research, Peking University (Third Class Scholarship) 2020 \\
-Computing Star of EECS, Peking University 2020 \\
-Excellent Project Award, Peking University Undergraduate President Fund 2018
-
-{\bf Programming} \\
 First Place, 16th Computer Programming Contest of Peking University 2017 \\
 Second Prize, 15th Computer Programming Contest of Peking University 2016 \\
 Silver Award, ACM CCPC Hangzhou 2016 \\
