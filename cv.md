@@ -38,7 +38,7 @@
 \begin{rSection}{Contact Information}
 Email: \href{mailto:hongda.jiang@pku.edu.cn}{\LINK{hongda.jiang@pku.edu.cn}} \hfill \href{https://jianghd1996.github.io/}{\LINK{Bio Page}} \\
 Phone: +86 18811319676 \\
-Location: Hangzhou, China
+Location: Beijing, China
 \end{rSection}
 
 \begin{rSection}{Professional Summary}
