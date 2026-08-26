@@ -63,25 +63,14 @@ PhD in Computer Science with 5+ years of research and engineering experience in 
 
 \begin{rSection}{Professional Experience}
 
-{\bf Senior Engineer, \emph{Huawei Technologies Co., Ltd. Hangzhou, China}} \hfill {\em 2025.8-present} 
-\\ Topics: Sparse-view 3D Reconstruction, Generative Video Models
+{\bf Senior Engineer, \emph{Huawei Technologies Co., Ltd. Beijing, China}} \hfill {\em 2024.7-present} 
+\\ Topics: 3D Reconstruction, Video Generation, Character Animation, Camera Control
 \\ Content: 
 \begin{itemize}
-\item Developed deep learning algorithms for 3D reconstruction from sparse-view inputs, improving reconstruction fidelity by leveraging generative video models to synthesize dense observations from limited geometry.
-\item Adapted diffusion-based video generation frameworks to produce temporally consistent dense views, enabling high-fidelity reconstruction of objects and digital humans in production pipelines.
+\item Developed deep learning algorithms for sparse-view 3D reconstruction, leveraging generative video models to synthesize dense observations from limited geometry for high-fidelity digital human and object reconstruction.
+\item Researched character animation driven by video models and pose guidance, integrating controllable camera motion to enhance video aesthetics and cinematic effects in production pipelines.
+\item Streamlined production workflows by bridging generative video models with traditional animation and reconstruction pipelines.
 \end{itemize}
-
-{\bf Senior Engineer, \emph{Huawei Technologies Co., Ltd. Beijing, China}} \hfill {\em 2024.7-2025.8}
-\\ Topics: Character Animation, Camera Control, Video Models
-\\ Content:
-\begin{itemize}
-\item Researched character animation driven by video models and pose guidance, integrating controllable camera motion to enhance video aesthetics and cinematic effects.
-\item Streamlined production pipelines for high-quality character assets by bridging generative video models with traditional animation workflows.
-\end{itemize}
-
-{\bf Research Internship, \emph{Beijing Film Academy}}, \emph{\href{https://fve.bfa.edu.cn/}{AICFVE}} Lab \hfill {\em 2019-2021} 
-\\ Topics: Learning-based virtual camera control
-\\ Content: Developed machine learning approaches for automatic virtual camera motion generation in 3D animation, collaborating with researchers from Peking University, IRISA, and Peking University.
 
 \end{rSection}
 
