@@ -31,15 +31,13 @@
 
 \begin{document}
 
+\centerline{Email: \href{mailto:hongda.jiang@pku.edu.cn}{\LINK{hongda.jiang@pku.edu.cn}} \quad Phone: +86 18811319676 \quad Location: Beijing, China}
+
+\smallskip
+
 %----------------------------------------------------------------------------------------
 %	CONTACT & SUMMARY
 %----------------------------------------------------------------------------------------
-
-\begin{rSection}{Contact Information}
-Email: \href{mailto:hongda.jiang@pku.edu.cn}{\LINK{hongda.jiang@pku.edu.cn}} \hfill \href{https://jianghd1996.github.io/}{\LINK{Bio Page}} \\
-Phone: +86 18811319676 \\
-Location: Beijing, China
-\end{rSection}
 
 \begin{rSection}{Professional Summary}
 PhD in Computer Science with 5+ years of research and engineering experience in 3D vision, camera control, and deep learning. Proven track record of publishing at top-tier venues (SIGGRAPH, SIGGRAPH Asia, Eurographics) and translating research into production-ready systems. Currently focused on video generation and 3D reconstruction for digital human and object synthesis at Huawei. Seeking senior researcher / staff engineer roles in 3D vision, video generation, or character animation.
