@@ -60,19 +60,6 @@ PhD in Computer Science with 5+ years of research and engineering experience in 
 \end{rSection}
 
 %----------------------------------------------------------------------------------------
-%	TECHNICAL SKILLS
-%----------------------------------------------------------------------------------------
-
-\begin{rSection}{Technical Skills}
-\begin{itemize}
-\item \textbf{Programming:} Python, C++, CUDA, MATLAB, LaTeX
-\item \textbf{Frameworks \& Libraries:} PyTorch, TensorFlow, OpenCV, OpenGL, Blender, Unity
-\item \textbf{Research Areas:} 3D Vision, Neural Rendering, Camera Control, Computational Cinematography, Character Animation, Generative Video Models, Diffusion Models, Multi-modal Learning
-\item \textbf{Tools \& Platforms:} Git, Docker, Linux, AWS, CI/CD, HPC clusters
-\end{itemize}
-\end{rSection}
-
-%----------------------------------------------------------------------------------------
 %	WORK EXPERIENCE SECTION
 %----------------------------------------------------------------------------------------
 
