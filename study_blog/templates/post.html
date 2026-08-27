@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文章 · 可在线编辑</title>
+  <link rel="stylesheet" href="{{ base_path }}/static/styles.css">
+  <link rel="stylesheet" href="{{ base_path }}/static/vendor/github.min.css">
+</head>
+<body class="post-page">
+  <header class="post-bar">
+    <a class="back" href="{{ base_path }}/">← 返回</a>
+    <span class="spacer"></span>
+    <span id="save-status" class="save-status"></span>
+    <button id="edit-btn" class="btn hidden">✎ 编辑</button>
+    <button id="done-btn" class="btn primary hidden">完成</button>
+  </header>
+
+  <main class="post-main">
+    <article id="view" class="article markdown-body"></article>
+
+    <section id="editor" class="editor hidden">
+      <div class="editor-pane">
+        <textarea id="md" spellcheck="false" placeholder="在此用 Markdown 写作，自动实时保存…"></textarea>
+      </div>
+      <div class="editor-pane preview-pane">
+        <div id="preview" class="markdown-body"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="{{ base_path }}/static/vendor/marked.min.js"></script>
+  <script src="{{ base_path }}/static/vendor/purify.min.js"></script>
+  <script src="{{ base_path }}/static/vendor/highlight.min.js"></script>
+  <script>window.BASE_PATH = "{{ base_path }}"; window.EDIT_PROTECTED = {{ "true" if edit_protected else "false" }}; window.POST_SLUG = "{{ slug }}";</script>
+  <script src="{{ base_path }}/static/util.js"></script>
+  <script src="{{ base_path }}/static/post.js"></script>
+</body>
+</html>

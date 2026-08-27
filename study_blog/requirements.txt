@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pyyaml
+python-multipart
+jinja2
+beautifulsoup4
+markdownify
+lxml

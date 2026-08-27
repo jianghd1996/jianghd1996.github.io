@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 调研小说集 · 可在线编辑</title>
+  <link rel="stylesheet" href="{{ base_path }}/static/styles.css">
+  <link rel="stylesheet" href="{{ base_path }}/static/vendor/github.min.css">
+</head>
+<body class="index-page">
+  <header class="site-header">
+    <h1>AI 调研小说集</h1>
+    <p class="lede">用 AI 写的领域调研，以小说的形式呈现。每篇都可在线编辑、实时保存。</p>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="搜索标题 / 标签 / 摘要…" autocomplete="off">
+      <button id="new-btn" class="btn primary hidden">+ 新建文章</button>
+    </div>
+  </header>
+
+  <main>
+    <ul id="post-list" class="post-list"></ul>
+    <p id="empty" class="empty hidden">没有匹配的文章。</p>
+  </main>
+
+  <footer class="site-footer">
+    <span id="count"></span> · 由可在线编辑的知识库驱动
+  </footer>
+
+  <script src="{{ base_path }}/static/vendor/marked.min.js"></script>
+  <script src="{{ base_path }}/static/vendor/purify.min.js"></script>
+  <script src="{{ base_path }}/static/vendor/highlight.min.js"></script>
+  <script>window.BASE_PATH = "{{ base_path }}"; window.EDIT_PROTECTED = {{ "true" if edit_protected else "false" }};</script>
+  <script src="{{ base_path }}/static/util.js"></script>
+  <script src="{{ base_path }}/static/index.js"></script>
+</body>
+</html>
