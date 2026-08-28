@@ -5,6 +5,7 @@ const mdEl = document.getElementById("md");
 const previewEl = document.getElementById("preview");
 const editBtn = document.getElementById("edit-btn");
 const doneBtn = document.getElementById("done-btn");
+const keyBtn = document.getElementById("key-btn");
 const saveStatus = document.getElementById("save-status");
 
 let content = "";
@@ -19,6 +20,7 @@ async function load() {
   document.title = post.title + " · 可在线编辑";
   renderView(content);
   editBtn.classList.remove("hidden");
+  if (window.EDIT_PROTECTED) keyBtn.classList.remove("hidden");
   if (new URLSearchParams(location.search).get("edit") === "1") startEdit();
   connectWS();
 }
@@ -32,13 +34,13 @@ function setStatus(state, text) {
 }
 
 async function startEdit() {
-  try { await ensureEditKey(); } catch (e) { return; }
   mdEl.value = content;
   renderPreview(content);
   viewEl.classList.add("hidden");
   editorEl.classList.remove("hidden");
   editBtn.classList.add("hidden");
   doneBtn.classList.remove("hidden");
+  document.body.classList.add("editing");
   mdEl.focus();
 }
 
@@ -47,6 +49,7 @@ function stopEdit() {
   viewEl.classList.remove("hidden");
   editBtn.classList.remove("hidden");
   doneBtn.classList.add("hidden");
+  document.body.classList.remove("editing");
   setStatus("", "");
   dirty = false;
 }
@@ -71,13 +74,22 @@ async function save() {
     setStatus("saved", "已保存 " + new Date().toLocaleTimeString());
     renderPreview(content);
   } catch (e) {
-    setStatus("saving", "保存失败，重试中…");
-    if (e.message === "need-key") { try { await ensureEditKey(); } catch (_) {} }
-    saveTimer = setTimeout(save, 1500);
+    if (e.message === "need-key") {
+      setStatus("saving", "需编辑密码才能保存（点 🔑）");
+      keyBtn.classList.remove("hidden");
+    } else {
+      setStatus("saving", "保存失败，重试中…");
+      saveTimer = setTimeout(save, 1500);
+    }
   }
 }
 
 mdEl.addEventListener("input", () => { renderPreview(mdEl.value); scheduleSave(); });
+mdEl.addEventListener("scroll", () => {
+  const denom = (mdEl.scrollHeight - mdEl.clientHeight) || 1;
+  const ratio = mdEl.scrollTop / denom;
+  previewEl.scrollTop = ratio * (previewEl.scrollHeight - previewEl.clientHeight);
+});
 
 document.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -91,6 +103,14 @@ editBtn.addEventListener("click", startEdit);
 doneBtn.addEventListener("click", () => {
   clearTimeout(saveTimer);
   if (dirty) save().then(stopEdit); else stopEdit();
+});
+
+keyBtn.addEventListener("click", async () => {
+  try {
+    await ensureEditKey();
+    keyBtn.textContent = "🔑 已设密码";
+    if (dirty) save(); else setStatus("saved", "已设置编辑密码");
+  } catch (e) { /* 用户取消，继续本地编辑，不强制 */ }
 });
 
 function connectWS() {
