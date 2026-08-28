@@ -92,8 +92,12 @@ def save_post(slug: str, data: dict, create: bool = False):
 
 
 def slugify(title: str) -> str:
-    s = re.sub(r"[^a-zA-Z0-9_\-一-鿿]+", "-", title).strip("-")
-    return s or f"post-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    # 仅保留 ASCII 字母/数字/下划线/连字符，其余（含中文）转为 "-"
+    s = re.sub(r"[^a-zA-Z0-9_\-]+", "-", title or "")
+    s = re.sub(r"-+", "-", s).strip("-").lower()
+    if not s:
+        s = "post-" + datetime.now().strftime("%Y%m%d%H%M%S")
+    return s
 
 
 class Hub:
