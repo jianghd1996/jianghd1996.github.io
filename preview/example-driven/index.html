@@ -264,7 +264,7 @@
     drawCamera(travelled.x, travelled.y, angle, target ? .88 : .82, target);
     // A small composition frame appears only on the transferred side.
     if (target) {
-      const fx = x + 103, fy = y + 66, fw = 116, fh = 78;
+      const fx = x + 103, fy = y + 112, fw = 116, fh = 94;
       ctx.save();
       ctx.strokeStyle = 'rgba(215,124,53,.85)'; ctx.lineWidth = 1.5;
       ctx.setLineDash([3, 3]); ctx.strokeRect(fx, fy, fw, fh); ctx.setLineDash([]);
