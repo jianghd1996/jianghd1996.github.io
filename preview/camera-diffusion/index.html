@@ -18,7 +18,7 @@ h1{margin:0;font-size:clamp(21px,3vw,30px);letter-spacing:-.035em;line-height:1.
 .controls{padding:13px 17px 15px;border-top:1px solid #edf1f6;display:grid;gap:11px}
 .prompt-row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end}
 .prompt-area label{display:block;color:#8997a8;font-size:10px;font-weight:750;letter-spacing:.1em;margin:0 0 6px}
-textarea{display:block;width:100%;min-height:54px;resize:vertical;border:1px solid #dce4ed;border-radius:10px;padding:10px 12px;color:#344b63;background:#fbfcfe;font:500 12px/1.5 inherit;outline:none}
+textarea{display:block;width:100%;min-height:54px;resize:vertical;border:1px solid #dce4ed;border-radius:10px;padding:10px 12px;color:#344b63;background:#fbfcfe;font-family:inherit;font-size:12px;font-weight:500;line-height:1.5;outline:none}
 textarea:focus{border-color:#e7b184;box-shadow:0 0 0 3px #ed91441c}
 button{appearance:none;border:1px solid #dce4ed;border-radius:999px;padding:7px 11px;color:#52677e;background:#fff;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
 button:hover{border-color:#b9c9da;background:#f8fafc}button.active{border-color:#edc39e;color:#a85e25;background:#fff3e8}button.primary{border-color:#ed9144;background:#fff0e2;color:#a85e25;padding:10px 15px}
@@ -68,7 +68,48 @@ ctx.beginPath();for(let i=0;i<=70;i++){let q=point(i/70);if(!i)ctx.moveTo(q.x,q.
 const cam=point(progress),ang=Math.atan2(subject.y-cam.y,subject.x-cam.x),len=82,spread=.31,p1={x:cam.x+Math.cos(ang-spread)*len,y:cam.y+Math.sin(ang-spread)*len},p2={x:cam.x+Math.cos(ang+spread)*len,y:cam.y+Math.sin(ang+spread)*len};ctx.beginPath();ctx.moveTo(cam.x,cam.y);ctx.lineTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.closePath();ctx.fillStyle='#ed914418';ctx.fill();ctx.strokeStyle='#d77c3577';ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);camera(cam.x,cam.y,subject.x,subject.y);
 drawShotPreview(cam);
 }
-function drawShotPreview(cam){let x=755,y=84,w=210,h=260;box(x,y,w,h,10,'#fff','#dfe7ef');label('LIVE SHOT PREVIEW',x+14,y+19,8,'#8a99aa',750,'left');let fx=x+12,fy=y+36,fw=w-24,fh=142;box(fx,fy,fw,fh,7,'#f3f7fa','#e2eaf1');line(fx+7,fy+93,fx+fw-7,fy+93,'#d9e3ec');for(let i=0;i<3;i++)line(fx+8,fy+103+i*10,fx+fw-8,fy+103+i*10,'#e8eef4');let dist=Math.hypot(cam.x-subject.x,cam.y-subject.y),scale=clamp(1.4-dist/390,.78,1.2),shift=mode==='orbit'?(cam.x-subject.x)*.12:mode==='track'?(cam.x-subject.x)*.08:0,cx=fx+fw/2+shift;line(fx+fw/3,fy+8,fx+fw/3,fy+fh-8,'#b8c8d866',1,[3,4]);line(fx+2*fw/3,fy+8,fx+2*fw/3,fy+fh-8,'#b8c8d866',1,[3,4]);person(cx-20*scale,fy+118,scale*.88,0);person(cx+22*scale,fy+118,scale*.88,1);label(mode==='push'?'PUSH-IN SHOT':mode==='orbit'?'ORBITING SHOT':'TRACKING SHOT',x+14,y+202,9,'#a85e25',750,'left');label('Camera follows generated path',x+14,y+222,8,'#8292a4',600,'left');box(x+14,y+239,w-28,5,3,'#e8edf3');box(x+14,y+239,(w-28)*progress,5,3,'#ed9144')}
+function drawShotPreview(cam){
+let x=755,y=84,w=210,h=260;
+box(x,y,w,h,10,'#fff','#dfe7ef');
+label('LIVE SHOT PREVIEW',x+14,y+19,8,'#8a99aa',750,'left');
+let fx=x+12,fy=y+36,fw=w-24,fh=142;
+box(fx,fy,fw,fh,7,'#f3f7fa','#e2eaf1');
+// Build the view from the exact camera pose shown in the top-down trajectory.
+// The two characters are projected into the camera's local right/forward axes.
+const target={x:subject.x,y:subject.y+32};
+const dx=target.x-cam.x,dy=target.y-cam.y;
+const dist=Math.max(1,Math.hypot(dx,dy));
+const forward={x:dx/dist,y:dy/dist};
+const right={x:-forward.y,y:forward.x};
+const focal=145;
+const actors=[{x:subject.x-24,y:subject.y+32,v:0},{x:subject.x+27,y:subject.y+32,v:1}];
+const projected=actors.map(actor=>{
+  const rx=actor.x-target.x,ry=actor.y-target.y;
+  const lateral=rx*right.x+ry*right.y;
+  const depthOffset=rx*forward.x+ry*forward.y;
+  const depth=Math.max(35,dist+depthOffset);
+  const scale=clamp(focal/depth,.68,1.48);
+  return {
+    x:fx+fw/2+lateral*focal/depth,
+    y:fy+112-depthOffset*.16*scale,
+    scale,
+    variant:actor.v
+  };
+});
+// Viewfinder grid and horizon.
+line(fx+7,fy+91,fx+fw-7,fy+91,'#d9e3ec');
+for(let i=0;i<3;i++)line(fx+8,fy+101+i*11,fx+fw-8,fy+101+i*11,'#e8eef4');
+line(fx+fw/3,fy+8,fx+fw/3,fy+fh-8,'#b8c8d866',1,[3,4]);
+line(fx+2*fw/3,fy+8,fx+2*fw/3,fy+fh-8,'#b8c8d866',1,[3,4]);
+// A faint center mark indicates the camera's look-at point.
+ctx.beginPath();ctx.arc(fx+fw/2,fy+91,2,0,TAU);ctx.fillStyle='#ed9144';ctx.fill();
+projected.forEach(actor=>person(actor.x,actor.y,actor.scale*.88,actor.variant));
+const shotLabel=mode==='push'?'PUSH-IN SHOT':mode==='orbit'?'ORBITING SHOT':'TRACKING SHOT';
+label(shotLabel,x+14,y+202,9,'#a85e25',750,'left');
+label('Framing from current camera pose',x+14,y+222,8,'#8292a4',600,'left');
+box(x+14,y+239,w-28,5,3,'#e8edf3');
+box(x+14,y+239,(w-28)*progress,5,3,'#ed9144');
+}
 function draw(){ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);drawPromptPanel();drawScene();line(48,392,951,392,'#e7edf3',2);box(48,389,903*progress,6,3,'#ed9144');label(mode==='push'?'forward camera movement':mode==='orbit'?'circular camera movement':'lateral camera movement',500,408,9,'#8a98a9',600)}
 function update(){slider.value=Math.round(progress*1000);readout.textContent='00:'+String(Math.round(progress*59)).padStart(2,'0');playBtn.textContent=playing?'Ⅱ Pause camera':'▶ Play camera';presets.forEach(b=>b.classList.toggle('active',b.dataset.preset===mode))}
 function generate(){mode=modeFromText(currentPrompt());progress=0;playing=true;last=performance.now();update();draw()}
