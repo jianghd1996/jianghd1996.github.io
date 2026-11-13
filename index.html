@@ -27,6 +27,14 @@
     .demo-frame { height: 520px; }
   }
 
+
+  .paper-thumb { width:100%; max-width:180px; margin:0 auto; text-align:center; }
+  .paper-thumb iframe { display:block; width:100%; height:104px; border:1px solid #e1e8f0; border-radius:8px; background:#fff; overflow:hidden; }
+  .paper-thumb a { display:inline-block; margin-top:5px; font-size:11px; white-space:nowrap; }
+  @media screen and (max-width:600px) {
+    .paper-thumb { max-width:160px; }
+    .paper-thumb iframe { height:92px; }
+  }
 </style>\n</head>
 
 <body>
@@ -61,7 +69,10 @@
 
           <tr class="paper">
             <td class="paper-img">
-              <img src="./files/2024text.jpeg">
+              <div class="paper-thumb">
+              <iframe src="./preview/camera-diffusion/?thumb=1" title="Cinematographic Camera Diffusion Model hover preview" loading="lazy" scrolling="no"></iframe>
+              <a href="./preview/camera-diffusion/" target="_blank" rel="noopener">Open interactive demo ↗</a>
+            </div>
             </td>
             <td class="paper-text">
               <papertitle>Cinematographic camera diffusion model</papertitle>
@@ -80,19 +91,14 @@
               </p>
             </td>
           </tr>
-          <tr class="demo-preview-row">
-            <td colspan="2">
-              <details class="interactive-demo">
-                <summary>Try interactive demo <span>Explore the camera-control idea directly on this page</span></summary>
-                <iframe class="demo-frame" src="./preview/camera-diffusion/?embed=1" title="Cinematographic Camera Diffusion Model interactive demo" loading="lazy"></iframe>
-              </details>
-            </td>
-          </tr>
 
 
         <tr class="paper">
           <td class="paper-img">
-            <img src="./files/2021keyframing.jpg">
+            <div class="paper-thumb">
+              <iframe src="./preview/camera-keyframing/?thumb=1" title="Camera Keyframing with Style and Control hover preview" loading="lazy" scrolling="no"></iframe>
+              <a href="./preview/camera-keyframing/" target="_blank" rel="noopener">Open interactive demo ↗</a>
+            </div>
           </td>
           <td class="paper-text">
             <papertitle>Camera Keyframing with Style and Control</papertitle>
@@ -112,18 +118,13 @@
             </p>
           </td>
         </tr>
-          <tr class="demo-preview-row">
-            <td colspan="2">
-              <details class="interactive-demo">
-                <summary>Try interactive demo <span>Explore the camera-control idea directly on this page</span></summary>
-                <iframe class="demo-frame" src="./preview/camera-keyframing/?embed=1" title="Camera Keyframing with Style and Control interactive demo" loading="lazy"></iframe>
-              </details>
-            </td>
-          </tr>
 
         <tr class="paper">
           <td class="paper-img">
-            <img src="./files/2020example.jpg">
+            <div class="paper-thumb">
+              <iframe src="./preview/example-driven/?thumb=1" title="Example-driven Virtual Cinematography hover preview" loading="lazy" scrolling="no"></iframe>
+              <a href="./preview/example-driven/" target="_blank" rel="noopener">Open interactive demo ↗</a>
+            </div>
           </td>
           <td class="paper-text">
             <papertitle>Example-driven Virtual Cinematography by Learning Camera Behaviors</papertitle>
@@ -142,14 +143,6 @@
             </p>
           </td>
         </tr>
-          <tr class="demo-preview-row">
-            <td colspan="2">
-              <details class="interactive-demo">
-                <summary>Try interactive demo <span>Explore the camera-control idea directly on this page</span></summary>
-                <iframe class="demo-frame" src="./preview/example-driven/?embed=1" title="Example-driven Virtual Cinematography interactive demo" loading="lazy"></iframe>
-              </details>
-            </td>
-          </tr>
 
         <tr class="paper">
           <td class="paper-img">
