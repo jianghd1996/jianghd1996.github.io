@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f9fc">
+<title>Cinematographic Camera Diffusion Model — Interactive Demo</title>
+<style>
+:root{color-scheme:light;--ink:#26384c;--muted:#718197;--line:#dbe3ed;--orange:#ed9144}
+*{box-sizing:border-box}body{margin:0;padding:28px 18px 40px;background:#f7f9fc;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.page{width:min(1040px,100%);margin:auto}.intro{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:0 0 16px}
+.eyebrow{margin:0 0 6px;color:#8493a6;font-size:11px;font-weight:750;letter-spacing:.16em;text-transform:uppercase}
+h1{margin:0;font-size:clamp(21px,3vw,30px);letter-spacing:-.035em;line-height:1.15}
+.sub{margin:8px 0 0;max-width:720px;color:var(--muted);font-size:13px;line-height:1.55}
+.tag{border:1px solid #dce5ef;border-radius:999px;padding:7px 11px;color:#63778e;background:#fff;font-size:11px;font-weight:700;white-space:nowrap}
+.toy{overflow:hidden;border:1px solid #dce4ed;border-radius:18px;background:#fff;box-shadow:0 12px 34px #26384c12}
+.top{display:flex;justify-content:space-between;gap:12px;padding:13px 17px;border-bottom:1px solid #edf1f6}.top strong{font-size:12px}.top span{color:#8997a8;font-size:11px}
+.canvas-wrap{padding:8px 10px 0}canvas{display:block;width:100%;height:auto;aspect-ratio:1000/460}
+.controls{padding:12px 17px 15px;border-top:1px solid #edf1f6}.row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}.group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.lab{color:#8997a8;font-size:10px;font-weight:750;letter-spacing:.1em;margin-right:3px}
+button{appearance:none;border:1px solid #dce4ed;border-radius:999px;padding:7px 11px;color:#52677e;background:#fff;font:inherit;font-size:11px;font-weight:700;cursor:pointer}
+button:hover{border-color:#b9c9da;background:#f8fafc}button.active{border-color:#edc39e;color:#a85e25;background:#fff3e8}button.primary{border-color:#ed9144;background:#fff0e2;color:#a85e25}
+.timeline{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;margin-top:13px}.timeline label{color:#8997a8;font-size:10px;font-weight:750;letter-spacing:.1em}
+input[type=range]{width:100%;accent-color:#ed9144;cursor:pointer}.readout{min-width:52px;text-align:right;color:#6f8094;font-size:11px;font-variant-numeric:tabular-nums}
+.note{margin:13px 2px 0;color:#8a97a7;font-size:11px;line-height:1.5}
+@media(max-width:640px){body{padding:18px 10px 28px}.intro{align-items:start}.tag,.top span{display:none}.controls{padding:11px}.row{align-items:flex-start}.timeline{gap:8px}}
+</style></head>
+<body><main class="page">
+<header class="intro"><div><p class="eyebrow">Interactive Research Toy · 03</p><h1>Cinematographic Camera Diffusion Model</h1>
+<p class="sub">A text prompt guides a diffusion model to generate a camera trajectory. Change the prompt or seed, then scrub denoising to see noisy candidates become a coherent camera move.</p></div><div class="tag">DESIGN PREVIEW</div></header>
+<section class="toy" aria-label="Interactive text-conditioned camera trajectory demo">
+<div class="top"><strong>TEXT-CONDITIONED CAMERA TRAJECTORY GENERATION</strong><span>Prompt → Denoising → Generated camera motion</span></div>
+<div class="canvas-wrap"><canvas id="viz" width="1000" height="460" role="img" aria-label="Text prompt, diffusion denoising process, and generated camera path around two characters"></canvas></div>
+<div class="controls"><div class="row">
+<div class="group"><span class="lab">PROMPT</span><button class="prompt active" data-p="push">Slow push-in</button><button class="prompt" data-p="orbit">Orbit around two characters</button><button class="prompt" data-p="dolly">Move left to right</button></div>
+<div class="group"><span class="lab">SEED</span><button class="seed active" data-s="0">Seed A</button><button class="seed" data-s="1">Seed B</button></div>
+<div class="group"><button id="generate" class="primary">Generate ↻</button></div></div>
+<div class="timeline"><label for="denoise">DENOISING</label><input id="denoise" type="range" min="0" max="1000" value="0"><span id="step" class="readout">step 0</span></div></div>
+</section>
+<p class="note">Concept visualization: the center panel illustrates noisy trajectory candidates gradually refined under text conditioning; it is not running the research model in-browser.</p>
+</main>
+<script>
+(()=>{
+const c=document.getElementById('viz'),ctx=c.getContext('2d'),slider=document.getElementById('denoise'),stepLabel=document.getElementById('step');
+const promptBtns=[...document.querySelectorAll('[data-p]')],seedBtns=[...document.querySelectorAll('[data-s]')];
+const W=1000,H=460,TAU=Math.PI*2;let prompt='push',seed=0,p=0,playing=true,last=performance.now();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t;
+const text={push:'“A slow push-in toward two speaking characters”',orbit:'“Orbit around two characters while keeping them framed”',dolly:'“Move the camera from left to right across the scene”'};
+function line(x1,y1,x2,y2,col='#dce4ed',w=1,dash=[]){ctx.beginPath();ctx.setLineDash(dash);ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=col;ctx.lineWidth=w;ctx.stroke();ctx.setLineDash([])}
+function box(x,y,w,h,r,fill,stroke=null){ctx.beginPath();ctx.roundRect(x,y,w,h,r);if(fill){ctx.fillStyle=fill;ctx.fill()}if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1;ctx.stroke()}}
+function label(t,x,y,size=10,col='#64778e',weight=600,align='center'){ctx.fillStyle=col;ctx.font=weight+' '+size+'px Inter,system-ui,sans-serif';ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(t,x,y)}
+function person(x,y,s=1,v=0){ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineCap='round';ctx.beginPath();ctx.ellipse(0,2,11,3,0,0,TAU);ctx.fillStyle='#dce5ee';ctx.fill();line(-4,-17,-6,0,'#52677e',2.5);line(4,-17,6,0,'#52677e',2.5);line(-6,0,-10,1,'#52677e',2);line(6,0,10,1,'#52677e',2);box(-8,-39,16,23,5,v?'#dbe7f1':'#cbdbea','#52677e');ctx.beginPath();ctx.arc(0,-47,7,0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#52677e';ctx.stroke();ctx.beginPath();ctx.arc(0,-49,7,Math.PI,TAU);ctx.fillStyle=v?'#53677d':'#354b62';ctx.fill();ctx.restore()}
+function camera(x,y,tx,ty,active=true){ctx.save();ctx.translate(x,y);ctx.rotate(Math.atan2(ty-y,tx-x));box(-11,-7,21,14,3,active?'#fff0e2':'#f5f9fc',active?'#d77c35':'#7090ae');ctx.beginPath();ctx.moveTo(9,-4);ctx.lineTo(18,-8);ctx.lineTo(18,8);ctx.lineTo(9,4);ctx.closePath();ctx.fillStyle=active?'#fff0e2':'#f5f9fc';ctx.fill();ctx.strokeStyle=active?'#d77c35':'#7090ae';ctx.stroke();line(-1,7,-7,18,'#61778e',1.5);line(-1,7,0,18,'#61778e',1.5);line(-1,7,6,18,'#61778e',1.5);ctx.restore();if(active){ctx.beginPath();ctx.arc(x,y,19,0,TAU);ctx.strokeStyle='#ed914455';ctx.lineWidth=2;ctx.stroke()}}
+function path(t){if(prompt==='push')return{x:mix(seed?775:760,seed?650:660,t),y:mix(292,238,t)};if(prompt==='orbit'){let a=mix(seed?Math.PI*1.08:Math.PI*.95,seed?-.02:Math.PI*.1,t),r=seed?102:88;return{x:755+Math.cos(a)*r,y:250+Math.sin(a)*r*.68}}return{x:mix(642,848,t),y:258+Math.sin(t*Math.PI*1.2)*26+(seed? -3:3)}}
+function noisy(k,t){let b=path(t),a=k*1.7+seed*.8;return{x:b.x+Math.sin(t*TAU*(1.8+k*.25)+a)*(42-k*5),y:b.y+Math.cos(t*TAU*(1.35+k*.2)+a*1.3)*(32-k*4)}}
+function refined(k,t,amount){let n=noisy(k,t),b=path(t);return{x:mix(n.x,b.x,amount),y:mix(n.y,b.y,amount)}}
+function trace(fn,col,width){ctx.beginPath();for(let i=0;i<=60;i++){let q=fn(i/60);if(!i)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y)}ctx.strokeStyle=col;ctx.lineWidth=width;ctx.lineCap='round';ctx.stroke()}
+function drawPrompt(){box(18,46,280,318,15,'#fbfcfe','#e1e8f0');label('TEXT PROMPT',36,66,9,'#8a99aa',750,'left');box(35,82,246,64,10,'#fff','#dfe7ef');label(text[prompt],49,113,12,'#344b63',700,'left');label('CONDITIONING TOKENS',49,169,9,'#8a99aa',750,'left');line(48,183,269,183,'#e6ecf2');let toks=prompt==='push'?['slow','push-in','two characters']:prompt==='orbit'?['orbit','keep framing','two characters']:['left-to-right','lateral move','tracking'];toks.forEach((t,i)=>{box(48+i*72,194,66,20,9,'#eef4f9');label(t,81+i*72,204,8,'#5e7893',700)});box(35,238,246,108,10,'#fff','#dfe7ef');label('STOCHASTIC GENERATION',50,258,9,'#8a99aa',750,'left');label(seed?'Seed B · alternate variation':'Seed A · compact variation',50,281,11,'#344b63',700,'left');label('same prompt, different plausible trajectories',50,302,9,'#7f90a3');trace(t=>{let q=path(t);return{x:50+(q.x-640)/230*180,y:331+(q.y-210)/110*20}},'#ed9144',2.4);label('text embedding',158,355,9,'#b96b2e',700)}
+function drawDiffusion(){box(330,46,300,318,15,'#fbfcfe','#e1e8f0');label('DIFFUSION MODEL',347,66,9,'#8a99aa',750,'left');box(349,82,262,230,10,'#fff','#dfe7ef');label('NOISY CANDIDATES',397,104,8,'#7f90a3',700);label('DENOISING',480,104,8,'#b96b2e',700);label('CAMERA PATH',565,104,8,'#7f90a3',700);[0,1,2].forEach(row=>{let x=370,y=126+row*56;box(x,y,220,44,8,'#f9fbfd','#e8edf3');let a=clamp(p-row*.18,0,1);for(let k=0;k<3;k++)trace(t=>{let q=refined(k,t,a);return{x:x+18+(q.x-640)/240*180,y:y+22+(q.y-250)/95*15+(k-1)*1.5}},k===seed&&a>.75?'#ed9144':'#7897b888',k===seed&&a>.75?2.4:1.5)});for(let i=0;i<12;i++){let a=i/12*TAU+p*2.6,r=18+i%3*6;ctx.beginPath();ctx.arc(480+Math.cos(a)*r,278+Math.sin(a)*r,2.2,0,TAU);ctx.fillStyle='#8fa9c5aa';ctx.fill()}box(445,259,70,36,8,p>.5?'#fff0e2':'#eef4f9');label('Transformer',480,278,9,p>.5?'#a85e25':'#5e7893',750);label('sampling step',349,331,9,'#8a99aa',750,'left');box(349,342,242,5,3,'#e5ebf1');box(349,342,242*p,5,3,'#ed9144')}
+function drawOutput(){box(662,46,320,318,15,'#fbfcfe','#e1e8f0');label('GENERATED SHOT',679,66,9,'#8a99aa',750,'left');let x=679,y=82,w=286;box(x,y,w,230,10,'#fff','#dfe7ef');line(x+10,y+128,x+w-10,y+128,'#d6e1eb');for(let i=0;i<4;i++)line(x+10,y+142+i*18,x+w-10,y+142+i*18,'#e6edf4');box(x+18,y+46,44,82,4,'#eef4f9','#dde6ee');box(x+w-62,y+54,42,74,4,'#eef4f9','#dde6ee');person(x+w/2-30,y+167,1.08,0);person(x+w/2+36,y+167,1.08,1);for(let k=0;k<3;k++)trace(t=>{let q=refined(k,t,p);return q},k===seed?'#7897b866':'#7897b822',2);trace(path,'#ed9144',3.5);let q=path(.72),tx=x+w/2+2,ty=y+115;camera(q.x,q.y,tx,ty);let a=Math.atan2(ty-q.y,tx-q.x),l=78,s=.28,p1={x:q.x+Math.cos(a-s)*l,y:q.y+Math.sin(a-s)*l},p2={x:q.x+Math.cos(a+s)*l,y:q.y+Math.sin(a+s)*l};ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.closePath();ctx.fillStyle='#ed914414';ctx.fill();ctx.strokeStyle='#d77c3566';ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);label(p<.35?'diverse noisy trajectories':p<.75?'paths align with the prompt':'final camera trajectory',x+18,y+252,10,'#b96b2e',700,'left');label('prompt: '+(prompt==='push'?'slow push-in':prompt==='orbit'?'orbit around subjects':'left-to-right move'),x+18,y+274,9,'#7c8da1',600,'left')}
+function draw(){ctx.setTransform(c.width/W,0,0,c.height/H,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);drawPrompt();drawDiffusion();drawOutput();line(48,401,951,401,'#e7edf3',2);box(48,398,903*p,6,3,'#ed9144');label(p<.2?'sample noisy trajectory candidates':p<.5?'inject text conditioning':p<.85?'denoise toward prompt-consistent motion':'obtain final camera path',500,429,10,'#8a98a9')}
+function ui(){promptBtns.forEach(b=>b.classList.toggle('active',b.dataset.p===prompt));seedBtns.forEach(b=>b.classList.toggle('active',Number(b.dataset.s)===seed));slider.value=Math.round(p*1000);stepLabel.textContent='step '+Math.round(p*50)}
+function restart(){p=0;playing=true;last=performance.now();ui();draw()}
+promptBtns.forEach(b=>b.addEventListener('click',()=>{prompt=b.dataset.p;restart()}));seedBtns.forEach(b=>b.addEventListener('click',()=>{seed=Number(b.dataset.s);restart()}));document.getElementById('generate').addEventListener('click',restart);slider.addEventListener('input',()=>{playing=false;p=Number(slider.value)/1000;ui();draw()});
+function resize(){let r=c.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);c.width=Math.round(r.width*d);c.height=Math.round(r.width*H/W*d);draw()}if('ResizeObserver'in window)new ResizeObserver(resize).observe(c);else addEventListener('resize',resize);
+function frame(now){let dt=Math.min((now-last)/1000,.05);last=now;if(playing){p=Math.min(1,p+dt/4.8);if(p>=1)playing=false;ui();draw()}requestAnimationFrame(frame)}resize();ui();requestAnimationFrame(frame);
+})();
+</script></body></html>
