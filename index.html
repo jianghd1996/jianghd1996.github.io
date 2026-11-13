@@ -13,10 +13,22 @@
   <link rel="stylesheet" href="./files/font-awesome.min.css">
 <style>
 
-.paper-thumb{width:100%;max-width:240px;margin:0 auto}
-.paper-preview-canvas{display:block;width:100%;height:auto;aspect-ratio:12/7;border:1px solid #dfe7ef;border-radius:8px;background:#f8fafc;cursor:crosshair;touch-action:pan-y;transition:border-color .18s ease,box-shadow .18s ease}
-.paper-thumb:hover .paper-preview-canvas{border-color:#edb27f;box-shadow:0 3px 12px rgba(38,56,76,.10)}
-@media screen and (max-width:600px){.paper-thumb{max-width:200px}}
+.paper-img { padding: 12px; }
+.paper-thumb { width: 100%; max-width: 280px; margin: 0 auto; }
+.paper-preview-canvas {
+  display: block; width: 100%; height: auto; aspect-ratio: 12 / 7;
+  border: 1px solid #d9e2ec; border-radius: 9px; background: #f8fafc;
+  cursor: grab; touch-action: pan-y;
+  box-shadow: 0 1px 3px rgba(30,50,70,.06);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.paper-preview-canvas:hover {
+  border-color: #c5d4e3; box-shadow: 0 4px 14px rgba(30,50,70,.11);
+}
+.paper-preview-canvas:active { cursor: grabbing; }
+@media screen and (max-width: 600px) {
+  .paper-thumb { max-width: 250px; }
+}
 </style>
 </head>
 
@@ -200,65 +212,314 @@
 
 
 <script>
-(()=> {
-const W=480,H=280,T=2*Math.PI,canvases=document.querySelectorAll('.paper-preview-canvas');
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-function init(el){
- const x=el.getContext('2d'),kind=el.dataset.preview;let hover=false,scrub=false,pointer=0,start=0,raf=0;
- function box(a,b,w,h,r,fill,stroke,lw){x.beginPath();x.roundRect(a,b,w,h,r);if(fill){x.fillStyle=fill;x.fill()}if(stroke){x.strokeStyle=stroke;x.lineWidth=lw||1;x.stroke()}}
- function line(a,b,c,d,col='#dce4ed',w=1,dash=[]){x.beginPath();x.setLineDash(dash);x.moveTo(a,b);x.lineTo(c,d);x.strokeStyle=col;x.lineWidth=w;x.stroke();x.setLineDash([])}
- function text(s,a,b,size=10,col='#64778e',weight=600,align='center'){x.fillStyle=col;x.font=weight+' '+size+'px Inter,system-ui,sans-serif';x.textAlign=align;x.textBaseline='middle';x.fillText(s,a,b)}
- function person(a,b,s=1,v=0){x.save();x.translate(a,b);x.scale(s,s);x.lineCap='round';x.beginPath();x.ellipse(0,1,10,3,0,0,T);x.fillStyle='#d9e3ec';x.fill();line(-4,-15,-6,0,'#52677e',2);line(4,-15,6,0,'#52677e',2);box(-8,-36,16,22,5,v?'#d9e5ef':'#c6d8e8','#52677e',1.2);line(-7,-30,-13,-20,'#52677e',2);line(7,-30,13,-23,'#52677e',2);x.beginPath();x.arc(0,-43,6.5,0,T);x.fillStyle='#fff';x.fill();x.strokeStyle='#52677e';x.stroke();x.beginPath();x.arc(0,-45,6.5,Math.PI,T);x.fillStyle=v?'#687c90':'#344b62';x.fill();x.restore()}
- function camera(a,b,ang,s=1){x.save();x.translate(a,b);x.rotate(ang);x.scale(s,s);box(-8,-5,14,10,2,'#fff0e2','#d77c35',1.4);x.beginPath();x.moveTo(6,-3);x.lineTo(13,-6);x.lineTo(13,6);x.lineTo(6,3);x.closePath();x.fillStyle='#fff0e2';x.fill();x.strokeStyle='#d77c35';x.stroke();line(-1,5,-5,12,'#61778e',1.2);line(-1,5,0,12,'#61778e',1.2);line(-1,5,4,12,'#61778e',1.2);x.restore();x.beginPath();x.arc(a,b,13*s,0,T);x.strokeStyle='#ed914455';x.lineWidth=1.5;x.stroke()}
- function bez(a,b,c,d,t){let u=1-t;return{x:u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x,y:u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y}}
- function tan(a,b,c,d,t){let u=1-t;return{x:3*u*u*(b.x-a.x)+6*u*t*(c.x-b.x)+3*t*t*(d.x-c.x),y:3*u*u*(b.y-a.y)+6*u*t*(c.y-b.y)+3*t*t*(d.y-c.y)}}
- function curve(a,b,c,d,col,w=2,dash=[4,4]){x.beginPath();for(let i=0;i<=60;i++){let q=bez(a,b,c,d,i/60);if(!i)x.moveTo(q.x,q.y);else x.lineTo(q.x,q.y)}x.strokeStyle=col;x.lineWidth=w;x.setLineDash(dash);x.stroke();x.setLineDash([])}
- function base(){x.setTransform(el.width/W,0,0,el.height/H,0,0);x.clearRect(0,0,W,H);x.fillStyle='#f9fbfd';x.fillRect(0,0,W,H)}
- function transfer(p){
-  base();text('CAMERA BEHAVIOR TRANSFER',16,18,9,'#8292a4',750,'left');
-  box(12,34,184,212,9,'#eef4f9','#dce5ed');box(284,34,184,212,9,'#f5f1ec','#e8e0d7');
-  text('SOURCE EXAMPLE',104,50,8,'#71849a',750);text('NEW SCENE',376,50,8,'#71849a',750);
-  line(22,174,186,174,'#d4e0ea');for(let i=0;i<4;i++)line(24,184+i*12,184,184+i*12,'#e3ebf2');
-  box(27,83,31,85,3,'#e1eaf2','#d2dee9');box(150,92,28,76,3,'#e1eaf2','#d2dee9');person(81,174,.88,0);person(125,174,.88,1);
-  line(294,174,458,174,'#dfd8ce');for(let i=0;i<4;i++)line(296,184+i*12,456,184+i*12,'#ece6de');
-  box(300,88,35,80,3,'#ebe5dc','#ded6cb');box(420,80,27,88,3,'#ebe5dc','#ded6cb');person(354,174,.94,1);person(397,174,.78,0);
-  let a={x:27,y:151},b={x:67,y:90},c={x:136,y:93},d={x:177,y:150},e={x:298,y:150},f={x:338,y:91},g={x:407,y:93},h={x:457,y:151};
-  curve(a,b,c,d,'#8ea9c3',2);curve(e,f,g,h,'#ed9144',2.6);
-  let q=bez(a,b,c,d,p),r=bez(e,f,g,h,p),v=tan(a,b,c,d,p),z=tan(e,f,g,h,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.82);camera(r.x,r.y,Math.atan2(z.y,z.x),.9);
-  box(211,104,58,64,10,'#fff','#e1e8f0');text('LEARN',240,121,8,'#7f90a3',750);text('→',240,148,21,'#d77c35',700);line(196,136,210,136,'#aab9c8',1.4);line(270,136,284,136,'#aab9c8',1.4);text('same motion',240,184,7,'#8a98a9');
-  box(14,254,452,3,2,'#e6edf3');box(14,254,452*p,3,2,'#ed9144');text('MOVE POINTER TO TRANSFER THE SHOT',240,268,8,'#a0adbb',700)
- }
- function keyframe(p){
-  base();text('KEYFRAME-CONSTRAINED CAMERA PATH',16,18,9,'#8292a4',750,'left');box(12,34,456,212,9,'#f4f8fb','#dce5ed');
-  line(22,152,458,152,'#d5e0ea');for(let i=0;i<5;i++)line(22,164+i*13,458,164+i*13,'#e6edf3');for(let i=0;i<7;i++)line(240,152,24+i*72,236,'#e8eef4');
-  box(33,76,42,76,3,'#e9f0f6','#dce5ed');box(399,82,47,70,3,'#e9f0f6','#dce5ed');person(251,162,1.04,0);person(289,162,.84,1);
-  let a={x:44,y:206},b={x:113,y:64},c={x:355,y:65},d={x:438,y:205};curve(a,b,c,d,'#8fa9c3',2.4,[5,4]);
-  [{x:a.x,y:a.y},{x:150,y:119},{x:332,y:119},{x:d.x,y:d.y}].forEach((k,i)=>{x.beginPath();x.arc(k.x,k.y,7,0,T);x.fillStyle='#fff';x.fill();x.strokeStyle='#d77c35';x.lineWidth=2;x.stroke();text(String(i+1),k.x,k.y,7,'#a85e25',800)});
-  let q=bez(a,b,c,d,p),v=tan(a,b,c,d,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.92);
-  text('KEYFRAME 1',54,229,7,'#8192a5');text('KEYFRAME 2',150,92,7,'#8192a5');text('KEYFRAME 3',332,92,7,'#8192a5');text('KEYFRAME 4',426,229,7,'#8192a5');
-  box(18,254,444,3,2,'#e6edf3');box(18,254,444*p,3,2,'#ed9144');text('MOVE POINTER TO SCRUB THE CAMERA',240,268,8,'#a0adbb',700)
- }
- function diffusion(p){
-  base();text('TEXT → CAMERA TRAJECTORY',16,18,9,'#8292a4',750,'left');box(12,34,156,212,9,'#f1f6fa','#dce5ed');text('TEXT PROMPT',24,53,8,'#8292a4',750,'left');
-  box(22,66,136,88,7,'#fff','#e0e8ef');text('“Slow cinematic',31,86,10,'#344b63',650,'left');text('push-in toward',31,103,10,'#344b63',650,'left');text('two characters”',31,120,10,'#344b63',650,'left');
-  [['SLOW',23,169,52],['PUSH-IN',81,169,67],['2 SUBJECTS',23,196,90]].forEach(t=>{box(t[1],t[2],t[3],18,8,'#fff0e2');text(t[0],t[1]+t[3]/2,t[2]+9,7,'#a85e25',750)});
-  text('GENERATED PATH',24,229,7,'#8292a4',750,'left');box(182,34,286,212,9,'#f5f8fb','#dce5ed');line(194,166,456,166,'#d7e1ea');
-  for(let i=0;i<4;i++)line(194,178+i*12,456,178+i*12,'#e7edf3');box(202,75,34,91,3,'#eaf1f6','#dce5ed');box(411,82,33,84,3,'#eaf1f6','#dce5ed');
-  let s=.88+p*.22;person(319,166,s,0);person(356,166,s*.9,1);let a={x:205,y:207},b={x:250,y:72},c={x:388,y:79},d={x:431,y:195};curve(a,b,c,d,'#ed9144',2.6,[5,3]);
-  let q=bez(a,b,c,d,p),v=tan(a,b,c,d,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.94);let fw=86+p*54,fh=57+p*35;x.strokeStyle='rgba(215,124,53,.45)';x.lineWidth=1;x.setLineDash([3,3]);x.strokeRect(337-fw/2,120-fh/2,fw,fh);x.setLineDash([]);
-  text('CAMERA MOVE',325,229,7,'#a85e25',750);box(14,254,452,3,2,'#e6edf3');box(14,254,452*p,3,2,'#ed9144');text('MOVE POINTER TO SCRUB THE GENERATED SHOT',240,268,8,'#a0adbb',700)
- }
- function draw(p){x.setTransform(el.width/W,0,0,el.height/H,0,0);if(kind==='transfer')transfer(p);else if(kind==='keyframe')keyframe(p);else diffusion(p)}
- function animate(now){if(!hover)return;let p=scrub?pointer:((now-start)/5200)%1;draw(p);raf=requestAnimationFrame(animate)}
- function resize(){let r=el.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);el.width=Math.max(1,Math.round(r.width*d));el.height=Math.max(1,Math.round(r.width*H/W*d));draw(0)}
- if('ResizeObserver'in window)new ResizeObserver(resize).observe(el);else window.addEventListener('resize',resize);
- el.addEventListener('pointerenter',()=>{hover=true;scrub=false;start=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(animate)});
- el.addEventListener('pointermove',e=>{if(!hover)return;let r=el.getBoundingClientRect();pointer=clamp((e.clientX-r.left)/r.width,0,1);scrub=true;draw(pointer)});
- el.addEventListener('pointerleave',()=>{hover=false;scrub=false;cancelAnimationFrame(raf);draw(0)});
- el.addEventListener('pointerdown',e=>{let r=el.getBoundingClientRect();pointer=clamp((e.clientX-r.left)/r.width,0,1);scrub=true;draw(pointer)});
- resize();
-}
-canvases.forEach(init);
+(() => {
+  const W = 600, H = 350, TAU = Math.PI * 2;
+  const canvases = document.querySelectorAll(".paper-preview-canvas");
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  function init(canvas) {
+    const ctx = canvas.getContext("2d", { alpha: false });
+    const kind = canvas.dataset.preview;
+    let hovering = false, dragging = false, progress = 0, startedAt = 0, raf = 0;
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      const quality = Math.min((window.devicePixelRatio || 1) * 2, 4);
+      const width = Math.max(1, Math.round(rect.width * quality));
+      const height = Math.max(1, Math.round(rect.width * H / W * quality));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+      draw(progress);
+    }
+
+    function rounded(x, y, w, h, r, fill, stroke, lineWidth) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+      if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth || 1; ctx.stroke(); }
+    }
+    function line(x1, y1, x2, y2, color, width, dash) {
+      ctx.beginPath();
+      ctx.setLineDash(dash || []);
+      ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+      ctx.strokeStyle = color || "#dce4ed";
+      ctx.lineWidth = width || 1;
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    function text(value, x, y, size, color, weight, align) {
+      ctx.fillStyle = color || "#344b62";
+      ctx.font = (weight || 700) + " " + size + "px Inter,system-ui,sans-serif";
+      ctx.textAlign = align || "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(value, x, y);
+    }
+    function person(x, y, scale, jacket, skin) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale || 1, scale || 1);
+      ctx.lineCap = "round";
+      ctx.beginPath(); ctx.ellipse(0, 0, 14, 4, 0, 0, TAU);
+      ctx.fillStyle = "rgba(35,55,75,.12)"; ctx.fill();
+      line(-5, -23, -8, 0, "#344b62", 4);
+      line(5, -23, 8, 0, "#344b62", 4);
+      rounded(-12, -63, 24, 39, 7, jacket, "#344b62", 1.8);
+      line(-10, -53, -20, -34, "#344b62", 3.5);
+      line(10, -53, 20, -37, "#344b62", 3.5);
+      ctx.beginPath(); ctx.arc(0, -76, 11, 0, TAU);
+      ctx.fillStyle = skin || "#e9c5a4"; ctx.fill();
+      ctx.strokeStyle = "#344b62"; ctx.lineWidth = 1.8; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -79, 11, Math.PI, TAU);
+      ctx.fillStyle = "#344b62"; ctx.fill();
+      ctx.restore();
+    }
+    function camera(x, y, angle, color, scale) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle || 0);
+      ctx.scale(scale || 1, scale || 1);
+      rounded(-13, -9, 23, 18, 4, "#ffffff", color, 2.5);
+      ctx.beginPath();
+      ctx.moveTo(10, -5); ctx.lineTo(23, -11); ctx.lineTo(23, 11); ctx.lineTo(10, 5);
+      ctx.closePath(); ctx.fillStyle = "#ffffff"; ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.stroke();
+      line(-2, 9, -9, 25, "#52677e", 2);
+      line(-2, 9, 0, 25, "#52677e", 2);
+      line(-2, 9, 8, 25, "#52677e", 2);
+      ctx.restore();
+      ctx.beginPath(); ctx.arc(x, y, 18 * (scale || 1), 0, TAU);
+      ctx.strokeStyle = color + "55"; ctx.lineWidth = 2; ctx.stroke();
+    }
+    function bezier(a, b, c, d, t) {
+      const u = 1 - t;
+      return {
+        x: u*u*u*a.x + 3*u*u*t*b.x + 3*u*t*t*c.x + t*t*t*d.x,
+        y: u*u*u*a.y + 3*u*u*t*b.y + 3*u*t*t*c.y + t*t*t*d.y
+      };
+    }
+    function tangent(a, b, c, d, t) {
+      const u = 1 - t;
+      return {
+        x: 3*u*u*(b.x-a.x) + 6*u*t*(c.x-b.x) + 3*t*t*(d.x-c.x),
+        y: 3*u*u*(b.y-a.y) + 6*u*t*(c.y-b.y) + 3*t*t*(d.y-c.y)
+      };
+    }
+    function path(a, b, c, d, color, width, dash) {
+      ctx.beginPath();
+      for (let i = 0; i <= 80; i++) {
+        const p = bezier(a, b, c, d, i / 80);
+        if (i === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = color; ctx.lineWidth = width;
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.setLineDash(dash || []); ctx.stroke(); ctx.setLineDash([]);
+    }
+    function diamond(x, y, r, fill, stroke) {
+      ctx.beginPath(); ctx.moveTo(x, y-r); ctx.lineTo(x+r, y);
+      ctx.lineTo(x, y+r); ctx.lineTo(x-r, y); ctx.closePath();
+      ctx.fillStyle = fill; ctx.fill();
+      ctx.strokeStyle = stroke; ctx.lineWidth = 2.5; ctx.stroke();
+    }
+    function background(color) {
+      ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = color; ctx.fillRect(0, 0, W, H);
+    }
+
+    // 1. Example-driven: visibly maps one camera behavior from a source scene to a different scene.
+    function drawTransfer(p) {
+      background("#f7fafc");
+      text("BEHAVIOR TRANSFER", 22, 27, 20, "#365b78", 800, "left");
+
+      // Source scene: cool city exterior.
+      rounded(16, 52, 266, 250, 14, "#e5f0f8", "#b9d0e2", 2);
+      text("SOURCE CLIP", 34, 76, 15, "#537d9d", 800, "left");
+      ctx.fillStyle = "#c7d9e8";
+      ctx.beginPath(); ctx.moveTo(18, 218); ctx.lineTo(18, 138); ctx.lineTo(63, 116);
+      ctx.lineTo(99, 137); ctx.lineTo(99, 218); ctx.fill();
+      rounded(39, 150, 18, 30, 3, "#eff5fa");
+      rounded(70, 139, 18, 41, 3, "#eff5fa");
+      rounded(205, 122, 50, 96, 4, "#d2e1ed", "#b8cddd", 1);
+      rounded(216, 139, 12, 22, 2, "#edf4f9");
+      rounded(234, 139, 12, 22, 2, "#edf4f9");
+      line(28, 220, 270, 220, "#9ebbd1", 2);
+      person(119, 220, 0.88, "#6689a6");
+      person(160, 220, 0.88, "#93a9bb");
+
+      // Target scene: warm interior, different staging and character arrangement.
+      rounded(318, 52, 266, 250, 14, "#fff0e2", "#e6c8aa", 2);
+      text("NEW SCENE", 336, 76, 15, "#b57945", 800, "left");
+      rounded(338, 105, 65, 115, 7, "#f6dfc8", "#e8c8a8", 2);
+      rounded(352, 119, 37, 88, 4, "#fff6ee");
+      rounded(512, 101, 53, 119, 5, "#f4d9bf", "#e5c4a4", 2);
+      ctx.beginPath(); ctx.arc(539, 112, 27, Math.PI, TAU); ctx.fillStyle = "#f4d9bf"; ctx.fill();
+      line(330, 220, 573, 220, "#d5b38f", 2);
+      person(430, 220, 1.02, "#c8794c", "#e9b992");
+      person(474, 220, 0.84, "#5c8291", "#dba982");
+
+      // Equivalent camera behavior, represented in two different coordinate spaces.
+      const sa = {x: 29, y: 190}, sb = {x: 58, y: 112}, sc = {x: 214, y: 112}, sd = {x: 264, y: 190};
+      const ta = {x: 330, y: 190}, tb = {x: 364, y: 111}, tc = {x: 523, y: 113}, td = {x: 570, y: 190};
+      path(sa, sb, sc, sd, "#4789b8", 4, [8, 6]);
+      path(ta, tb, tc, td, "#df914e", 4, [8, 6]);
+      const s = bezier(sa, sb, sc, sd, p), t = bezier(ta, tb, tc, td, p);
+      const sv = tangent(sa, sb, sc, sd, p), tv = tangent(ta, tb, tc, td, p);
+      camera(s.x, s.y, Math.atan2(sv.y, sv.x), "#397fae", 0.88);
+      camera(t.x, t.y, Math.atan2(tv.y, tv.x), "#d77c35", 0.92);
+
+      // Prominent transfer bridge.
+      ctx.beginPath(); ctx.arc(300, 175, 26, 0, TAU);
+      ctx.fillStyle = "#ffffff"; ctx.fill(); ctx.strokeStyle = "#d6e2eb"; ctx.lineWidth = 2; ctx.stroke();
+      text("→", 300, 176, 32, "#d17e3d", 800);
+      rounded(18, 318, 564, 8, 4, "#e5edf3");
+      rounded(18, 318, 564 * p, 8, 4, "#4789b8");
+    }
+
+    // 2. Keyframing: dark storyboard stage with four unmistakable anchor diamonds and a timeline.
+    function drawKeyframe(p) {
+      background("#f4f3fb");
+      rounded(14, 14, 572, 322, 16, "#24253d", "#343652", 1.5);
+      text("CAMERA KEYFRAMES", 34, 43, 20, "#f2f0ff", 800, "left");
+      text("STYLE + CONTROL", 566, 43, 13, "#aaa9d1", 750, "right");
+
+      // Scene grid.
+      for (let i = 0; i < 6; i++) line(34, 190 + i*20, 566, 190 + i*20, "#41435d", 1);
+      for (let i = 0; i < 8; i++) line(300, 84, 38 + i*75, 292, "#393b55", 1);
+      rounded(48, 102, 42, 88, 5, "#3b3e5c");
+      rounded(510, 104, 42, 86, 5, "#3b3e5c");
+      person(275, 194, 0.92, "#8e8ac8");
+      person(319, 194, 0.82, "#c2a4db");
+
+      const a = {x: 54, y: 246}, b = {x: 132, y: 78}, c = {x: 472, y: 82}, d = {x: 548, y: 245};
+      path(a, b, c, d, "#b9a9ff", 5, []);
+      // Control handles hint at authoring and interpolation.
+      line(a.x, a.y, 132, 78, "#77739d", 1.5, [5, 5]);
+      line(d.x, d.y, 472, 82, "#77739d", 1.5, [5, 5]);
+
+      const keys = [a, bezier(a,b,c,d,0.33), bezier(a,b,c,d,0.67), d];
+      keys.forEach((k, i) => {
+        ctx.beginPath(); ctx.arc(k.x, k.y, 19, 0, TAU);
+        ctx.fillStyle = "#fff"; ctx.fill();
+        ctx.strokeStyle = "#9d8be8"; ctx.lineWidth = 4; ctx.stroke();
+        diamond(k.x, k.y, 10, "#8f7be0", "#e2dcff");
+        text(String(i+1), k.x, k.y+1, 12, "#ffffff", 900);
+      });
+
+      const q = bezier(a,b,c,d,p), v = tangent(a,b,c,d,p);
+      camera(q.x, q.y, Math.atan2(v.y, v.x), "#d5caff", 0.98);
+
+      // A clear keyframe timeline, visually unlike the other two demos.
+      rounded(35, 286, 530, 34, 9, "#343650");
+      line(64, 303, 536, 303, "#79769e", 2);
+      keys.forEach((k, i) => {
+        const x = 64 + i * (472/3);
+        diamond(x, 303, 10, p >= i/3 ? "#a997f4" : "#565574", "#e4ddff");
+        text(String(i+1), x, 303, 10, "#ffffff", 800);
+      });
+      rounded(64, 315, 472*p, 3, 1.5, "#b9a9ff");
+    }
+
+    // 3. Text-to-trajectory: a readable instruction card paired with generated candidate paths.
+    function drawDiffusion(p) {
+      background("#eef8f6");
+      text("TEXT → CAMERA PATH", 22, 27, 20, "#216f70", 800, "left");
+
+      // Prompt card.
+      rounded(16, 54, 196, 248, 14, "#ffffff", "#c8e2df", 2);
+      rounded(30, 70, 42, 7, 3.5, "#64aaa4");
+      text("PROMPT", 30, 98, 14, "#5b9692", 800, "left");
+      text("“A slow", 34, 139, 24, "#244f52", 750, "left");
+      text("cinematic", 34, 169, 24, "#244f52", 750, "left");
+      text("push-in toward", 34, 199, 20, "#244f52", 750, "left");
+      text("two characters”", 34, 227, 20, "#244f52", 750, "left");
+      rounded(30, 254, 72, 28, 14, "#e1f2ef");
+      text("SLOW", 66, 268, 12, "#287d78", 800);
+      rounded(110, 254, 86, 28, 14, "#e1f2ef");
+      text("PUSH-IN", 153, 268, 12, "#287d78", 800);
+
+      // Generated scene and one selected trajectory among plausible alternatives.
+      rounded(228, 54, 356, 248, 14, "#ffffff", "#c8e2df", 2);
+      text("GENERATED TRAJECTORY", 248, 80, 14, "#5b9692", 800, "left");
+      // Ground-plane guides.
+      for (let i = 0; i < 5; i++) line(246, 220 + i*14, 566, 220 + i*14, "#e0efed", 1);
+      for (let i = 0; i < 5; i++) line(405, 104, 250 + i*76, 292, "#e0efed", 1);
+      // Faint alternative paths communicate diverse possible outputs, not a denoising process.
+      const a = {x: 252, y: 259}, b = {x: 293, y: 116}, c = {x: 492, y: 113}, d = {x: 560, y: 250};
+      path({x:250,y:248},{x:300,y:100},{x:500,y:150},{x:566,y:260},"#c5dfdc",2,[7,7]);
+      path({x:250,y:268},{x:335,y:160},{x:455,y:90},{x:558,y:236},"#d5e9e6",2,[7,7]);
+      path(a,b,c,d,"#25a39a",5,[]);
+      person(408, 228, 0.82, "#4f8582", "#e8c2a3");
+      person(445, 228, 0.74, "#8bb4ac", "#d9b08e");
+      const q = bezier(a,b,c,d,p), v = tangent(a,b,c,d,p);
+      camera(q.x, q.y, Math.atan2(v.y, v.x), "#188f88", 1.02);
+      // View cone / framing cue grows as the generated push-in progresses.
+      const cone = 25 + 20*p;
+      ctx.beginPath(); ctx.moveTo(q.x, q.y);
+      ctx.lineTo(q.x + cone, q.y - cone*0.55);
+      ctx.lineTo(q.x + cone, q.y + cone*0.55);
+      ctx.closePath(); ctx.fillStyle = "rgba(37,163,154,.12)"; ctx.fill();
+      rounded(246, 286, 320, 6, 3, "#dcecea");
+      rounded(246, 286, 320*p, 6, 3, "#25a39a");
+    }
+
+    function draw(p) {
+      ctx.setTransform(canvas.width / W, 0, 0, canvas.height / H, 0, 0);
+      if (kind === "transfer") drawTransfer(p);
+      else if (kind === "keyframe") drawKeyframe(p);
+      else drawDiffusion(p);
+    }
+    function animate(now) {
+      if (!hovering || dragging) return;
+      progress = ((now - startedAt) / 5600) % 1;
+      draw(progress);
+      raf = requestAnimationFrame(animate);
+    }
+    function scrubFromEvent(e) {
+      const rect = canvas.getBoundingClientRect();
+      progress = clamp((e.clientX - rect.left) / rect.width, 0, 1);
+      draw(progress);
+    }
+
+    canvas.addEventListener("pointerenter", () => {
+      hovering = true;
+      dragging = false;
+      startedAt = performance.now() - progress * 5600;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(animate);
+    });
+    canvas.addEventListener("pointerdown", e => {
+      dragging = true;
+      canvas.setPointerCapture(e.pointerId);
+      scrubFromEvent(e);
+    });
+    canvas.addEventListener("pointermove", e => {
+      if (dragging) scrubFromEvent(e);
+    });
+    canvas.addEventListener("pointerup", e => {
+      dragging = false;
+      if (canvas.hasPointerCapture(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+      if (hovering) {
+        startedAt = performance.now() - progress * 5600;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(animate);
+      }
+    });
+    canvas.addEventListener("pointercancel", () => { dragging = false; });
+    canvas.addEventListener("pointerleave", () => {
+      hovering = false;
+      dragging = false;
+      cancelAnimationFrame(raf);
+      progress = 0;
+      draw(0);
+    });
+
+    if ("ResizeObserver" in window) new ResizeObserver(resize).observe(canvas);
+    else window.addEventListener("resize", resize);
+    resize();
+  }
+  canvases.forEach(init);
 })();
 </script>
 </body></html>
