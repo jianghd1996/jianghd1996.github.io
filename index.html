@@ -13,29 +13,12 @@
   <link rel="stylesheet" href="./files/font-awesome.min.css">
 <style>
 
-  .demo-preview-row td { padding: 0 20px 14px; }
-  .interactive-demo { border: 1px solid #e1e8f0; border-radius: 11px; overflow: hidden; background: #fff; }
-  .interactive-demo summary { list-style: none; display: flex; align-items: center; gap: 10px; padding: 10px 13px; color: #52677e; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .interactive-demo summary::-webkit-details-marker { display: none; }
-  .interactive-demo summary::before { content: '+'; display: inline-grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; background: #fff0e2; color: #b96b2e; font-size: 15px; line-height: 1; }
-  .interactive-demo[open] summary::before { content: '−'; }
-  .interactive-demo summary span { color: #8a97a7; font-size: 11px; font-weight: 400; }
-  .demo-frame { display: block; width: 100%; height: 560px; border: 0; border-top: 1px solid #edf1f6; background: #f7f9fc; }
-  @media screen and (max-width: 600px) {
-    .demo-preview-row td { padding: 0 8px 12px; }
-    .interactive-demo summary { flex-wrap: wrap; }
-    .demo-frame { height: 520px; }
-  }
-
-
-  .paper-thumb { width:100%; max-width:180px; margin:0 auto; text-align:center; }
-  .paper-thumb iframe { display:block; width:100%; height:104px; border:1px solid #e1e8f0; border-radius:8px; background:#fff; overflow:hidden; }
-  .paper-thumb a { display:inline-block; margin-top:5px; font-size:11px; white-space:nowrap; }
-  @media screen and (max-width:600px) {
-    .paper-thumb { max-width:160px; }
-    .paper-thumb iframe { height:92px; }
-  }
-</style>\n</head>
+.paper-thumb{width:100%;max-width:240px;margin:0 auto}
+.paper-preview-canvas{display:block;width:100%;height:auto;aspect-ratio:12/7;border:1px solid #dfe7ef;border-radius:8px;background:#f8fafc;cursor:crosshair;touch-action:pan-y;transition:border-color .18s ease,box-shadow .18s ease}
+.paper-thumb:hover .paper-preview-canvas{border-color:#edb27f;box-shadow:0 3px 12px rgba(38,56,76,.10)}
+@media screen and (max-width:600px){.paper-thumb{max-width:200px}}
+</style>
+</head>
 
 <body>
   <table id="base"><tbody>
@@ -69,10 +52,7 @@
 
           <tr class="paper">
             <td class="paper-img">
-              <div class="paper-thumb">
-              <iframe src="./preview/camera-diffusion/?thumb=1" title="Cinematographic Camera Diffusion Model hover preview" loading="lazy" scrolling="no"></iframe>
-              <a href="./preview/camera-diffusion/" target="_blank" rel="noopener">Open interactive demo ↗</a>
-            </div>
+              <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="diffusion" width="480" height="280" role="img" aria-label="Text-conditioned camera trajectory preview">Interactive camera preview</canvas></div>
             </td>
             <td class="paper-text">
               <papertitle>Cinematographic camera diffusion model</papertitle>
@@ -95,10 +75,7 @@
 
         <tr class="paper">
           <td class="paper-img">
-            <div class="paper-thumb">
-              <iframe src="./preview/camera-keyframing/?thumb=1" title="Camera Keyframing with Style and Control hover preview" loading="lazy" scrolling="no"></iframe>
-              <a href="./preview/camera-keyframing/" target="_blank" rel="noopener">Open interactive demo ↗</a>
-            </div>
+            <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="keyframe" width="480" height="280" role="img" aria-label="Camera keyframing preview">Interactive camera preview</canvas></div>
           </td>
           <td class="paper-text">
             <papertitle>Camera Keyframing with Style and Control</papertitle>
@@ -121,10 +98,7 @@
 
         <tr class="paper">
           <td class="paper-img">
-            <div class="paper-thumb">
-              <iframe src="./preview/example-driven/?thumb=1" title="Example-driven Virtual Cinematography hover preview" loading="lazy" scrolling="no"></iframe>
-              <a href="./preview/example-driven/" target="_blank" rel="noopener">Open interactive demo ↗</a>
-            </div>
+            <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="transfer" width="480" height="280" role="img" aria-label="Example-driven camera behavior transfer preview">Interactive camera preview</canvas></div>
           </td>
           <td class="paper-text">
             <papertitle>Example-driven Virtual Cinematography by Learning Camera Behaviors</papertitle>
@@ -225,4 +199,66 @@
 
 
 
+<script>
+(()=> {
+const W=480,H=280,T=2*Math.PI,canvases=document.querySelectorAll('.paper-preview-canvas');
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function init(el){
+ const x=el.getContext('2d'),kind=el.dataset.preview;let hover=false,scrub=false,pointer=0,start=0,raf=0;
+ function box(a,b,w,h,r,fill,stroke,lw){x.beginPath();x.roundRect(a,b,w,h,r);if(fill){x.fillStyle=fill;x.fill()}if(stroke){x.strokeStyle=stroke;x.lineWidth=lw||1;x.stroke()}}
+ function line(a,b,c,d,col='#dce4ed',w=1,dash=[]){x.beginPath();x.setLineDash(dash);x.moveTo(a,b);x.lineTo(c,d);x.strokeStyle=col;x.lineWidth=w;x.stroke();x.setLineDash([])}
+ function text(s,a,b,size=10,col='#64778e',weight=600,align='center'){x.fillStyle=col;x.font=weight+' '+size+'px Inter,system-ui,sans-serif';x.textAlign=align;x.textBaseline='middle';x.fillText(s,a,b)}
+ function person(a,b,s=1,v=0){x.save();x.translate(a,b);x.scale(s,s);x.lineCap='round';x.beginPath();x.ellipse(0,1,10,3,0,0,T);x.fillStyle='#d9e3ec';x.fill();line(-4,-15,-6,0,'#52677e',2);line(4,-15,6,0,'#52677e',2);box(-8,-36,16,22,5,v?'#d9e5ef':'#c6d8e8','#52677e',1.2);line(-7,-30,-13,-20,'#52677e',2);line(7,-30,13,-23,'#52677e',2);x.beginPath();x.arc(0,-43,6.5,0,T);x.fillStyle='#fff';x.fill();x.strokeStyle='#52677e';x.stroke();x.beginPath();x.arc(0,-45,6.5,Math.PI,T);x.fillStyle=v?'#687c90':'#344b62';x.fill();x.restore()}
+ function camera(a,b,ang,s=1){x.save();x.translate(a,b);x.rotate(ang);x.scale(s,s);box(-8,-5,14,10,2,'#fff0e2','#d77c35',1.4);x.beginPath();x.moveTo(6,-3);x.lineTo(13,-6);x.lineTo(13,6);x.lineTo(6,3);x.closePath();x.fillStyle='#fff0e2';x.fill();x.strokeStyle='#d77c35';x.stroke();line(-1,5,-5,12,'#61778e',1.2);line(-1,5,0,12,'#61778e',1.2);line(-1,5,4,12,'#61778e',1.2);x.restore();x.beginPath();x.arc(a,b,13*s,0,T);x.strokeStyle='#ed914455';x.lineWidth=1.5;x.stroke()}
+ function bez(a,b,c,d,t){let u=1-t;return{x:u*u*u*a.x+3*u*u*t*b.x+3*u*t*t*c.x+t*t*t*d.x,y:u*u*u*a.y+3*u*u*t*b.y+3*u*t*t*c.y+t*t*t*d.y}}
+ function tan(a,b,c,d,t){let u=1-t;return{x:3*u*u*(b.x-a.x)+6*u*t*(c.x-b.x)+3*t*t*(d.x-c.x),y:3*u*u*(b.y-a.y)+6*u*t*(c.y-b.y)+3*t*t*(d.y-c.y)}}
+ function curve(a,b,c,d,col,w=2,dash=[4,4]){x.beginPath();for(let i=0;i<=60;i++){let q=bez(a,b,c,d,i/60);if(!i)x.moveTo(q.x,q.y);else x.lineTo(q.x,q.y)}x.strokeStyle=col;x.lineWidth=w;x.setLineDash(dash);x.stroke();x.setLineDash([])}
+ function base(){x.setTransform(el.width/W,0,0,el.height/H,0,0);x.clearRect(0,0,W,H);x.fillStyle='#f9fbfd';x.fillRect(0,0,W,H)}
+ function transfer(p){
+  base();text('CAMERA BEHAVIOR TRANSFER',16,18,9,'#8292a4',750,'left');
+  box(12,34,184,212,9,'#eef4f9','#dce5ed');box(284,34,184,212,9,'#f5f1ec','#e8e0d7');
+  text('SOURCE EXAMPLE',104,50,8,'#71849a',750);text('NEW SCENE',376,50,8,'#71849a',750);
+  line(22,174,186,174,'#d4e0ea');for(let i=0;i<4;i++)line(24,184+i*12,184,184+i*12,'#e3ebf2');
+  box(27,83,31,85,3,'#e1eaf2','#d2dee9');box(150,92,28,76,3,'#e1eaf2','#d2dee9');person(81,174,.88,0);person(125,174,.88,1);
+  line(294,174,458,174,'#dfd8ce');for(let i=0;i<4;i++)line(296,184+i*12,456,184+i*12,'#ece6de');
+  box(300,88,35,80,3,'#ebe5dc','#ded6cb');box(420,80,27,88,3,'#ebe5dc','#ded6cb');person(354,174,.94,1);person(397,174,.78,0);
+  let a={x:27,y:151},b={x:67,y:90},c={x:136,y:93},d={x:177,y:150},e={x:298,y:150},f={x:338,y:91},g={x:407,y:93},h={x:457,y:151};
+  curve(a,b,c,d,'#8ea9c3',2);curve(e,f,g,h,'#ed9144',2.6);
+  let q=bez(a,b,c,d,p),r=bez(e,f,g,h,p),v=tan(a,b,c,d,p),z=tan(e,f,g,h,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.82);camera(r.x,r.y,Math.atan2(z.y,z.x),.9);
+  box(211,104,58,64,10,'#fff','#e1e8f0');text('LEARN',240,121,8,'#7f90a3',750);text('→',240,148,21,'#d77c35',700);line(196,136,210,136,'#aab9c8',1.4);line(270,136,284,136,'#aab9c8',1.4);text('same motion',240,184,7,'#8a98a9');
+  box(14,254,452,3,2,'#e6edf3');box(14,254,452*p,3,2,'#ed9144');text('MOVE POINTER TO TRANSFER THE SHOT',240,268,8,'#a0adbb',700)
+ }
+ function keyframe(p){
+  base();text('KEYFRAME-CONSTRAINED CAMERA PATH',16,18,9,'#8292a4',750,'left');box(12,34,456,212,9,'#f4f8fb','#dce5ed');
+  line(22,152,458,152,'#d5e0ea');for(let i=0;i<5;i++)line(22,164+i*13,458,164+i*13,'#e6edf3');for(let i=0;i<7;i++)line(240,152,24+i*72,236,'#e8eef4');
+  box(33,76,42,76,3,'#e9f0f6','#dce5ed');box(399,82,47,70,3,'#e9f0f6','#dce5ed');person(251,162,1.04,0);person(289,162,.84,1);
+  let a={x:44,y:206},b={x:113,y:64},c={x:355,y:65},d={x:438,y:205};curve(a,b,c,d,'#8fa9c3',2.4,[5,4]);
+  [{x:a.x,y:a.y},{x:150,y:119},{x:332,y:119},{x:d.x,y:d.y}].forEach((k,i)=>{x.beginPath();x.arc(k.x,k.y,7,0,T);x.fillStyle='#fff';x.fill();x.strokeStyle='#d77c35';x.lineWidth=2;x.stroke();text(String(i+1),k.x,k.y,7,'#a85e25',800)});
+  let q=bez(a,b,c,d,p),v=tan(a,b,c,d,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.92);
+  text('KEYFRAME 1',54,229,7,'#8192a5');text('KEYFRAME 2',150,92,7,'#8192a5');text('KEYFRAME 3',332,92,7,'#8192a5');text('KEYFRAME 4',426,229,7,'#8192a5');
+  box(18,254,444,3,2,'#e6edf3');box(18,254,444*p,3,2,'#ed9144');text('MOVE POINTER TO SCRUB THE CAMERA',240,268,8,'#a0adbb',700)
+ }
+ function diffusion(p){
+  base();text('TEXT → CAMERA TRAJECTORY',16,18,9,'#8292a4',750,'left');box(12,34,156,212,9,'#f1f6fa','#dce5ed');text('TEXT PROMPT',24,53,8,'#8292a4',750,'left');
+  box(22,66,136,88,7,'#fff','#e0e8ef');text('“Slow cinematic',31,86,10,'#344b63',650,'left');text('push-in toward',31,103,10,'#344b63',650,'left');text('two characters”',31,120,10,'#344b63',650,'left');
+  [['SLOW',23,169,52],['PUSH-IN',81,169,67],['2 SUBJECTS',23,196,90]].forEach(t=>{box(t[1],t[2],t[3],18,8,'#fff0e2');text(t[0],t[1]+t[3]/2,t[2]+9,7,'#a85e25',750)});
+  text('GENERATED PATH',24,229,7,'#8292a4',750,'left');box(182,34,286,212,9,'#f5f8fb','#dce5ed');line(194,166,456,166,'#d7e1ea');
+  for(let i=0;i<4;i++)line(194,178+i*12,456,178+i*12,'#e7edf3');box(202,75,34,91,3,'#eaf1f6','#dce5ed');box(411,82,33,84,3,'#eaf1f6','#dce5ed');
+  let s=.88+p*.22;person(319,166,s,0);person(356,166,s*.9,1);let a={x:205,y:207},b={x:250,y:72},c={x:388,y:79},d={x:431,y:195};curve(a,b,c,d,'#ed9144',2.6,[5,3]);
+  let q=bez(a,b,c,d,p),v=tan(a,b,c,d,p);camera(q.x,q.y,Math.atan2(v.y,v.x),.94);let fw=86+p*54,fh=57+p*35;x.strokeStyle='rgba(215,124,53,.45)';x.lineWidth=1;x.setLineDash([3,3]);x.strokeRect(337-fw/2,120-fh/2,fw,fh);x.setLineDash([]);
+  text('CAMERA MOVE',325,229,7,'#a85e25',750);box(14,254,452,3,2,'#e6edf3');box(14,254,452*p,3,2,'#ed9144');text('MOVE POINTER TO SCRUB THE GENERATED SHOT',240,268,8,'#a0adbb',700)
+ }
+ function draw(p){x.setTransform(el.width/W,0,0,el.height/H,0,0);if(kind==='transfer')transfer(p);else if(kind==='keyframe')keyframe(p);else diffusion(p)}
+ function animate(now){if(!hover)return;let p=scrub?pointer:((now-start)/5200)%1;draw(p);raf=requestAnimationFrame(animate)}
+ function resize(){let r=el.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);el.width=Math.max(1,Math.round(r.width*d));el.height=Math.max(1,Math.round(r.width*H/W*d));draw(0)}
+ if('ResizeObserver'in window)new ResizeObserver(resize).observe(el);else window.addEventListener('resize',resize);
+ el.addEventListener('pointerenter',()=>{hover=true;scrub=false;start=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(animate)});
+ el.addEventListener('pointermove',e=>{if(!hover)return;let r=el.getBoundingClientRect();pointer=clamp((e.clientX-r.left)/r.width,0,1);scrub=true;draw(pointer)});
+ el.addEventListener('pointerleave',()=>{hover=false;scrub=false;cancelAnimationFrame(raf);draw(0)});
+ el.addEventListener('pointerdown',e=>{let r=el.getBoundingClientRect();pointer=clamp((e.clientX-r.left)/r.width,0,1);scrub=true;draw(pointer)});
+ resize();
+}
+canvases.forEach(init);
+})();
+</script>
 </body></html>
