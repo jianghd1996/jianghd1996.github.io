@@ -30,6 +30,12 @@
 @media screen and (max-width: 600px) {
   .paper-thumb { max-width: 250px; }
 }
+
+.paper-demo-link {
+  display: inline-block; margin-top: 7px; font-size: 12px;
+  color: #527b9d; text-decoration: none; font-weight: 600;
+}
+.paper-demo-link:hover { color: #d17e3d; text-decoration: underline; }
 </style>
 </head>
 
@@ -66,6 +72,7 @@
           <tr class="paper">
             <td class="paper-img">
               <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="diffusion" width="480" height="280" role="img" aria-label="Text-conditioned camera trajectory preview">Interactive camera preview</canvas></div>
+              <a class="paper-demo-link" href="./preview/camera-diffusion/" target="_blank" rel="noopener">Open interactive demo ↗</a>
             </td>
             <td class="paper-text">
               <papertitle>Cinematographic camera diffusion model</papertitle>
@@ -89,6 +96,7 @@
         <tr class="paper">
           <td class="paper-img">
             <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="keyframe" width="480" height="280" role="img" aria-label="Camera keyframing preview">Interactive camera preview</canvas></div>
+              <a class="paper-demo-link" href="./preview/camera-keyframing/" target="_blank" rel="noopener">Open interactive demo ↗</a>
           </td>
           <td class="paper-text">
             <papertitle>Camera Keyframing with Style and Control</papertitle>
@@ -112,6 +120,7 @@
         <tr class="paper">
           <td class="paper-img">
             <div class="paper-thumb"><canvas class="paper-preview-canvas" data-preview="transfer" width="480" height="280" role="img" aria-label="Example-driven camera behavior transfer preview">Interactive camera preview</canvas></div>
+              <a class="paper-demo-link" href="./preview/example-driven/" target="_blank" rel="noopener">Open interactive demo ↗</a>
           </td>
           <td class="paper-text">
             <papertitle>Example-driven Virtual Cinematography by Learning Camera Behaviors</papertitle>
