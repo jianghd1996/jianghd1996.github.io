@@ -39,8 +39,17 @@
   .note { margin:13px 2px 0; color:#8a97a7; font-size:11px; line-height:1.5; }
   @media(max-width:640px) { body{padding:18px 10px 28px}.intro{align-items:start}.preview-tag{display:none}.toy-top span{display:none}.controls{padding:11px}.control-row{align-items:flex-start}.timeline{gap:8px} }
   @media(prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important} }
+
+  html.embed body{padding:0;background:transparent}
+  html.embed .page{width:100%;max-width:none;margin:0}
+  html.embed .intro,html.embed .note{display:none}
+  html.embed .toy{border:0;border-radius:0;box-shadow:none}
+  html.embed .toy-top,html.embed .top{padding:10px 14px}
+  html.embed .canvas-wrap{padding:6px 8px 0}
+  html.embed .controls{padding:10px 14px 12px}
+  html.embed .toy-bottom{padding:7px 14px 10px}
 </style>
-</head>
+<script>if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed')</script>\n</head>
 <body>
 <main class="page">
   <header class="intro">
