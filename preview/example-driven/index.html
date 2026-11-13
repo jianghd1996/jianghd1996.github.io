@@ -78,8 +78,16 @@
   html.embed .canvas-wrap{padding:6px 8px 0}
   html.embed .controls{padding:10px 14px 12px}
   html.embed .toy-bottom{padding:7px 14px 10px}
+
+  html.thumb,html.thumb body{width:100%;height:100%;min-height:0;margin:0;padding:0;overflow:hidden;background:#fff}
+  html.thumb body{display:flex;align-items:center;justify-content:center}
+  html.thumb .page{width:100%;height:100%;max-width:none;margin:0;display:flex;align-items:center;justify-content:center}
+  html.thumb .intro,html.thumb .note,html.thumb .toy-top,html.thumb .toy-bottom,html.thumb .controls{display:none!important}
+  html.thumb .toy{width:100%;border:0;border-radius:0;box-shadow:none;overflow:hidden;background:#fff}
+  html.thumb .canvas-wrap{width:100%;padding:0}
+  html.thumb canvas{display:block;width:100%;height:auto;max-height:100%;aspect-ratio:auto;touch-action:pan-y}
 </style>
-<script>if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed')</script>\n</head>
+<script>const demoParams=new URLSearchParams(location.search);if(demoParams.has('embed'))document.documentElement.classList.add('embed');if(demoParams.has('thumb'))document.documentElement.classList.add('thumb');</script>\n</head>
 <body>
 <main class="page">
   <header class="intro">
@@ -115,6 +123,8 @@
   const replay = document.getElementById('replay');
   const BASE_W = 1000, BASE_H = 420;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const thumbMode = new URLSearchParams(location.search).has('thumb');
+  let thumbHover = false;
   let cssWidth = 1000, dpr = 1, hovering = false, pointerProgress = 0;
   let startTime = performance.now(), lastFrame = startTime;
 
@@ -424,7 +434,7 @@
     lastFrame = now;
     const elapsed = (now - startTime) / 1000;
     const auto = reduceMotion ? .48 : (1 - Math.cos((elapsed / 7) * TAU)) / 2;
-    const progress = hovering ? smooth(pointerProgress) : auto;
+    const progress = thumbMode ? (thumbHover ? auto : 0) : hovering ? smooth(pointerProgress) : auto;
     draw(progress, elapsed);
     requestAnimationFrame(frame);
   }
@@ -432,9 +442,9 @@
     const rect = canvas.getBoundingClientRect();
     pointerProgress = clamp((e.clientX - rect.left) / rect.width, 0, 1);
   }
-  canvas.addEventListener('pointerenter', e => { hovering = true; updatePointer(e); hint.textContent = 'Move left → right to scrub example, learning, and transfer'; });
+  canvas.addEventListener('pointerenter', e => { if (thumbMode) { thumbHover = true; startTime = performance.now(); } hovering = true; updatePointer(e); hint.textContent = 'Move left → right to scrub example, learning, and transfer'; });
   canvas.addEventListener('pointermove', e => { if (hovering) updatePointer(e); });
-  canvas.addEventListener('pointerleave', () => { hovering = false; hint.textContent = 'Move your pointer across the demo to explore the transfer'; });
+  canvas.addEventListener('pointerleave', () => { if (thumbMode) thumbHover = false; hovering = false; hint.textContent = 'Move your pointer across the demo to explore the transfer'; });
   canvas.addEventListener('pointerdown', e => { hovering = true; updatePointer(e); });
   replay.addEventListener('click', () => { hovering = false; startTime = performance.now(); hint.textContent = 'Replaying camera behavior transfer'; });
   requestAnimationFrame(frame);
