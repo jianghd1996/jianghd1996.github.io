@@ -164,23 +164,53 @@
     pill(x + 13, y + 12, accent ? 112 : 92, title, accent ? '#fff0e2' : '#eaf0f6', accent ? '#b96b2e' : '#58718c');
     text(subtitle, x + 14, y + 49, 9, '#8a98a9', 600, 'left');
   }
-  function drawGround(x, y, w, h) {
-    // A light perspective floor, deliberately understated so the camera remains the focus.
-    const horizon = y + h * .56;
-    line(x + 12, horizon, x + w - 12, horizon, '#d9e2ec', 1);
-    for (let i = 0; i < 6; i++) {
-      const yy = mix(horizon + 4, y + h - 10, i / 5);
-      line(x + 12, yy, x + w - 12, yy, '#e8edf3', 1);
+  function drawGround(x, y, w, h, target = false) {
+    if (!target) {
+      // Outdoor plaza: open sky, distant buildings and paving.
+      const horizon = y + h * .56;
+      rounded(x + 5, y + 4, w - 10, horizon - y - 2, 8, '#f4f7fa', null);
+      rounded(x + 15, y + 65, 37, 43, 4, '#e7eef5', '#d3deea');
+      rounded(x + w - 53, y + 72, 37, 36, 4, '#e7eef5', '#d3deea');
+      line(x + 22, y + 78, x + 45, y + 78, '#cbd8e5', 1);
+      line(x + w - 46, y + 84, x + w - 23, y + 84, '#cbd8e5', 1);
+      line(x + 12, horizon, x + w - 12, horizon, '#d9e2ec', 1);
+      for (let i = 0; i < 6; i++) {
+        const yy = mix(horizon + 4, y + h - 10, i / 5);
+        line(x + 12, yy, x + w - 12, yy, '#e8edf3', 1);
+      }
+      for (let i = 0; i < 8; i++) {
+        const xx = x + 8 + i * (w - 16) / 7;
+        line(x + w * .5, horizon, xx, y + h - 8, '#e8edf3', 1);
+      }
+      ctx.fillStyle = '#dce9e2';
+      ctx.beginPath(); ctx.arc(x + w - 34, y + 65, 13, 0, TAU); ctx.fill();
+      line(x + w - 34, y + 74, x + w - 34, y + 100, '#9aab9f', 2);
+      return;
     }
-    for (let i = 0; i < 8; i++) {
-      const xx = mix(x + w * .5, x + 8 + i * (w - 16) / 7, 1);
-      line(x + w * .5, horizon, xx, y + h - 8, '#e8edf3', 1);
+    // New target environment: warm indoor cafe / gallery.
+    rounded(x + 5, y + 4, w - 10, h * .57, 8, '#f7f0e8', null);
+    rounded(x + 17, y + 16, 78, 76, 4, '#dceaf0', '#b9cbd1', 2);
+    line(x + 56, y + 17, x + 56, y + 91, '#b9cbd1', 2);
+    line(x + 18, y + 54, x + 94, y + 54, '#b9cbd1', 2);
+    rounded(x + w - 67, y + 22, 43, 48, 3, '#fffaf4', '#d8c8b7', 2);
+    rounded(x + w - 61, y + 28, 31, 36, 2, '#e8d9c9', null);
+    ctx.beginPath(); ctx.arc(x + w - 45, y + 43, 9, 0, TAU); ctx.fillStyle = '#d5a77d'; ctx.fill();
+    const floorY = y + h * .58;
+    line(x + 12, floorY, x + w - 12, floorY, '#d7c7b7', 1.5);
+    for (let i = 0; i < 5; i++) {
+      const yy = mix(floorY + 5, y + h - 8, i / 4);
+      line(x + 12, yy, x + w - 12, yy, '#eadfd3', 1);
     }
-    // Two simple architectural blocks.
-    rounded(x + 15, y + 65, 37, 43, 4, '#f0f4f8', '#dce5ee');
-    rounded(x + w - 53, y + 72, 37, 36, 4, '#f0f4f8', '#dce5ee');
-    line(x + 22, y + 78, x + 45, y + 78, '#dce5ee', 1);
-    line(x + w - 46, y + 84, x + w - 23, y + 84, '#dce5ee', 1);
+    for (let i = 0; i < 7; i++) {
+      const xx = x + 15 + i * (w - 30) / 6;
+      line(x + w * .52, floorY, xx, y + h - 8, '#eadfd3', 1);
+    }
+    line(x + 35, y + h - 46, x + 82, y + h - 46, '#a98262', 3);
+    line(x + 41, y + h - 45, x + 43, y + h - 15, '#a98262', 2);
+    line(x + 75, y + h - 45, x + 73, y + h - 15, '#a98262', 2);
+    line(x + w - 38, y + h - 47, x + w - 38, y + h - 15, '#9c8b72', 2);
+    ctx.fillStyle = '#b9cdbd';
+    ctx.beginPath(); ctx.arc(x + w - 38, y + h - 55, 11, 0, TAU); ctx.fill();
   }
   function drawPerson(x, y, scale = 1, variant = 0) {
     ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
@@ -203,8 +233,39 @@
   function drawPeople(x, y, spacing = 54, scale = 1) {
     drawPerson(x - spacing / 2, y, scale, 0);
     drawPerson(x + spacing / 2, y, scale, 1);
-    // subtle interaction mark between the two characters
     ctx.beginPath(); ctx.arc(x, y - 48 * scale, 2.2, 0, TAU); ctx.fillStyle = '#ed9144'; ctx.fill();
+  }
+  function drawTargetPerson(x, y, scale = 1, kind = 0) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); ctx.ellipse(0, 2, 12, 3, 0, 0, TAU); ctx.fillStyle = '#e5dcd2'; ctx.fill();
+    const skin = '#f3d5bd';
+    const outfit = kind === 0 ? '#c98f72' : '#7f9c91';
+    line(-4, -18, -6, 0, '#675b56', 2.5); line(4, -18, 6, 0, '#675b56', 2.5);
+    line(-6, 0, -10, 1, '#675b56', 2); line(6, 0, 10, 1, '#675b56', 2);
+    if (kind === 0) {
+      // Long coat and long hair.
+      ctx.beginPath(); ctx.moveTo(-8, -39); ctx.lineTo(8, -39); ctx.lineTo(12, -16); ctx.lineTo(-12, -16); ctx.closePath();
+      ctx.fillStyle = outfit; ctx.fill(); ctx.strokeStyle = '#725e55'; ctx.lineWidth = 1.4; ctx.stroke();
+      line(-7, -34, -15, -22, '#725e55', 2); line(7, -34, 14, -24, '#725e55', 2);
+      ctx.beginPath(); ctx.arc(0, -48, 7, 0, TAU); ctx.fillStyle = skin; ctx.fill(); ctx.strokeStyle = '#725e55'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(-1, -47, 9, Math.PI * .82, Math.PI * 2.15); ctx.strokeStyle = '#574b48'; ctx.lineWidth = 3; ctx.stroke();
+      line(-8, -46, -10, -25, '#574b48', 2.5);
+    } else {
+      // Short jacket, cap and shoulder bag.
+      rounded(-9, -39, 18, 23, 5, outfit, '#526b63', 1.5);
+      line(-8, -33, -15, -22, '#526b63', 2.2); line(8, -33, 15, -22, '#526b63', 2.2);
+      ctx.beginPath(); ctx.arc(0, -48, 7, 0, TAU); ctx.fillStyle = skin; ctx.fill(); ctx.strokeStyle = '#526b63'; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -51, 7, Math.PI, TAU); ctx.fillStyle = '#455e58'; ctx.fill();
+      line(-8, -49, 9, -49, '#455e58', 2.5);
+      rounded(8, -29, 7, 11, 2, '#d9b98f', '#8c765d', 1);
+    }
+    ctx.restore();
+  }
+  function drawTargetPeople(x, y, spacing = 58, scale = 1) {
+    drawTargetPerson(x - spacing / 2, y, scale, 0);
+    drawTargetPerson(x + spacing / 2, y, scale, 1);
+    ctx.beginPath(); ctx.arc(x, y - 49 * scale, 2.4, 0, TAU); ctx.fillStyle = '#d88a59'; ctx.fill();
   }
   function drawCamera(x, y, angle, scale = 1, active = false) {
     ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(scale, scale);
@@ -247,12 +308,13 @@
     return p;
   }
   function drawScene(x, y, w, h, progress, target = false) {
-    drawPanel(x, y, w, h, target ? 'TARGET SCENE' : 'EXAMPLE CLIP', target ? 'same behavior · new characters' : 'source camera motion', target);
+    drawPanel(x, y, w, h, target ? 'TARGET SCENE' : 'EXAMPLE CLIP', target ? 'indoor cafe · different cast' : 'outdoor plaza · source motion', target);
     const gx = x + 8, gy = y + 58, gw = w - 16, gh = h - 68;
-    drawGround(gx, gy, gw, gh);
+    drawGround(gx, gy, gw, gh, target);
     const peopleX = x + w * (target ? .59 : .57);
     const peopleY = y + h * .78;
-    drawPeople(peopleX, peopleY, target ? 51 : 48, target ? .92 : .88);
+    if (target) drawTargetPeople(peopleX, peopleY, 58, .94);
+    else drawPeople(peopleX, peopleY, 48, .88);
 
     const start = { x: x + 35, y: y + h - 28 };
     const control = { x: x + w * .29, y: y + h - 75 };
@@ -338,13 +400,13 @@
     // Three-stage footer / progress indicator.
     text('EXAMPLE', 160, 363, 9, '#7c8da1', 750);
     text('LEARN', 500, 363, 9, '#7c8da1', 750);
-    text('TRANSFER', 839, 363, 9, '#b96b2e', 750);
+    text('TRANSFER TO A NEW SCENE', 839, 363, 9, '#b96b2e', 750);
     line(50, 381, 950, 381, '#e7edf3', 2);
     line(50, 381, 50 + 900 * progress, 381, '#ed9144', 2.5);
     ctx.beginPath(); ctx.arc(50 + 900 * progress, 381, 4.5, 0, TAU); ctx.fillStyle = '#ed9144'; ctx.fill();
 
     // Tiny explanatory status that changes with the scrub position.
-    const status = progress < .32 ? 'Observe the example camera motion' : progress < .68 ? 'The model encodes the camera behavior' : 'Apply the learned behavior to a new scene';
+    const status = progress < .32 ? 'Observe the camera motion in the outdoor plaza' : progress < .68 ? 'The model captures motion, not scene appearance' : 'Recreate the camera behavior with a new cast and environment';
     text(status, 500, 405, 10, '#8a98a9', 600);
   }
 
