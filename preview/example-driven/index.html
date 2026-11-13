@@ -69,8 +69,17 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; }
   }
+
+  html.embed body{padding:0;background:transparent}
+  html.embed .page{width:100%;max-width:none;margin:0}
+  html.embed .intro,html.embed .note{display:none}
+  html.embed .toy{border:0;border-radius:0;box-shadow:none}
+  html.embed .toy-top,html.embed .top{padding:10px 14px}
+  html.embed .canvas-wrap{padding:6px 8px 0}
+  html.embed .controls{padding:10px 14px 12px}
+  html.embed .toy-bottom{padding:7px 14px 10px}
 </style>
-</head>
+<script>if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed')</script>\n</head>
 <body>
 <main class="page">
   <header class="intro">
