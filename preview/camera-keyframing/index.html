@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f9fc">
+<title>Camera Keyframing with Style and Control — Interactive Demo</title>
+<style>
+  :root { color-scheme: light; --ink:#26384c; --muted:#718197; --line:#dbe3ed; --blue:#8fa9c5; --blue-dark:#496783; --orange:#ed9144; --orange-pale:#fff0e2; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 18px 40px; background:#f7f9fc; color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  .page { width:min(1040px,100%); margin:0 auto; }
+  .intro { margin:0 0 16px; display:flex; align-items:end; justify-content:space-between; gap:20px; }
+  .eyebrow { margin:0 0 6px; color:#8493a6; font-size:11px; font-weight:750; letter-spacing:.16em; text-transform:uppercase; }
+  h1 { margin:0; font-size:clamp(21px,3vw,30px); letter-spacing:-.035em; line-height:1.15; }
+  .sub { margin:8px 0 0; max-width:700px; color:var(--muted); font-size:13px; line-height:1.55; }
+  .preview-tag { flex:0 0 auto; border:1px solid #dce5ef; border-radius:999px; padding:7px 11px; color:#63778e; background:#fff; font-size:11px; font-weight:700; }
+  .toy { overflow:hidden; border:1px solid #dce4ed; border-radius:18px; background:#fff; box-shadow:0 12px 34px rgba(38,56,76,.07); }
+  .toy-top { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 17px; border-bottom:1px solid #edf1f6; }
+  .toy-top strong { font-size:12px; letter-spacing:.02em; }
+  .toy-top span { color:#8997a8; font-size:11px; }
+  .canvas-wrap { padding:8px 10px 0; }
+  canvas { display:block; width:100%; height:auto; aspect-ratio:1000 / 470; touch-action:pan-y; cursor:grab; }
+  canvas.dragging { cursor:grabbing; }
+  .controls { padding:12px 17px 15px; border-top:1px solid #edf1f6; }
+  .control-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+  .group { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .control-label { color:#8997a8; font-size:10px; font-weight:750; letter-spacing:.1em; text-transform:uppercase; margin-right:3px; }
+  button { appearance:none; border:1px solid #dce4ed; border-radius:999px; padding:7px 11px; color:#52677e; background:#fff; font:inherit; font-size:11px; font-weight:700; cursor:pointer; }
+  button:hover { border-color:#b9c9da; background:#f8fafc; }
+  button:focus-visible,input:focus-visible { outline:3px solid #f6c18f; outline-offset:2px; }
+  button.active { border-color:#edc39e; color:#a85e25; background:#fff3e8; }
+  button.key { min-width:34px; padding:7px 9px; }
+  button.key.selected { border-color:#e69a5d; color:#a85e25; background:#fff0e2; box-shadow:inset 0 0 0 1px #f6d1b2; }
+  .timeline { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:12px; margin-top:13px; }
+  .timeline label { color:#8997a8; font-size:10px; font-weight:750; letter-spacing:.1em; }
+  input[type=range] { width:100%; accent-color:#ed9144; cursor:pointer; }
+  .time-readout { min-width:38px; text-align:right; color:#6f8094; font-size:11px; font-variant-numeric:tabular-nums; }
+  .note { margin:13px 2px 0; color:#8a97a7; font-size:11px; line-height:1.5; }
+  @media(max-width:640px) { body{padding:18px 10px 28px}.intro{align-items:start}.preview-tag{display:none}.toy-top span{display:none}.controls{padding:11px}.control-row{align-items:flex-start}.timeline{gap:8px} }
+  @media(prefers-reduced-motion:reduce) { *,*::before,*::after{scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="intro">
+    <div>
+      <p class="eyebrow">Interactive Research Toy · 02</p>
+      <h1>Camera Keyframing with Style and Control</h1>
+      <p class="sub">Place a few camera keyframes to constrain the shot, then shape the motion style between them. Drag any orange camera to edit the trajectory.</p>
+    </div>
+    <div class="preview-tag">DESIGN PREVIEW</div>
+  </header>
+
+  <section class="toy" aria-label="Interactive camera keyframing visualization">
+    <div class="toy-top">
+      <strong>KEYFRAME-CONTROLLED CAMERA MOTION</strong>
+      <span>Drag keyframes · Scrub timeline · Change style</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="keyframeToy" width="1000" height="470" role="img" aria-label="A camera trajectory around two characters with four draggable orange keyframe cameras and a live shot preview."></canvas>
+    </div>
+    <div class="controls">
+      <div class="control-row">
+        <div class="group" aria-label="Select keyframe">
+          <span class="control-label">KEYFRAMES</span>
+          <button class="key selected" data-key="0" type="button" aria-pressed="true">K1</button>
+          <button class="key" data-key="1" type="button" aria-pressed="false">K2</button>
+          <button class="key" data-key="2" type="button" aria-pressed="false">K3</button>
+          <button class="key" data-key="3" type="button" aria-pressed="false">K4</button>
+          <span id="keyHint" class="time-readout">K1 selected</span>
+        </div>
+        <div class="group" aria-label="Camera motion style">
+          <span class="control-label">STYLE</span>
+          <button class="style active" data-style="smooth" type="button" aria-pressed="true">Smooth</button>
+          <button class="style" data-style="dynamic" type="button" aria-pressed="false">Dynamic</button>
+        </div>
+        <div class="group">
+          <button id="play" type="button">▶ Play</button>
+          <button id="reset" type="button">Reset keyframes ↺</button>
+        </div>
+      </div>
+      <div class="timeline">
+        <label for="time">TIMELINE</label>
+        <input id="time" type="range" min="0" max="1000" value="0" step="1" aria-label="Scrub camera along the trajectory">
+        <span id="timeReadout" class="time-readout">00:00</span>
+      </div>
+    </div>
+  </section>
+  <p class="note">Concept visualization. Keyframes are fixed camera constraints; the selected style changes interpolation between them while preserving the keyframe positions.</p>
+</main>
+
+<script>
+(() => {
+  const canvas = document.getElementById('keyframeToy');
+  const ctx = canvas.getContext('2d');
+  const timeSlider = document.getElementById('time');
+  const timeReadout = document.getElementById('timeReadout');
+  const keyHint = document.getElementById('keyHint');
+  const playButton = document.getElementById('play');
+  const resetButton = document.getElementById('reset');
+  const keyButtons = [...document.querySelectorAll('[data-key]')];
+  const styleButtons = [...document.querySelectorAll('[data-style]')];
+  const BASE_W = 1000, BASE_H = 470, TAU = Math.PI * 2;
+  const initialKeys = [{x:135,y:300},{x:285,y:125},{x:535,y:105},{x:700,y:285}];
+  let keys = initialKeys.map(p => ({...p}));
+  let selected = 0, style = 'smooth', progress = 0, playing = false, dragging = -1;
+  let lastTime = performance.now(), cssWidth = 1000, dpr = 1;
+
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const mix = (a,b,t) => a+(b-a)*t;
+  const smoothstep = t => t*t*(3-2*t);
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    cssWidth = Math.max(280,rect.width);
+    dpr = Math.min(window.devicePixelRatio || 1,2);
+    canvas.width = Math.round(cssWidth*dpr);
+    canvas.height = Math.round(cssWidth*BASE_H/BASE_W*dpr);
+    draw();
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener('resize',resize);
+
+  function line(x1,y1,x2,y2,color='#dce4ed',width=1,dash=[]) {
+    ctx.beginPath(); ctx.setLineDash(dash); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+    ctx.strokeStyle=color; ctx.lineWidth=width; ctx.stroke(); ctx.setLineDash([]);
+  }
+  function rounded(x,y,w,h,r,fill,stroke=null,width=1) {
+    ctx.beginPath(); ctx.roundRect(x,y,w,h,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=width;ctx.stroke();}
+  }
+  function label(str,x,y,size=11,color='#64778e',weight=600,align='center') {
+    ctx.fillStyle=color; ctx.font=weight+' '+size+'px Inter,system-ui,sans-serif';
+    ctx.textAlign=align; ctx.textBaseline='middle'; ctx.fillText(str,x,y);
+  }
+  function arrow(x1,y1,x2,y2,color='#91a2b5',width=1.5) {
+    line(x1,y1,x2,y2,color,width);
+    const a=Math.atan2(y2-y1,x2-x1),s=7;
+    ctx.beginPath();ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-s*Math.cos(a-.48),y2-s*Math.sin(a-.48));
+    ctx.lineTo(x2-s*Math.cos(a+.48),y2-s*Math.sin(a+.48));
+    ctx.closePath();ctx.fillStyle=color;ctx.fill();
+  }
+  function drawPerson(x,y,s=1,variant=0) {
+    ctx.save();ctx.translate(x,y);ctx.scale(s,s);ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.ellipse(0,2,12,3,0,0,TAU);ctx.fillStyle='#dce5ee';ctx.fill();
+    line(-4,-17,-6,0,'#52677e',2.5);line(4,-17,6,0,'#52677e',2.5);
+    line(-6,0,-10,1,'#52677e',2);line(6,0,10,1,'#52677e',2);
+    rounded(-8,-39,16,23,5,variant?'#dce7f1':'#cbdbea','#52677e',1.5);
+    line(-7,-33,-14,-22,'#52677e',2);line(7,-33,14,-26,'#52677e',2);
+    ctx.beginPath();ctx.arc(0,-47,7,0,TAU);ctx.fillStyle='#fff';ctx.fill();ctx.strokeStyle='#52677e';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.beginPath();ctx.arc(0,-49,7,Math.PI,TAU);ctx.fillStyle=variant?'#53677d':'#354b62';ctx.fill();
+    ctx.restore();
+  }
+  function drawScene() {
+    // Subtle studio-like ground plane.
+    rounded(22,44,680,360,15,'#fbfcfe','#e1e8f0');
+    const horizon=245;
+    line(36,horizon,688,horizon,'#dce5ee',1.2);
+    for(let i=0;i<6;i++) {
+      const yy=mix(horizon+7,392,i/5);
+      line(36,yy,688,yy,'#e9eef4',1);
+    }
+    for(let i=0;i<10;i++) {
+      const xx=36+i*652/9;
+      line(362,horizon,xx,392,'#e9eef4',1);
+    }
+    // Distant architecture and soft environment cues.
+    rounded(47,112,75,132,5,'#f1f5f9','#e1e8f0');
+    rounded(56,128,23,27,3,'#e2ebf3',null);
+    rounded(87,128,23,27,3,'#e2ebf3',null);
+    rounded(590,135,78,109,5,'#f1f5f9','#e1e8f0');
+    rounded(601,151,24,25,3,'#e2ebf3',null);
+    rounded(633,151,24,25,3,'#e2ebf3',null);
+    // Subject group and interaction cue.
+    drawPerson(326,275,1.13,0);
+    drawPerson(399,275,1.13,1);
+    ctx.beginPath();ctx.arc(363,220,3,0,TAU);ctx.fillStyle='#ed9144';ctx.fill();
+    label('SUBJECT',363,307,9,'#9aa8b7',750);
+    // Target composition marker.
+    ctx.strokeStyle='rgba(237,145,68,.35)';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);
+    ctx.strokeRect(292,171,143,125);ctx.setLineDash([]);
+    // Orientation marker.
+    label('TOP VIEW · CAMERA PATH',43,61,9,'#8a99aa',750,'left');
+  }
+  function catmull(p0,p1,p2,p3,t,tension) {
+    const t2=t*t,t3=t2*t;
+    const m1x=(p2.x-p0.x)*tension,m1y=(p2.y-p0.y)*tension;
+    const m2x=(p3.x-p1.x)*tension,m2y=(p3.y-p1.y)*tension;
+    return {
+      x:(2*t3-3*t2+1)*p1.x+(t3-2*t2+t)*m1x+(-2*t3+3*t2)*p2.x+(t3-t2)*m2x,
+      y:(2*t3-3*t2+1)*p1.y+(t3-2*t2+t)*m1y+(-2*t3+3*t2)*p2.y+(t3-t2)*m2y
+    };
+  }
+  function pathPoint(t) {
+    const segs=keys.length-1;
+    const scaled=clamp(t,0,1)*segs;
+    const i=Math.min(segs-1,Math.floor(scaled));
+    const u=scaled-i;
+    const p0=keys[Math.max(0,i-1)],p1=keys[i],p2=keys[i+1],p3=keys[Math.min(keys.length-1,i+2)];
+    const tension=style==='dynamic'?.82:.42;
+    return catmull(p0,p1,p2,p3,u,tension);
+  }
+  function drawCamera(x,y,targetX,targetY,active=false,scale=1) {
+    const angle=Math.atan2(targetY-y,targetX-x);
+    ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);
+    const stroke=active?'#d77c35':'#c47b43',fill=active?'#fff0e2':'#fff8f1';
+    // Camera body, lens and compact tripod.
+    rounded(-12,-7,21,14,3,fill,stroke,1.8);
+    ctx.beginPath();ctx.moveTo(9,-4);ctx.lineTo(18,-8);ctx.lineTo(18,8);ctx.lineTo(9,4);ctx.closePath();
+    ctx.fillStyle=fill;ctx.fill();ctx.strokeStyle=stroke;ctx.lineWidth=1.8;ctx.stroke();
+    line(-1,7,-7,18,'#61778e',1.5);line(-1,7,0,18,'#61778e',1.5);line(-1,7,6,18,'#61778e',1.5);
+    ctx.restore();
+    if(active){ctx.beginPath();ctx.arc(x,y,21,0,TAU);ctx.strokeStyle='rgba(237,145,68,.32)';ctx.lineWidth=2;ctx.stroke();}
+  }
+  function drawPath() {
+    ctx.beginPath();
+    for(let i=0;i<=100;i++){const p=pathPoint(i/100);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);}
+    ctx.strokeStyle='#d5dfe9';ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
+    // Direction arrows along the curve.
+    [.18,.48,.78].forEach(t=>{
+      const p=pathPoint(t),q=pathPoint(Math.min(1,t+.015));
+      arrow(p.x,p.y,q.x,q.y,'#aab9c9',1.3);
+    });
+    // Progress overlay.
+    ctx.beginPath();
+    for(let i=0;i<=70;i++){const p=pathPoint(progress*i/70);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);}
+    ctx.strokeStyle='#ed9144';ctx.lineWidth=4;ctx.lineCap='round';ctx.stroke();
+  }
+  function drawFrustum(p) {
+    const target={x:363,y:230},a=Math.atan2(target.y-p.y,target.x-p.x),len=95,spread=.27;
+    const p1={x:p.x+Math.cos(a-spread)*len,y:p.y+Math.sin(a-spread)*len};
+    const p2={x:p.x+Math.cos(a+spread)*len,y:p.y+Math.sin(a+spread)*len};
+    ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);ctx.closePath();
+    ctx.fillStyle='rgba(237,145,68,.07)';ctx.fill();ctx.strokeStyle='rgba(215,124,53,.35)';ctx.lineWidth=1.2;ctx.setLineDash([4,4]);ctx.stroke();ctx.setLineDash([]);
+  }
+  function drawKeyframes() {
+    keys.forEach((p,i)=>{
+      const isSelected=i===selected;
+      // Anchor-to-subject guide makes each keyframe's framing constraint visible.
+      line(p.x,p.y,363,230,isSelected?'rgba(215,124,53,.65)':'#d8e1eb',isSelected?1.5:1,[4,5]);
+      drawCamera(p.x,p.y,363,230,isSelected,.92);
+      ctx.beginPath();ctx.arc(p.x,p.y,15,0,TAU);
+      ctx.strokeStyle=isSelected?'#ed9144':'#dca276';ctx.lineWidth=isSelected?2.4:1.4;ctx.stroke();
+      rounded(p.x-12,p.y-34,24,16,8,isSelected?'#ed9144':'#fff0e2',null);
+      label('K'+(i+1),p.x,p.y-26,9,isSelected?'#fff':'#a85e25',800);
+    });
+  }
+  function drawShotPreview(camera) {
+    const x=730,y=44,w=246,h=360;
+    rounded(x,y,w,h,15,'#fbfcfe','#e1e8f0');
+    label('LIVE SHOT PREVIEW',x+16,y+20,9,'#8a99aa',800,'left');
+    // Framed view: size and lateral balance respond to the active camera position.
+    const fx=x+17,fy=y+48,fw=w-34,fh=190;
+    rounded(fx,fy,fw,fh,8,'#f2f6fa','#d9e3ed');
+    // Background horizon and a simple floor.
+    line(fx+8,fy+112,fx+fw-8,fy+112,'#d5e0ea',1);
+    for(let i=0;i<4;i++)line(fx+8,fy+120+i*18,fx+fw-8,fy+120+i*18,'#e3eaf1',1);
+    const dist=Math.hypot(camera.x-363,camera.y-230);
+    const size=clamp(1.38-dist/600,.72,1.15);
+    const shift=clamp((camera.x-363)/250,-.32,.32)*34;
+    const center=fx+fw/2+shift;
+    // Viewfinder guides.
+    ctx.strokeStyle='rgba(237,145,68,.32)';ctx.lineWidth=1;ctx.setLineDash([3,4]);
+    ctx.strokeRect(fx+12,fy+12,fw-24,fh-24);ctx.setLineDash([]);
+    drawPerson(center-24*size,fy+154,1.08*size,0);
+    drawPerson(center+25*size,fy+154,1.08*size,1);
+    // Composition center and rule-of-thirds marks.
+    line(fx+fw/3,fy+12,fx+fw/3,fy+fh-12,'rgba(151,168,187,.35)',1,[3,4]);
+    line(fx+2*fw/3,fy+12,fx+2*fw/3,fy+fh-12,'rgba(151,168,187,.35)',1,[3,4]);
+    label('FRAME',x+18,y+260,9,'#8a99aa',750,'left');
+    label('Keyframe '+(selected+1),x+18,y+283,13,'#344b63',750,'left');
+    label('Camera position  '+Math.round(camera.x)+', '+Math.round(camera.y),x+18,y+305,9,'#7c8da1',600,'left');
+    label(style==='smooth'?'Smooth interpolation':'Dynamic interpolation',x+18,y+330,9,'#b96b2e',650,'left');
+    rounded(x+18,y+342,w-36,5,3,'#e5ebf1',null);
+    rounded(x+18,y+342,(w-36)*progress,5,3,'#ed9144',null);
+  }
+  function draw() {
+    ctx.setTransform(canvas.width/BASE_W,0,0,canvas.height/BASE_H,0,0);
+    ctx.clearRect(0,0,BASE_W,BASE_H);
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,BASE_W,BASE_H);
+    drawScene();
+    drawPath();
+    const current=pathPoint(progress);
+    drawFrustum(current);
+    drawKeyframes();
+    drawCamera(current.x,current.y,363,230,true,1.02);
+    drawShotPreview(current);
+    // Footer legend.
+    ctx.beginPath();ctx.arc(42,438,4,0,TAU);ctx.fillStyle='#ed9144';ctx.fill();
+    label('Draggable keyframe',53,438,9,'#7d8da0',600,'left');
+    line(185,438,211,438,'#ed9144',3);
+    label('Interpolated camera path',220,438,9,'#7d8da0',600,'left');
+    label('Keyframes stay fixed when style changes',697,438,9,'#9aa7b5',600,'right');
+  }
+  function setSelected(index) {
+    selected=index;
+    keyButtons.forEach((b,i)=>{b.classList.toggle('selected',i===index);b.setAttribute('aria-pressed',String(i===index));});
+    keyHint.textContent='K'+(index+1)+' selected';
+    draw();
+  }
+  function setStyle(next) {
+    style=next;
+    styleButtons.forEach(b=>{const active=b.dataset.style===style;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+    draw();
+  }
+  function canvasPoint(e) {
+    const rect=canvas.getBoundingClientRect();
+    return {x:(e.clientX-rect.left)/rect.width*BASE_W,y:(e.clientY-rect.top)/rect.height*BASE_H};
+  }
+  function hitKey(p) {
+    let best=-1,bestD=25;
+    keys.forEach((k,i)=>{const d=Math.hypot(k.x-p.x,k.y-p.y);if(d<bestD){bestD=d;best=i;}});
+    return best;
+  }
+  function updateSlider() {
+    timeSlider.value=String(Math.round(progress*1000));
+    timeReadout.textContent='00:'+String(Math.round(progress*59)).padStart(2,'0');
+  }
+  canvas.addEventListener('pointerdown',e=>{
+    const p=canvasPoint(e),hit=hitKey(p);
+    if(hit>=0){dragging=hit;setSelected(hit);canvas.classList.add('dragging');canvas.setPointerCapture(e.pointerId);e.preventDefault();}
+    else {progress=clamp((p.x-30)/660,0,1);playing=false;playButton.textContent='▶ Play';updateSlider();draw();}
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(dragging<0)return;
+    const p=canvasPoint(e);
+    keys[dragging]={x:clamp(p.x,55,675),y:clamp(p.y,82,375)};
+    progress=clamp(progress,0,1);updateSlider();draw();
+  });
+  function endDrag(){dragging=-1;canvas.classList.remove('dragging');}
+  canvas.addEventListener('pointerup',endDrag);
+  canvas.addEventListener('pointercancel',endDrag);
+  canvas.addEventListener('lostpointercapture',endDrag);
+  keyButtons.forEach(b=>b.addEventListener('click',()=>setSelected(Number(b.dataset.key))));
+  styleButtons.forEach(b=>b.addEventListener('click',()=>setStyle(b.dataset.style)));
+  timeSlider.addEventListener('input',()=>{progress=Number(timeSlider.value)/1000;playing=false;playButton.textContent='▶ Play';updateSlider();draw();});
+  playButton.addEventListener('click',()=>{
+    playing=!playing;
+    playButton.textContent=playing?'Ⅱ Pause':'▶ Play';
+  });
+  resetButton.addEventListener('click',()=>{
+    keys=initialKeys.map(p=>({...p}));progress=0;playing=false;playButton.textContent='▶ Play';setSelected(0);updateSlider();draw();
+  });
+  // Keyboard nudging for the selected keyframe.
+  window.addEventListener('keydown',e=>{
+    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key) && !['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) {
+      const delta=e.shiftKey?10:3,k=keys[selected];
+      if(e.key==='ArrowLeft')k.x=clamp(k.x-delta,55,675);
+      if(e.key==='ArrowRight')k.x=clamp(k.x+delta,55,675);
+      if(e.key==='ArrowUp')k.y=clamp(k.y-delta,82,375);
+      if(e.key==='ArrowDown')k.y=clamp(k.y+delta,82,375);
+      draw();
+    }
+  });
+  function frame(now) {
+    const dt=Math.min((now-lastTime)/1000,.05);lastTime=now;
+    if(playing){progress+=dt/9;if(progress>1)progress=0;updateSlider();draw();}
+    requestAnimationFrame(frame);
+  }
+  resize();updateSlider();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
