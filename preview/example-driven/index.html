@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f9fc">
+<title>Example-driven Virtual Cinematography — Interactive Demo</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #26384c;
+    --muted: #718197;
+    --line: #dbe3ed;
+    --blue: #8fa9c5;
+    --blue-dark: #496783;
+    --blue-pale: #edf3f9;
+    --orange: #ed9144;
+    --orange-pale: #fff0e2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 18px 40px;
+    background: #f7f9fc;
+    color: var(--ink);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .page { width: min(1040px, 100%); margin: 0 auto; }
+  .intro { margin: 0 0 16px; display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  .eyebrow { margin: 0 0 6px; color: #8493a6; font-size: 11px; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+  h1 { margin: 0; font-size: clamp(21px, 3vw, 30px); letter-spacing: -.035em; line-height: 1.15; }
+  .sub { margin: 8px 0 0; max-width: 670px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+  .preview-tag { flex: 0 0 auto; border: 1px solid #dce5ef; border-radius: 999px; padding: 7px 11px; color: #63778e; background: #fff; font-size: 11px; font-weight: 700; }
+  .toy {
+    overflow: hidden;
+    border: 1px solid #dce4ed;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 12px 34px rgba(38, 56, 76, .07);
+  }
+  .toy-top {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 13px 17px; border-bottom: 1px solid #edf1f6;
+  }
+  .toy-top strong { font-size: 12px; letter-spacing: .02em; }
+  .toy-top span { color: #8997a8; font-size: 11px; }
+  .canvas-wrap { padding: 8px 10px 0; }
+  canvas { display: block; width: 100%; height: auto; aspect-ratio: 1000 / 420; touch-action: pan-y; }
+  .toy-bottom {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 8px 17px 14px; color: #7b899b; font-size: 11px;
+  }
+  .hint { display: flex; align-items: center; gap: 7px; }
+  .hint-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 3px #fff0e2; }
+  button {
+    appearance: none; border: 1px solid #dce4ed; border-radius: 999px; padding: 7px 11px;
+    color: #52677e; background: #fff; font: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  }
+  button:hover { border-color: #b9c9da; background: #f8fafc; }
+  button:focus-visible { outline: 3px solid #f6c18f; outline-offset: 2px; }
+  .note { margin: 13px 2px 0; color: #8a97a7; font-size: 11px; line-height: 1.5; }
+  @media (max-width: 640px) {
+    body { padding: 18px 10px 28px; }
+    .intro { align-items: start; }
+    .preview-tag { display: none; }
+    .toy-top span { display: none; }
+    .toy-bottom { align-items: start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="intro">
+    <div>
+      <p class="eyebrow">Interactive Research Toy · 01</p>
+      <h1>Example-driven Virtual Cinematography</h1>
+      <p class="sub">Learning a camera behavior from an example scene, then transferring the same behavior to a different scene.</p>
+    </div>
+    <div class="preview-tag">DESIGN PREVIEW</div>
+  </header>
+
+  <section class="toy" aria-label="Interactive camera behavior transfer visualization">
+    <div class="toy-top">
+      <strong>CAMERA BEHAVIOR TRANSFER</strong>
+      <span>Example clip → Learned behavior → New scene</span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="behaviorToy" width="1000" height="420" role="img" aria-label="Two people in an example scene, a behavior learning model, and a camera applying the learned motion to two people in a new scene. Move the pointer horizontally to scrub the animation."></canvas>
+    </div>
+    <div class="toy-bottom">
+      <div class="hint"><i class="hint-dot"></i><span id="hintText">Move your pointer across the demo to explore the transfer</span></div>
+      <button id="replay" type="button">Replay motion ↻</button>
+    </div>
+  </section>
+  <p class="note">Concept visualization only. The animated camera paths illustrate behavior transfer; they are not a live inference of the original research model.</p>
+</main>
+
+<script>
+(() => {
+  const canvas = document.getElementById('behaviorToy');
+  const ctx = canvas.getContext('2d');
+  const hint = document.getElementById('hintText');
+  const replay = document.getElementById('replay');
+  const BASE_W = 1000, BASE_H = 420;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cssWidth = 1000, dpr = 1, hovering = false, pointerProgress = 0;
+  let startTime = performance.now(), lastFrame = startTime;
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const mix = (a, b, t) => a + (b - a) * t;
+  const smooth = t => t * t * (3 - 2 * t);
+  const TAU = Math.PI * 2;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    cssWidth = Math.max(280, rect.width);
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(cssWidth * dpr);
+    canvas.height = Math.round(cssWidth * BASE_H / BASE_W * dpr);
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener('resize', resize);
+  resize();
+
+  function rounded(x, y, w, h, r, fill, stroke, lineWidth = 1) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    if (fill) { ctx.fillStyle = fill; ctx.fill(); }
+    if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lineWidth; ctx.stroke(); }
+  }
+  function text(str, x, y, size = 12, color = '#52677e', weight = 600, align = 'center') {
+    ctx.fillStyle = color;
+    ctx.font = weight + ' ' + size + 'px Inter, system-ui, sans-serif';
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(str, x, y);
+  }
+  function line(x1, y1, x2, y2, color = '#9aabbd', width = 1.5, dash = []) {
+    ctx.beginPath(); ctx.setLineDash(dash); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.stroke(); ctx.setLineDash([]);
+  }
+  function arrow(x1, y1, x2, y2, color = '#91a2b5', width = 2) {
+    line(x1, y1, x2, y2, color, width);
+    const a = Math.atan2(y2 - y1, x2 - x1), s = 7;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - s * Math.cos(a - .48), y2 - s * Math.sin(a - .48));
+    ctx.lineTo(x2 - s * Math.cos(a + .48), y2 - s * Math.sin(a + .48));
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+  }
+  function pill(x, y, w, label, fill, color) {
+    rounded(x, y, w, 25, 12.5, fill, null);
+    text(label, x + w / 2, y + 12.5, 10, color, 750);
+  }
+  function bezier(a, b, c, t) {
+    const u = 1 - t;
+    return { x: u*u*a.x + 2*u*t*b.x + t*t*c.x, y: u*u*a.y + 2*u*t*b.y + t*t*c.y };
+  }
+  function drawPanel(x, y, w, h, title, subtitle, accent = false) {
+    rounded(x, y, w, h, 15, '#fbfcfe', '#e0e7ef');
+    pill(x + 13, y + 12, accent ? 112 : 92, title, accent ? '#fff0e2' : '#eaf0f6', accent ? '#b96b2e' : '#58718c');
+    text(subtitle, x + 14, y + 49, 9, '#8a98a9', 600, 'left');
+  }
+  function drawGround(x, y, w, h) {
+    // A light perspective floor, deliberately understated so the camera remains the focus.
+    const horizon = y + h * .56;
+    line(x + 12, horizon, x + w - 12, horizon, '#d9e2ec', 1);
+    for (let i = 0; i < 6; i++) {
+      const yy = mix(horizon + 4, y + h - 10, i / 5);
+      line(x + 12, yy, x + w - 12, yy, '#e8edf3', 1);
+    }
+    for (let i = 0; i < 8; i++) {
+      const xx = mix(x + w * .5, x + 8 + i * (w - 16) / 7, 1);
+      line(x + w * .5, horizon, xx, y + h - 8, '#e8edf3', 1);
+    }
+    // Two simple architectural blocks.
+    rounded(x + 15, y + 65, 37, 43, 4, '#f0f4f8', '#dce5ee');
+    rounded(x + w - 53, y + 72, 37, 36, 4, '#f0f4f8', '#dce5ee');
+    line(x + 22, y + 78, x + 45, y + 78, '#dce5ee', 1);
+    line(x + w - 46, y + 84, x + w - 23, y + 84, '#dce5ee', 1);
+  }
+  function drawPerson(x, y, scale = 1, variant = 0) {
+    ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // shadow
+    ctx.beginPath(); ctx.ellipse(0, 2, 11, 3, 0, 0, TAU); ctx.fillStyle = '#dce4ed'; ctx.fill();
+    // legs
+    line(-4, -17, -6, 0, '#52677e', 2.5); line(4, -17, 6, 0, '#52677e', 2.5);
+    line(-6, 0, -10, 1, '#52677e', 2); line(6, 0, 10, 1, '#52677e', 2);
+    // torso
+    rounded(-8, -39, 16, 23, 5, variant ? '#dbe7f1' : '#cbdbea', '#52677e', 1.5);
+    // arms
+    line(-7, -33, -13, -22, '#52677e', 2); line(7, -33, 14, -27, '#52677e', 2);
+    // head
+    ctx.beginPath(); ctx.arc(0, -47, 7, 0, TAU); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#52677e'; ctx.lineWidth = 1.5; ctx.stroke();
+    // hair cap
+    ctx.beginPath(); ctx.arc(0, -49, 7, Math.PI, TAU); ctx.fillStyle = variant ? '#53677d' : '#354b62'; ctx.fill();
+    ctx.restore();
+  }
+  function drawPeople(x, y, spacing = 54, scale = 1) {
+    drawPerson(x - spacing / 2, y, scale, 0);
+    drawPerson(x + spacing / 2, y, scale, 1);
+    // subtle interaction mark between the two characters
+    ctx.beginPath(); ctx.arc(x, y - 48 * scale, 2.2, 0, TAU); ctx.fillStyle = '#ed9144'; ctx.fill();
+  }
+  function drawCamera(x, y, angle, scale = 1, active = false) {
+    ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.scale(scale, scale);
+    const stroke = active ? '#d77c35' : '#56718d';
+    const fill = active ? '#fff0e2' : '#f7fafc';
+    // tripod
+    line(-1, 7, -8, 22, '#536c86', 1.7); line(-1, 7, 0, 22, '#536c86', 1.7); line(-1, 7, 8, 22, '#536c86', 1.7);
+    rounded(-13, -7, 23, 15, 3, fill, stroke, 1.8);
+    ctx.beginPath(); ctx.moveTo(10, -4); ctx.lineTo(19, -8); ctx.lineTo(19, 8); ctx.lineTo(10, 4); ctx.closePath();
+    ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1.8; ctx.stroke();
+    rounded(-8, -11, 10, 4, 2, fill, stroke, 1.2);
+    if (active) {
+      ctx.beginPath(); ctx.arc(0, 0, 26, 0, TAU); ctx.strokeStyle = 'rgba(237,145,68,.35)'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawFrustum(cam, targetX, targetY, alpha = 1) {
+    ctx.save(); ctx.globalAlpha = alpha;
+    const dx = targetX - cam.x, dy = targetY - cam.y;
+    const a = Math.atan2(dy, dx);
+    const len = 105;
+    const spread = .33;
+    const p1 = { x: cam.x + Math.cos(a - spread) * len, y: cam.y + Math.sin(a - spread) * len };
+    const p2 = { x: cam.x + Math.cos(a + spread) * len, y: cam.y + Math.sin(a + spread) * len };
+    ctx.beginPath(); ctx.moveTo(cam.x + Math.cos(a) * 15, cam.y + Math.sin(a) * 15); ctx.lineTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.closePath();
+    ctx.fillStyle = 'rgba(237,145,68,.10)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(215,124,53,.7)'; ctx.lineWidth = 1.4; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+  }
+  function drawPath(a, b, c, progress, color = '#ed9144') {
+    ctx.beginPath(); ctx.moveTo(a.x, a.y);
+    for (let i = 1; i <= 50; i++) { const p = bezier(a, b, c, i / 50); ctx.lineTo(p.x, p.y); }
+    ctx.strokeStyle = '#e4eaf1'; ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(a.x, a.y);
+    const steps = Math.max(2, Math.round(50 * progress));
+    for (let i = 1; i <= steps; i++) { const p = bezier(a, b, c, progress * i / steps); ctx.lineTo(p.x, p.y); }
+    ctx.strokeStyle = color; ctx.lineWidth = 3.5; ctx.lineCap = 'round'; ctx.stroke();
+    const p = bezier(a, b, c, progress);
+    ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, TAU); ctx.fillStyle = color; ctx.fill();
+    return p;
+  }
+  function drawScene(x, y, w, h, progress, target = false) {
+    drawPanel(x, y, w, h, target ? 'TARGET SCENE' : 'EXAMPLE CLIP', target ? 'same behavior · new characters' : 'source camera motion', target);
+    const gx = x + 8, gy = y + 58, gw = w - 16, gh = h - 68;
+    drawGround(gx, gy, gw, gh);
+    const peopleX = x + w * (target ? .59 : .57);
+    const peopleY = y + h * .78;
+    drawPeople(peopleX, peopleY, target ? 51 : 48, target ? .92 : .88);
+
+    const start = { x: x + 35, y: y + h - 28 };
+    const control = { x: x + w * .29, y: y + h - 75 };
+    const end = { x: x + w * .48, y: y + h - 42 };
+    const cam = bezier(start, control, end, progress);
+    const angle = Math.atan2(peopleY - 43 - cam.y, peopleX - cam.x);
+    drawFrustum(cam, peopleX, peopleY - 43, target ? .95 : .55);
+    const travelled = drawPath(start, control, end, progress, target ? '#ed9144' : '#7998b8');
+    drawCamera(travelled.x, travelled.y, angle, target ? .88 : .82, target);
+    // A small composition frame appears only on the transferred side.
+    if (target) {
+      const fx = x + 103, fy = y + 66, fw = 116, fh = 78;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(215,124,53,.85)'; ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]); ctx.strokeRect(fx, fy, fw, fh); ctx.setLineDash([]);
+      const s = 8;
+      [[fx,fy,1,1],[fx+fw,fy,-1,1],[fx,fy+fh,1,-1],[fx+fw,fy+fh,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+        line(cx, cy + dy*s, cx, cy, '#d77c35', 2); line(cx, cy, cx + dx*s, cy, '#d77c35', 2);
+      });
+      ctx.restore();
+    }
+    return { cam, peopleX, peopleY };
+  }
+  function drawModel(x, y, w, h, progress, time) {
+    drawPanel(x, y, w, h, 'BEHAVIOR MODEL', 'learn the motion pattern', false);
+    const innerY = y + 76;
+    const cols = [x + 49, x + w / 2, x + w - 49];
+    const rows = [innerY, innerY + 37, innerY + 74];
+    const nodes = [];
+    for (let c = 0; c < 3; c++) {
+      for (let r = 0; r < 3; r++) nodes.push({ x: cols[c], y: rows[r], c, r });
+    }
+    // Dense but readable connections.
+    const pairs = [];
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) pairs.push([i, 3 + j]);
+    for (let i = 3; i < 6; i++) for (let j = 6; j < 9; j++) pairs.push([i, j]);
+    pairs.forEach(([a, b], idx) => {
+      const A = nodes[a], B = nodes[b];
+      line(A.x + 7, A.y, B.x - 7, B.y, '#d6e0ea', 1.2);
+      const activeAt = ((idx * .071) % .62);
+      const signal = clamp((progress - activeAt) * 4.5, 0, 1);
+      if (signal > 0) {
+        const t = (time * .22 + idx * .19) % 1;
+        const px = mix(A.x + 8, B.x - 8, t);
+        const py = mix(A.y, B.y, t);
+        ctx.beginPath(); ctx.arc(px, py, 2.5, 0, TAU); ctx.fillStyle = '#ed9144'; ctx.globalAlpha = signal; ctx.fill(); ctx.globalAlpha = 1;
+      }
+    });
+    nodes.forEach((n, i) => {
+      const lit = progress > (n.c * .23 + n.r * .025);
+      ctx.beginPath(); ctx.arc(n.x, n.y, 7, 0, TAU);
+      ctx.fillStyle = lit ? '#f6c18f' : '#e6edf4'; ctx.fill();
+      ctx.strokeStyle = lit ? '#d77c35' : '#8ea4bb'; ctx.lineWidth = 1.3; ctx.stroke();
+    });
+    // Motion signature, not a generic neural-network label alone.
+    text('camera behavior', x + w / 2, y + h - 49, 10, '#667b92', 700);
+    const bx = x + 35, by = y + h - 31, bw = w - 70;
+    ['PAN', 'FOLLOW', 'DOLLY'].forEach((name, i) => {
+      const xx = bx + i * (bw / 3);
+      rounded(xx, by, bw / 3 - 5, 17, 8, progress > .18 + i * .16 ? '#fff0e2' : '#edf2f7', null);
+      text(name, xx + (bw / 3 - 5) / 2, by + 8.5, 8, progress > .18 + i * .16 ? '#b96b2e' : '#8191a4', 750);
+    });
+  }
+  function drawConnector(x1, x2, y, progress, offset) {
+    arrow(x1, y, x2, y, '#c4d0dd', 1.7);
+    const p = (progress + offset) % 1;
+    ctx.beginPath(); ctx.arc(mix(x1 + 5, x2 - 5, p), y, 3.4, 0, TAU);
+    ctx.fillStyle = '#ed9144'; ctx.fill();
+  }
+  function draw(progress, time) {
+    ctx.setTransform(canvas.width / BASE_W, 0, 0, canvas.height / BASE_H, 0, 0);
+    ctx.clearRect(0, 0, BASE_W, BASE_H);
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, BASE_W, BASE_H);
+
+    const y = 76, h = 254;
+    const left = drawScene(18, y, 286, h, progress, false);
+    drawModel(355, y + 7, 290, h - 14, progress, time);
+    const right = drawScene(696, y, 286, h, progress, true);
+
+    drawConnector(309, 349, 205, progress, 0);
+    drawConnector(651, 689, 205, progress, .42);
+
+    // Three-stage footer / progress indicator.
+    text('EXAMPLE', 160, 363, 9, '#7c8da1', 750);
+    text('LEARN', 500, 363, 9, '#7c8da1', 750);
+    text('TRANSFER', 839, 363, 9, '#b96b2e', 750);
+    line(50, 381, 950, 381, '#e7edf3', 2);
+    line(50, 381, 50 + 900 * progress, 381, '#ed9144', 2.5);
+    ctx.beginPath(); ctx.arc(50 + 900 * progress, 381, 4.5, 0, TAU); ctx.fillStyle = '#ed9144'; ctx.fill();
+
+    // Tiny explanatory status that changes with the scrub position.
+    const status = progress < .32 ? 'Observe the example camera motion' : progress < .68 ? 'The model encodes the camera behavior' : 'Apply the learned behavior to a new scene';
+    text(status, 500, 405, 10, '#8a98a9', 600);
+  }
+
+  function frame(now) {
+    const dt = Math.min((now - lastFrame) / 1000, .05);
+    lastFrame = now;
+    const elapsed = (now - startTime) / 1000;
+    const auto = reduceMotion ? .48 : (1 - Math.cos((elapsed / 7) * TAU)) / 2;
+    const progress = hovering ? smooth(pointerProgress) : auto;
+    draw(progress, elapsed);
+    requestAnimationFrame(frame);
+  }
+  function updatePointer(e) {
+    const rect = canvas.getBoundingClientRect();
+    pointerProgress = clamp((e.clientX - rect.left) / rect.width, 0, 1);
+  }
+  canvas.addEventListener('pointerenter', e => { hovering = true; updatePointer(e); hint.textContent = 'Move left → right to scrub example, learning, and transfer'; });
+  canvas.addEventListener('pointermove', e => { if (hovering) updatePointer(e); });
+  canvas.addEventListener('pointerleave', () => { hovering = false; hint.textContent = 'Move your pointer across the demo to explore the transfer'; });
+  canvas.addEventListener('pointerdown', e => { hovering = true; updatePointer(e); });
+  replay.addEventListener('click', () => { hovering = false; startTime = performance.now(); hint.textContent = 'Replaying camera behavior transfer'; });
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
